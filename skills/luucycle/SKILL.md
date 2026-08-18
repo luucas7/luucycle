@@ -13,6 +13,7 @@ An orchestration layer over the skills already installed in this repo. It decomp
 | Trigger | Branch | File |
 | --- | --- | --- |
 | normal request | Full orchestration flow (steps below) | `SKILL.md` |
+| "start", "begin", "démarrer", new feature | Kick off the alignment flow (grill → spec → tickets), then hand to the main flow | `START.md` |
 | "init", "bootstrap", fresh environment | Install the skill library, bootstrap the roster | `INIT.md` |
 | "add-cli", "add X" | Grow the roster with a new CLI/model | `ADD-CLI.md` |
 | "ask-lucas", lost | Which branch or flow fits? | `ASK-LUCAS.md` |

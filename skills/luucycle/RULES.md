@@ -22,6 +22,6 @@ Absolute. Read before anything else in a luucycle session. No rule here can be o
 
 10. **ROLES.md owns role → agent mapping.** `ROSTER.md` is the only authority on agent facts; `ROLES.md` is the only authority on which roles each agent serves. The `add-cli` branch updates both in the same pass — a change to one without the other is a violation.
 
-11. **Skill edits require `writing-great-skills`.** Loading it is mandatory before modifying any luucycle file (SKILL.md, RULES.md, ROSTER.md, ROLES.md, ADD-CLI.md, WARNINGS.md).
+11. **Skill edits require `writing-great-skills`.** Loading it is mandatory before modifying any luucycle file (SKILL.md, RULES.md, ROSTER.md, ROLES.md, ADD-CLI.md, WARNINGS.md, START.md, INIT.md, ASK-LUCAS.md).
 
 9. **Close the loop at session end.** When the session's work is settled and the user asks to close it (or explicitly asks to commit/close), commit the session's own changes (skill/doc updates) on the latest `v*` branch and close the issues the session resolved — with the results in the closing comment. Skill edits are written with `writing-great-skills`; the retrospective always notes any skill improvement made. The user's session-end request counts as the explicit commit ask.

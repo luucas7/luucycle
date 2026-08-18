@@ -9,6 +9,7 @@ A **branch** is an alternate path through luucycle. The main flow is the full or
 - **"I have work to orchestrate"** → **main flow** (`SKILL.md`): read `RULES.md` → check roster/roles (`ROSTER.md`, `ROLES.md`) → decompose + route (`ROUTING.md`) → present the task/skill/model table → wait for approval → dispatch → UI Gate → retrospective. Every run, same order.
 - **"Which skill owns this kind of work?"** → `ROUTING.md`. Route to the skill that owns the work; luucycle never reimplements a routed skill inline.
 - **"Which model for which task?"** → `ROLES.md`. Five roles (verifier, builder, architect, researcher, scaffolder), each an ordered eligible list — take the first `Accessible: true` agent.
+- **"New feature / I want to start something"** → **`start` branch** (`START.md`). Verifies prerequisites (Orca, skills, tracker), scripts `/grill-with-docs` → `/to-spec` → `/to-tickets` in one session, then hands off to the main flow with `/luucycle <parent ref>`.
 - **"Fresh environment / new machine / missing skills"** → **`init` branch** (`INIT.md`). Installs the skill library from the manifest (mattpocock, impeccable, orca), then bootstraps the roster.
 - **"New CLI / new model"** → **`add-cli` branch** (`ADD-CLI.md`). Propose → confirm → append to `ROSTER.md` + map into `ROLES.md`.
 - **"Roster is empty / nothing accessible"** → `add-cli`. An empty roster is blocking (RULES rule 9) — never dispatch on one.
