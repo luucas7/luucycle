@@ -16,6 +16,7 @@ An orchestration layer over the skills already installed in this repo. It decomp
 | "init", "bootstrap", fresh environment | Install the skill library, bootstrap the roster | `INIT.md` |
 | "add-cli", "add X" | Grow the roster with a new CLI/model | `ADD-CLI.md` |
 | "ask-lucas", lost | Which branch or flow fits? | `ASK-LUCAS.md` |
+| "sync", "publish", update the skill | Publish local skill edits to the canonical repo | `SYNC.md` |
 
 ## Steps
 
