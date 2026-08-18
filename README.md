@@ -28,7 +28,7 @@ Same process on every run (RULES rule 6): predictable orchestration, no improvis
 npx skills add luucas7/luucycle
 ```
 
-Works on any agent from the skills CLI. Use without installing: `npx skills use luucas7/luucycle --skill luucycle`.
+Make sure to initialize the skill environnement : `/luucycle init`.
 
 ## Commands (branches)
 
