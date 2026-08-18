@@ -18,7 +18,7 @@ Same process on every run (RULES rule 6): predictable orchestration, no improvis
 
 ## Requirements
 
-- **Orca runtime** (hard requirement) - luucycle coordinates workers through Orca's orchestration layer. Install the [Orca IDE](https://www.onorca.dev) (or run headless with `orca serve`), and **enable the orchestration feature in Settings**. Verify with `orca status --json` - it must show a running runtime. On Linux, the binary is `orca-ide`, never bare `orca` (GNOME screen reader conflict).
+- **Orca runtime** (hard requirement) - luucycle coordinates workers through Orca's orchestration layer. Install the [Orca IDE](https://www.onorca.dev). Enable the orchestration feature in Settings, then verify with `orca status --json` - it must show a running runtime. On Linux, the binary is `orca-ide`, never bare `orca` (GNOME screen reader conflict).
 - **The skills it orchestrates**: the [matt-pocock engineering set](https://github.com/mattpocock/skills) (grilling, spec, tickets, implement, ...), [impeccable](https://github.com/pbakaus/impeccable) (UI gate), and Orca's `orchestration` + `orca-cli` skills. The `init` branch installs all of this for you.
 - **A configured issue tracker** - `/setup-matt-pocock-skills` records where issues live (GitHub, local markdown under `.scratch/`, ...) in `docs/agents/issue-tracker.md`. Skills like `to-spec` and `to-tickets` read it.
 
