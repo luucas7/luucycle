@@ -8,6 +8,15 @@ disable-model-invocation: true
 
 An orchestration layer over the skills already installed in this repo. It decomposes a request into tasks, assigns each task a skill and a model from the roster, gets the plan approved, then dispatches workers.
 
+## Branches
+
+| Trigger | Branch | File |
+| --- | --- | --- |
+| normal request | Full orchestration flow (steps below) | `SKILL.md` |
+| "init", "bootstrap", fresh environment | Install the skill library, bootstrap the roster | `INIT.md` |
+| "add-cli", "add X" | Grow the roster with a new CLI/model | `ADD-CLI.md` |
+| "ask-lucas", lost | Which branch or flow fits? | `ASK-LUCAS.md` |
+
 ## Steps
 
 1. **Read the rules.** Open `RULES.md` and read it first, every run. Its rules are absolute and overrule everything below.

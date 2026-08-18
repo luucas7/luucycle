@@ -4,17 +4,19 @@ Branch of luucycle for **bootstrapping the skill library** in a fresh environmen
 
 ## Steps
 
-1. **Read the manifest.** The table below lists every skill luucycle needs (impeccable, orca-orchestration, the matt-pocock engineering set, etc.). It is intentionally empty — ask the user for each source (repo URL or `owner/repo` shorthand) and fill it in before running anything. Never guess a source.
+1. **Read the manifest.** The table below lists every skill luucycle needs, with its verified install command. Sources were verified against their official docs — keep them, or adjust when a source changes. Never guess a source that is not here; ask the user instead.
 
-| Source | Skill | Why |
+| Source | Install command | Why |
 | --- | --- | --- |
-|  |  |  |
+| `npx skills` (prereq) | `npx skills ...` | The skills installer itself (no setup needed — npx fetches it) |
+| `mattpocock/skills` | `npx skills add mattpocock/skills` (interactive: take the engineering + productivity sets, make sure `setup-matt-pocock-skills` is one of them) | spec/tickets/implement/tdd/code-review/grilling/triage/research and the rest of the engineering flow |
+| `pbakaus/impeccable` | `npx impeccable install` | The UI Gatekeeper (SKILL.md step 6) |
+| `stablyai/orca` | `npx skills add https://github.com/stablyai/orca --skill orchestration --global` | Mandatory worker orchestration (dispatches, `worker_done`) |
+| `stablyai/orca` | `npx skills add https://github.com/stablyai/orca --skill orca-cli --global` | Worktrees, terminals, full handoffs |
 
-2. **Install each entry.** For every filled row, run the CLI install for that source. The install commands themselves handle scope (project vs global, agent target, symlink vs copy) — do not decide for them, pass through what the user picks:
+   Gotchas: orca orchestration is an RPC layer over the Orca runtime — no GUI needed, but the runtime must be up (`orca status --json`, start with `orca open --json`; headless: `orca serve`). On Linux outside an Orca-managed terminal, the binary is `orca-ide`, never bare `orca` (GNOME screen reader). Headless hosts can use `orca skills install --skill orchestration` instead of `npx skills add`.
 
-```bash
-npx skills add <source> --skill <skill-name>
-```
+2. **Install each entry.** For every row, run the install command. The install commands themselves handle scope (project vs global, agent target, symlink vs copy) — do not decide for them, pass through what the user picks.
 
 3. **Verify.** Run `npx skills list` and confirm every manifest entry appears. Reinstall anything missing before moving on.
 

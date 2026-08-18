@@ -20,3 +20,4 @@ Works on any agent from the [skills CLI](https://github.com/vercel-labs/skills) 
 - `WARNINGS.md` — CLI failure modes observed on real runs
 - `ADD-CLI.md` — branch: grow the roster with a new CLI
 - `INIT.md` — branch: bootstrap the skill library in a fresh environment
+- `ASK-LUCAS.md` — branch: which branch or flow fits your situation
