@@ -1,6 +1,6 @@
 # luucycle Roles
 
-Single source of truth for role → agent mapping. A role = task type + ordered eligible agents + context template + output format. `ROSTER.md` holds agent facts (command, flags, cost) — never repeat them here. The `add-cli` branch (ADD-CLI.md step 6) appends agents to ROSTER.md **and** to the eligible lists below — both files stay in sync.
+Single source of truth for role → agent mapping. A role = task type + ordered eligible agents + context template + output format. `ROSTER.md` holds agent facts (command, flags, cost) - never repeat them here. The `add-cli` branch (ADD-CLI.md step 6) appends agents to ROSTER.md **and** to the eligible lists below - both files stay in sync.
 
 A role is always an ordered list, never a single agent: take the first `Accessible: true` agent on the list (fallback is silent, RULES rule 2). Agents may serve several roles.
 
