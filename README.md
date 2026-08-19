@@ -8,7 +8,7 @@ luucycle sits **on top of** the skills already installed in your repo - it never
 
 1. **Decompose** the request into tasks.
 2. **Route** each task to the skill that owns that kind of work (spec → `to-spec`, code → `implement`, UI → `impeccable`, ... see `ROUTING.md`).
-3. **Assign** each task a model from the roster (`ROSTER.md` / `ROLES.md`) - the worker agents you approved.
+3. **Assign** each task a model from the roster (`.agents/luucycle/ROSTER.md` / `.agents/luucycle/ROLES.md` at the repo root) - the worker agents you approved.
 4. **Confirm** the task/skill/model plan with you before any work starts.
 5. **Dispatch** one worker per task through Orca's orchestration layer.
 6. **Gate** UI work through impeccable, the Gatekeeper.
@@ -39,7 +39,7 @@ luucycle has one main flow and several branches - alternate paths for specific s
 | *(a normal request)* | Decompose → route → assign a model → plan approval → dispatch → UI gate → retrospective | `/luucycle` + any plain request, e.g. "build the onboarding flow" |
 | `/luucycle start` - "begin" / "démarrer" / new feature | Kick off a fresh feature: verify prerequisites (Orca, skills, tracker), then script `/grill-with-docs` → `/to-spec` → `/to-tickets` in one session, and hand over to the main flow with `/luucycle <parent ref>` | `/luucycle start` |
 | `/luucycle init` - "bootstrap" / fresh environment | Install the skill library (mattpocock, impeccable, orca skills), run `/impeccable init`, bootstrap the roster | `/luucycle init` |
-| `/luucycle add-cli` - "add X" | Grow the roster with a new CLI or model: discover, propose, confirm, append to `ROSTER.md` + map into `ROLES.md` | `/luucycle add-cli` |
+| `/luucycle add-cli` - "add X" | Grow the roster with a new CLI or model: discover, propose, confirm, append to `.agents/luucycle/ROSTER.md` + map into `.agents/luucycle/ROLES.md` (repo root) | `/luucycle add-cli` |
 | `/luucycle ask-lucas` - lost | Which branch or flow fits your situation | `/luucycle ask-lucas` |
 
 ## The flow at a glance
@@ -74,7 +74,6 @@ Installed copies must come from `npx skills add luucas7/luucycle` (symlink insta
 - `ADD-CLI.md` - roster growth branch
 - `ASK-LUCAS.md` - router branch
 - `ROUTING.md` - which skill owns which kind of work
-- `ROSTER.md` - available worker agents (facts only: command, flags, cost) - empty by default, filled by `add-cli`
-- `ROLES.md` - role → agent mapping (verifier, builder, architect, researcher, scaffolder)
+- `.agents/luucycle/ROSTER.md` / `.agents/luucycle/ROLES.md` - **user data** at the repo root, never inside the skill (`npx skills update` wipes `.agents/skills/luucycle/`); seeded by `add-cli`
 - `RULES.md` - absolute behavioural rules
 - `WARNINGS.md` - CLI failure modes observed on real runs

@@ -28,6 +28,6 @@ Branch of luucycle for **bootstrapping the skill library** in a fresh environmen
 
 5. **Verify.** Run `npx skills list` and confirm every manifest entry appears. Reinstall anything missing before moving on.
 
-6. **Bootstrap the roster.** Run the `add-cli` branch (ADD-CLI.md) for each newly installed CLI the user wants in the roster. An empty roster is blocking (RULES rule 9) - never finish init with zero `Accessible: true` agents and no add-cli run.
+6. **Bootstrap the roster.** Run the `add-cli` branch (ADD-CLI.md) for each newly installed CLI the user wants in the roster (it creates `.agents/luucycle/` at the repo root if absent). An empty roster is blocking (RULES rule 9) - never finish init with zero `Accessible: true` agents and no add-cli run.
 
-**Completion criterion:** Orca runtime confirmed up with orchestration enabled (or the user explicitly deferred the Settings check), every manifest row is either installed and visible in `skills list` or explicitly dropped by the user, `/impeccable init` ran (or was explicitly deferred by the user), every CLI the user wants on the roster has been through `add-cli`, and `ROSTER.md` has at least one `Accessible: true` agent (or the user accepted an empty roster for a later run).
+**Completion criterion:** Orca runtime confirmed up with orchestration enabled (or the user explicitly deferred the Settings check), every manifest row is either installed and visible in `skills list` or explicitly dropped by the user, `/impeccable init` ran (or was explicitly deferred by the user), every CLI the user wants on the roster has been through `add-cli`, and `.agents/luucycle/ROSTER.md` (repo root) has at least one `Accessible: true` agent (or the user accepted an empty roster for a later run).
