@@ -4,7 +4,7 @@ The skill that owns each kind of work:
 
 | Intent | Skill |
 | --- | --- |
-| Coordinate workers, DAGs, handoffs | `orca-orchestration` (MANDATORY) |
+| Coordinate workers, DAGs | `orca-orchestration` (MANDATORY) |
 | UI design, fix, review | `impeccable` (Gatekeeper) |
 | Request → spec | `to-spec` |
 | Spec → tickets | `to-tickets` |
@@ -21,6 +21,5 @@ The skill that owns each kind of work:
 | Research against sources | `research` |
 | Triage an issue | `triage` |
 | Hand off work | `handoff` |
-| Write / edit a skill | `writing-great-skills` |
 
 Route to any other installed matt-pocock skill the way its own description dictates.

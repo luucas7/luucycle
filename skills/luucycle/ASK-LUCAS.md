@@ -13,7 +13,6 @@ A **branch** is an alternate path through luucycle. The main flow is the full or
 - **"Fresh environment / new machine / missing skills"** → **`init` branch** (`INIT.md`). Installs the skill library from the manifest (mattpocock, impeccable, orca), then bootstraps the roster.
 - **"New CLI / new model"** → **`add-cli` branch** (`ADD-CLI.md`). Propose → confirm → append to `.agents/luucycle/ROSTER.md` + map into `.agents/luucycle/ROLES.md`.
 - **"Roster is empty / nothing accessible"** → `add-cli`. An empty roster is blocking (RULES rule 9) - never dispatch on one.
-- **"Edit this skill"** → load `writing-great-skills` first (RULES rule 11). Mandatory.
 - **"Something failed on a run"** → `.agents/luucycle/WARNINGS.md` (repo root). Known failure modes and the behaviour that avoids them - read it before the first dispatch.
 
 ## Hard rules that survive any branch

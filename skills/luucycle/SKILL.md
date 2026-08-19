@@ -1,12 +1,12 @@
 ---
 name: luucycle
-description: Orchestrator layer that decomposes a request, routes each task to the right skill, and dispatches workers on the best model from the roster.
+description: Orchestrator layer that decomposes a request, routes each task to the right skill, and dispatches workers on a model from the roster.
 disable-model-invocation: true
 ---
 
 # luucycle
 
-An orchestration layer over the skills already installed in this repo. It decomposes a request into tasks, assigns each task a skill and a model from the roster, gets the plan approved, then dispatches workers.
+An orchestration layer over the skills already installed in this repo: decompose a request into tasks, assign each a skill and a roster model, get the plan approved, then dispatch workers.
 
 ## Branches
 
@@ -28,11 +28,11 @@ An orchestration layer over the skills already installed in this repo. It decomp
    - **Mandatory orchestration:** You MUST use the Orca orchestration skill (`orca-orchestration`) for coordinating workers.
    - **Fallback:** If the ideal model has `Accessible: false`, silently take the second best alternative without prompting.
 
-4. **Confirm the plan.** Show a table of the tasks, the skill, and the model assigned to each. Wait for the user's explicit approval before doing any work. This is an absolute rule.
+4. **Confirm the plan.** RULES rule 1: present the task/skill/model table and wait for the user's explicit approval before any work.
 
-5. **Load the skills, then dispatch.** Load the required skills so their instructions are in context. Read `.agents/luucycle/WARNINGS.md` (repo root) before the first `orca` command or any dispatch on a model you have not run recently - its failure modes (delivery acks, stalled workers, agy/cline quirks) apply from the first dispatch on. Then spawn one worker per task via the command and flags defined in the roster. Never do inline what a routed skill defines. Editing this skill itself is routed too: load `writing-great-skills` before touching any luucycle file (RULES rule 11).
+5. **Load the skills, then dispatch.** Load the required skills so their instructions are in context. Read `.agents/luucycle/WARNINGS.md` (repo root) before the first `orca` command or any dispatch on a model you have not run recently - its failure modes (delivery acks, stalled workers, agy/cline quirks) apply from the first dispatch on. Then spawn one worker per task via the command and flags defined in the roster. Never do inline what a routed skill defines.
 
-6. **Gatekeeper (UI Gate).** For any task touching the interface, invoke `impeccable` on the result. The Gatekeeper's Verdict is absolute on the final state: the task is not done until the Gatekeeper approves the UI.
+6. **Gatekeeper (UI Gate).** RULES rule 4: any interface-touching task ends at the impeccable Gatekeeper. The Gatekeeper's Verdict is absolute on the final state: the task is not done until it approves the UI.
    - **One gate per final state.** Review the diff only once it is fully merged; a verdict on an intermediate state is stale and must be discarded. After a CHANGES REQUIRED verdict, dispatch exactly one fix worker, then re-gate on the updated diff. Before trusting any gate verdict, confirm its report references code that still exists in the file (a report with dead line numbers is a replay, not a review).
    - **One fresh terminal per gate pass.** Re-using a gate worker's terminal replays its previous conversation and can re-emit the old verdict. Create a new terminal for every re-gate.
 

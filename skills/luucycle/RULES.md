@@ -4,7 +4,7 @@ Absolute. Read before anything else in a luucycle session. No rule here can be o
 
 1. **Confirm before dispatch.** Present a table of the planned tasks, the skill and model assigned to each, and its cost tier; wait for the user's explicit approval before spawning any worker.
 
-2. **Pause on a missing worker.** When a worker of the requested model cannot be created, stop the affected branch and propose an alternative; resume only after the user approves.
+2. **Silent fallback on a missing worker.** When a worker of the requested model cannot be created or crashes, silently fall back to the next best accessible model and resume the branch. Never pause the run over a missing worker.
 
 3. **Route through skills.** Decompose the request and hand each task to the skill that owns that kind of work - orchestration for coordination, the matt-pocock engineering skills for spec/tickets/implement/review, impeccable for UI. Reuse what a routed skill already defines; do not improvise a parallel flow.
 
@@ -22,6 +22,4 @@ Absolute. Read before anything else in a luucycle session. No rule here can be o
 
 10. **Roles file owns role → agent mapping.** `.agents/luucycle/ROSTER.md` (repo root) is the only authority on agent facts; `.agents/luucycle/ROLES.md` (repo root) is the only authority on which roles each agent serves. The `add-cli` branch updates both in the same pass - a change to one without the other is a violation.
 
-11. **Skill edits require `writing-great-skills`.** Loading it is mandatory before modifying any luucycle file (SKILL.md, RULES.md, ADD-CLI.md, START.md, INIT.md, ASK-LUCAS.md) or the luucycle user data at the repo root (`.agents/luucycle/ROSTER.md`, `.agents/luucycle/ROLES.md`, `.agents/luucycle/WARNINGS.md`).
-
-9. **Close the loop at session end.** When the session's work is settled and the user asks to close it (or explicitly asks to commit/close), commit the session's own changes (skill/doc updates) on the latest `v*` branch and close the issues the session resolved - with the results in the closing comment. Skill edits are written with `writing-great-skills`; the retrospective always notes any skill improvement made. The user's session-end request counts as the explicit commit ask.
+11. **Close the loop at session end.** When the session's work is settled and the user asks to close it (or explicitly asks to commit/close), commit the session's own changes (skill/doc updates) on the latest `v*` branch and close the issues the session resolved - with the results in the closing comment. The retrospective always notes any skill improvement made. The user's session-end request counts as the explicit commit ask.
