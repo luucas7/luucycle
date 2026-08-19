@@ -74,6 +74,5 @@ Installed copies must come from `npx skills add luucas7/luucycle` (symlink insta
 - `ADD-CLI.md` - roster growth branch
 - `ASK-LUCAS.md` - router branch
 - `ROUTING.md` - which skill owns which kind of work
-- `.agents/luucycle/ROSTER.md` / `.agents/luucycle/ROLES.md` - **user data** at the repo root, never inside the skill (`npx skills update` wipes `.agents/skills/luucycle/`); seeded by `add-cli`
+- `.agents/luucycle/ROSTER.md` / `.agents/luucycle/ROLES.md` / `.agents/luucycle/WARNINGS.md` - **user data** at the repo root, never inside the skill (`npx skills update` wipes `.agents/skills/luucycle/`); seeded by `add-cli`
 - `RULES.md` - absolute behavioural rules
-- `WARNINGS.md` - CLI failure modes observed on real runs

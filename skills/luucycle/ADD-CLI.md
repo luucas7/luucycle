@@ -22,7 +22,7 @@ Branch of luucycle for **growing the roster**. Runs instead of the normal orches
 
 ## Skeletons (seed `.agents/luucycle/` if absent)
 
-When `.agents/luucycle/` is missing at the repo root, create it with these two files before appending.
+When `.agents/luucycle/` is missing at the repo root, create it with these files before appending.
 
 `.agents/luucycle/ROSTER.md`:
 
@@ -50,6 +50,16 @@ Single source of truth for role → agent mapping. A role = task type + ordered 
 | `architect` | complex reasoning, systemic refactors, deep debugging | full context + constraints + stakes | plan: approach, files, risks, effort | |
 | `researcher` | huge contexts, full-codebase audits, API docs | documents / codebase to absorb + question | synthesis with precise answers and sources | |
 | `scaffolder` | boilerplate, scripts, docs, zero-shot easy tasks | raw spec only, no history | delivered files + one-line summary | |
+```
+
+`.agents/luucycle/WARNINGS.md`:
+
+```md
+# luucycle WARNINGS
+
+CLI- and model-specific failure modes observed on real runs. Read before long waits or dispatch. Each entry: symptom → cause → behaviour that avoids it. Where the response is already a SKILL.md step rule, the entry points to that step instead of restating it — the steps are the single source of truth for behaviour.
+
+_None yet._
 ```
 
 ## Gotchas
