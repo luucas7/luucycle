@@ -4,7 +4,7 @@ Branch of luucycle for **growing the roster**. Run it only for `/luucycle add-cl
 
 ## Steps
 
-1. **Locate the CLI.** Confirm the binary exists (`which <cmd>`) and record its version (`<cmd> --version`). If it is not on PATH, stop and ask for the path or install command.
+1. **Locate the CLI.** Resolve the binary with `command -v <cmd>`. If it is not on PATH, stop and ask for the path or install command.
 
 2. **Read its docs.** Run `<cmd> --help` plus relevant subcommand help (`models`, `auth`, `config`, `agent`). Inspect only documented text configuration files needed to identify model selection; skip credentials, tokens, auth stores, histories, and unrelated files.
    - **Completion criterion:** you can state how this CLI selects a model (flag, subcommand, picker, config-only) and how permissions are bypassed - or you can state that it can do neither.

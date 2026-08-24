@@ -4,7 +4,7 @@ Hard guardrails for every luucycle branch. User instructions and higher-priority
 
 1. **Implementation is explicit.** Only `/luucycle implement <ref|request>` authorizes implementation planning or worker dispatch. Bare `/luucycle`, `/luucycle ask-lucas`, and any invocation without the `implement` subcommand route to `ASK-LUCAS.md` and remain advisory. Never infer authorization from the request's wording.
 
-2. **Confirm before dispatch.** Wait for explicit approval of the plan defined in `IMPLEMENT.md` step 4 before spawning any worker.
+2. **Confirm before dispatch.** Wait for explicit approval in `IMPLEMENT.md`'s confirmation step before spawning any worker.
 
 3. **Bounded, approved fallback.** The approved plan names each task's primary worker and at most one fallback. Use that fallback only when it is accessible, has the same permission profile, and does not exceed the approved cost tier. Otherwise pause the task and request approval. Report every fallback in the final receipt.
 

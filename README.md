@@ -79,6 +79,7 @@ Installed copies must come from `npx skills add luucas7/luucycle` (symlink insta
 - `SKILL.md` - command router + implementation authorization boundary
 - `ASK-LUCAS.md` - safe default that audits readiness and recommends the next command without dispatching
 - `DOCTOR.md` - non-mutating installation and roster health check
+- `DOCTOR-REPORT.md` - full report format loaded only by explicit Doctor
 - `IMPLEMENT.md` - explicit implementation orchestration flow
 - `START.md` - new-feature kick-off branch (grill → spec → tickets → `implement`)
 - `INIT.md` - bootstrap branch

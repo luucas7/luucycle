@@ -18,7 +18,7 @@ Branch of luucycle for **bootstrapping the skill library** in a fresh environmen
 | `npx skills` (prereq) | `npx skills ...` | The skills installer itself (no setup needed - npx fetches it) |
 | Orca (REQUIRED - step 1) | Orca IDE, or the resolved executable's `serve` command for headless use | The coordination runtime; luucycle cannot dispatch without it |
 | `mattpocock/skills` | `npx skills@latest add mattpocock/skills` (interactive: take the engineering + productivity sets, make sure `setup-matt-pocock-skills` is one of them) | spec/tickets/implement/tdd/code-review/grilling/triage/research and the rest of the engineering flow |
-| `pbakaus/impeccable` | `npx impeccable install` | The UI Gatekeeper (`IMPLEMENT.md` step 6) |
+| `pbakaus/impeccable` | `npx impeccable install` | The UI Gatekeeper (`IMPLEMENT.md` Gatekeeper step) |
 | `stablyai/orca` | `npx skills add https://github.com/stablyai/orca --skill orchestration --global` | Mandatory worker orchestration (dispatches, `worker_done`) |
 | `stablyai/orca` | `npx skills add https://github.com/stablyai/orca --skill orca-cli --global` | Worktrees, terminals, full handoffs |
 
