@@ -44,18 +44,19 @@ Examples use `/luucycle`. In Codex, `$luucycle` is equivalent (`$luucycle implem
 | `/luucycle ask-lucas` | Explicitly open the same audit-backed advisory router | `/luucycle ask-lucas` |
 | `/luucycle doctor` | Check Orca, skills, tracker/design setup, roster, roles, and every accessible CLI without changing state | `/luucycle doctor` |
 | `/luucycle implement <ref|request>` | Decompose → route → assign a model → plan approval → dispatch → UI gate → retrospective | `/luucycle implement #42` |
-| `/luucycle start` | Kick off a fresh feature: verify prerequisites, then script `/grill-with-docs` → `/to-spec` → `/to-tickets` in one session, and hand over to `implement` | `/luucycle start` |
+| `/luucycle prepare` | Prepare a fresh feature: verify prerequisites, then script `/grill-with-docs` → `/to-spec` → `/to-tickets` in one session, and hand over to `implement` | `/luucycle prepare` |
 | `/luucycle init` | Install the skill library (mattpocock, impeccable, orca skills), run `/impeccable init`, bootstrap the roster | `/luucycle init` |
-| `/luucycle add-cli` | Grow the roster with a new CLI or model: discover, propose, confirm, append to `.agents/luucycle/ROSTER.md` + map into `.agents/luucycle/ROLES.md` (repo root) | `/luucycle add-cli` |
+| `/luucycle roster list` | List each current agent with its CLI, model, cost, accessibility, roles, and verification date without probing it | `/luucycle roster list` |
+| `/luucycle roster add` | Grow the roster with a new CLI or model: discover, propose, confirm, append to `.agents/luucycle/ROSTER.md` + map into `.agents/luucycle/ROLES.md` (repo root) | `/luucycle roster add` |
 
 Invocations such as `/luucycle build the onboarding flow` do not implement. Ask Lucas recommends the explicit equivalent: `/luucycle implement "build the onboarding flow"`.
 
 ## The flow at a glance
 
-The `start` branch is the entry point for new work that still needs alignment. It lines up the alignment skills, then the explicit `implement` branch takes over:
+The `prepare` branch is the entry point for new work that still needs alignment. It lines up the alignment skills, then the explicit `implement` branch takes over:
 
 ```
-/luucycle start                 new feature kick-off
+/luucycle prepare               prepare a new feature
    └─ /grill-with-docs          align the design, build shared vocabulary (same session)
       └─ /to-spec               spec → tracker; becomes the parent issue (same session)
          └─ /to-tickets         tracer-bullet tickets with blocking edges (same session)
@@ -81,12 +82,13 @@ Installed copies must come from `npx skills add luucas7/luucycle` (symlink insta
 - `DOCTOR.md` - non-mutating installation and roster health check
 - `DOCTOR-REPORT.md` - full report format loaded only by explicit Doctor
 - `IMPLEMENT.md` - explicit implementation orchestration flow
-- `START.md` - new-feature kick-off branch (grill → spec → tickets → `implement`)
+- `PREPARE.md` - new-feature preparation branch (grill → spec → tickets → `implement`)
 - `INIT.md` - bootstrap branch
-- `ADD-CLI.md` - roster growth branch
+- `ROSTER-LIST.md` - current roster view
+- `ROSTER-ADD.md` - roster growth branch
 - `ROUTING.md` - which skill owns which kind of work
 - `ROSTER-FORMAT.md` - canonical roster snapshots, roles table, and warnings skeleton
 - `scripts/check_roster.py` - deterministic roster/snapshot/role validation used by Doctor
 - `agents/openai.yaml` - Codex UI metadata and explicit-only invocation policy
-- `.agents/luucycle/ROSTER.md` / `.agents/luucycle/ROLES.md` / `.agents/luucycle/WARNINGS.md` - **user data** at the repo root, never inside the skill (`npx skills update` wipes `.agents/skills/luucycle/`); seeded by `add-cli`
+- `.agents/luucycle/ROSTER.md` / `.agents/luucycle/ROLES.md` / `.agents/luucycle/WARNINGS.md` - **user data** at the repo root, never inside the skill (`npx skills update` wipes `.agents/skills/luucycle/`); seeded by `roster add`
 - `RULES.md` - shared authorization and execution guardrails

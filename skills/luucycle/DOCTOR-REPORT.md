@@ -18,7 +18,7 @@ Then report these readiness scopes:
 Use the readiness states defined in `DOCTOR.md` and state which tasks remain runnable. For every gap, give the smallest applicable repair command:
 
 - runtime or skills → `/luucycle init`, or start Orca when installed but stopped;
-- roster or CLI → `/luucycle add-cli`;
+- roster or CLI → `/luucycle roster add`;
 - tracker → `/setup-matt-pocock-skills`;
 - impeccable context → `/impeccable init`.
 

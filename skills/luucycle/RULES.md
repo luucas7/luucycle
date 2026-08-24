@@ -20,10 +20,10 @@ Hard guardrails for every luucycle branch. User instructions and higher-priority
 
 9. **Workers receive their routed skill.** Every dispatch names the routed skill and tells the worker how to load it. A worker that cannot access the skill is not ready for that task.
 
-10. **Empty roster is blocking.** With zero `Accessible: true` agents, stop the implementation run, signal the empty roster, and propose `/luucycle add-cli`. Never dispatch, never improvise entries.
+10. **Empty roster is blocking.** With zero `Accessible: true` agents, stop the implementation run, signal the empty roster, and propose `/luucycle roster add`. Never dispatch, never improvise entries.
 
-11. **Roles file owns role → agent mapping.** `.agents/luucycle/ROSTER.md` (repo root) is the only authority on agent facts; `.agents/luucycle/ROLES.md` (repo root) is the only authority on which roles each agent serves. The `add-cli` branch updates both in the same pass - a change to one without the other is a violation.
+11. **Roles file owns role → agent mapping.** `.agents/luucycle/ROSTER.md` (repo root) is the only authority on agent facts; `.agents/luucycle/ROLES.md` (repo root) is the only authority on which roles each agent serves. The `roster add` branch updates both in the same pass - a change to one without the other is a violation.
 
 12. **Close only what was authorized.** Commit only when the user explicitly asks for a commit. Close only issues the user explicitly names or has already authorized for closure. Include the results in any authorized closing comment.
 
-13. **Diagnostics do not mutate.** `/luucycle doctor` and the health check inside Ask Lucas may inspect files and run free diagnostic commands only. They never install, update, start services, edit configuration or roster state, dispatch workers, or call a model. They report evidence and the smallest explicit repair command.
+13. **Read-only branches do not mutate.** `/luucycle doctor`, `/luucycle roster list`, and the health check inside Ask Lucas may inspect files and run free diagnostic commands only. They never install, update, start services, edit configuration or roster state, dispatch workers, or call a model. They report evidence and the smallest explicit repair command.

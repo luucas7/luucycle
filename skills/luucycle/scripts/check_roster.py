@@ -225,8 +225,23 @@ def validate(repo_root: Path) -> dict[str, object]:
     if not accessible:
         errors.append("zero accessible agents")
 
+    agents = []
+    for agent_id, snapshot in sorted(current.items()):
+        agents.append(
+            {
+                "agent_id": agent_id,
+                "cli": snapshot.get("CLI", ""),
+                "model": snapshot.get("Model", ""),
+                "cost": snapshot.get("Cost", ""),
+                "accessible": snapshot.get("Accessible", ""),
+                "roles": [role for role, agent_ids in roles.items() if agent_id in agent_ids],
+                "verified": snapshot.get("Verified", ""),
+            }
+        )
+
     return {
         "status": "FAIL" if errors else "WARN" if warnings else "PASS",
+        "agents": agents,
         "current_agents": sorted(current),
         "accessible_agents": accessible,
         "roles": roles,
@@ -290,7 +305,19 @@ def self_test() -> None:
         (roster_dir / "ROLES.md").write_text(
             f"# luucycle Roles\n\n{ROLES_HEADER}\n| --- | --- | --- | --- | --- |\n{all_role_rows}\n"
         )
-        assert validate(root)["status"] == "PASS", validate(root)
+        result = validate(root)
+        assert result["status"] == "PASS", result
+        assert result["agents"] == [
+            {
+                "agent_id": "codex:gpt-test",
+                "cli": "Codex",
+                "model": "gpt-test",
+                "cost": "medium",
+                "accessible": "true",
+                "roles": list(REQUIRED_ROLES),
+                "verified": "2026-08-22; local help",
+            }
+        ], result
 
         (roster_dir / "ROLES.md").write_text(
             f"# luucycle Roles\n\n{ROLES_HEADER}\n| --- | --- | --- | --- | --- |\n"

@@ -1,6 +1,6 @@
-# luucycle start
+# luucycle prepare
 
-Branch of luucycle for **kicking off fresh work**. The user invokes `grill-with-docs`, `to-spec`, and `to-tickets` in one conversation; implementation starts in a fresh conversation.
+Branch of luucycle for **preparing fresh work**. The user invokes `grill-with-docs`, `to-spec`, and `to-tickets` in one conversation; implementation starts in a fresh conversation.
 
 ## Steps
 

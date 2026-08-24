@@ -15,9 +15,10 @@ Route explicit luucycle commands to the matching branch. Treat `/luucycle` and `
 | `/luucycle doctor` | Run the complete non-mutating readiness audit | [DOCTOR.md](DOCTOR.md) |
 | `/luucycle implement <ref\|request>` | Decompose, route, confirm, and dispatch implementation | [IMPLEMENT.md](IMPLEMENT.md) |
 | `/luucycle implement` without an argument | Ask for the missing reference or request | [ASK-LUCAS.md](ASK-LUCAS.md) |
-| `/luucycle start` | Kick off alignment, then hand over to `implement` | [START.md](START.md) |
+| `/luucycle prepare` | Prepare aligned, ticketed work, then hand over to `implement` | [PREPARE.md](PREPARE.md) |
 | `/luucycle init` | Install the skill library and bootstrap the roster | [INIT.md](INIT.md) |
-| `/luucycle add-cli` | Add a CLI/model to the roster | [ADD-CLI.md](ADD-CLI.md) |
+| `/luucycle roster list` | Show current agents, models, accessibility, and roles | [ROSTER-LIST.md](ROSTER-LIST.md) |
+| `/luucycle roster add` | Add a CLI/model to the roster | [ROSTER-ADD.md](ROSTER-ADD.md) |
 | anything else | Explain the valid commands and recommend one | [ASK-LUCAS.md](ASK-LUCAS.md) |
 
 Read [RULES.md](RULES.md), then read and execute exactly the branch selected above. `RULES.md` owns the authorization boundary.

@@ -1,6 +1,6 @@
-# luucycle add-cli
+# luucycle roster add
 
-Branch of luucycle for **growing the roster**. Run it only for `/luucycle add-cli`; otherwise `ASK-LUCAS.md` may recommend it. The roster is the single source of truth for available workers; add entries only through this flow.
+Branch of luucycle for **growing the roster**. Run it only for `/luucycle roster add`; otherwise `ASK-LUCAS.md` may recommend it. The roster is the single source of truth for available workers; add entries only through this flow.
 
 ## Steps
 

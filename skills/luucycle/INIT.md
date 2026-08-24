@@ -30,7 +30,7 @@ Branch of luucycle for **bootstrapping the skill library** in a fresh environmen
 
 5. **Verify runtime, skills, and project setup.** Run checks 1–3 from `DOCTOR.md`. Retry an approved failed install command at most once; if verification still fails, stop with the evidence. Roster failures are expected until step 6.
 
-6. **Bootstrap the roster.** Run the `add-cli` branch (ADD-CLI.md) for each newly installed CLI the user wants in the roster (it creates `.agents/luucycle/` at the repo root if absent). An empty roster is blocking (RULES rule 10) - never finish init with zero `Accessible: true` agents and no add-cli run.
+6. **Bootstrap the roster.** Run the `roster add` branch ([ROSTER-ADD.md](ROSTER-ADD.md)) for each newly installed CLI the user wants in the roster (it creates `.agents/luucycle/` at the repo root if absent). An empty roster is blocking (RULES rule 10) - never finish init with zero `Accessible: true` agents and no `roster add` run.
 
 7. **Run the final audit.** Run all of `DOCTOR.md` after roster bootstrap and report its three readiness scopes.
 

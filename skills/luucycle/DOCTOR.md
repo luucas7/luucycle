@@ -23,7 +23,7 @@ For the requested scope, use `READY` when every required check passes, `DEGRADED
 
 1. **Orca runtime.** Read the installed `orchestration` skill, resolve its executable once, and reuse it. When that skill is missing, use the safe bootstrap order from `INIT.md`; on Linux outside a managed terminal, never run bare `orca`. Verify the selected executable resolves, `status --json` reports runtime state, and `skills get orchestration` returns the version-matched guide.
 
-2. **Skill library.** Inspect the agent's exposed skill catalog and installed local/global skill directories. Use an already-installed `skills` executable when available; do not invoke `npx`, download packages, or update caches during diagnostics. Task scope verifies only required capabilities. Complete scope inventories `ROUTING.md`, `START.md`, and `INIT.md`; missing unused capabilities are `WARN`. An either/or entry passes when one alternative is available.
+2. **Skill library.** Inspect the agent's exposed skill catalog and installed local/global skill directories. Use an already-installed `skills` executable when available; do not invoke `npx`, download packages, or update caches during diagnostics. Task scope verifies only required capabilities. Complete scope inventories `ROUTING.md`, `PREPARE.md`, `ROSTER-ADD.md`, `ROSTER-LIST.md`, and `INIT.md`; missing unused capabilities are `WARN`. An either/or entry passes when one alternative is available.
 
 3. **Project setup.** Check `docs/agents/issue-tracker.md` only for feature alignment or tracker-backed work. Check impeccable's documented design-context paths only for UI work. Complete scope reports both.
 
