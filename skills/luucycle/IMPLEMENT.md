@@ -8,13 +8,19 @@ The router selects this branch for `/luucycle implement <ref|request>`. The argu
 
 1. **Read the rules.** Open `RULES.md` first; it owns the shared luucycle guardrails.
 
-2. **Check task readiness.** Run Doctor's Task scope and require **Implementation** to be `READY` for this request. Stop on `BLOCKED` or `UNKNOWN`; `DEGRADED` may continue only when every gap is unrelated to the request. Report the smallest repair command instead of repairing setup inline.
+2. **Check task readiness.** Run Doctor's Task scope in the [implicit mode defined by DOCTOR.md](DOCTOR.md#output-modes), and require **Implementation** to be `READY` for this request. Stop on `BLOCKED` or `UNKNOWN`; `DEGRADED` may continue only when every gap is unrelated to the request. Report the smallest repair command instead of repairing setup inline.
 
-3. **Decompose and assign.** Break the request into tasks and route each through [ROUTING.md](ROUTING.md). Read `.agents/luucycle/ROLES.md`; for each task, choose the role whose `When` criterion matches the work and record that choice. When several roles match, choose the narrowest one and explain the decision in the plan. Select the first accessible current roster snapshot for that role and at most one eligible fallback. Confirm both workers can access the routed skill.
+3. **Decompose and assign.** Break the request into tasks and route each through [ROUTING.md](ROUTING.md). Read `.agents/luucycle/ROLES.md`; for each task, choose the role whose `When` criterion matches the work and record that choice in the internal assignment record. When several roles match, choose the narrowest one and record the rationale there. Select the first accessible current roster snapshot for that role and at most one eligible fallback. Confirm both workers can access the routed skill.
    - **Mandatory orchestration:** use the `orchestration` skill and its version-matched guide for coordination.
    - **Bounded fallback:** a fallback is eligible only under RULES rule 3; otherwise leave it blank.
 
-4. **Confirm the plan.** Present task, routed skill, primary worker/cost, fallback worker/cost, permission profile, and completion criterion. Wait for explicit approval before dispatch.
+4. **Confirm the plan.** After a successful implicit Doctor, present exactly one user-facing table of tasks and assigned models:
+
+   | Task | Assigned model |
+   | --- | --- |
+   | ... | ... |
+
+   Follow this table with the required approval gate and wait for explicit approval before dispatch. Keep the internal assignment record for worker contracts, fallback guardrails, and the final exhaustive receipt.
 
 5. **Dispatch with a skill contract.** Read the `orchestration` skill and fetch its version-matched guide before coordination. Read `.agents/luucycle/WARNINGS.md` before dispatch. Every worker request includes the exact task, routed skill identifier and accessible location/invocation, required context, completion criterion, and role output format. Require the worker receipt to name the skill it loaded; pause the task when it cannot load that skill.
 

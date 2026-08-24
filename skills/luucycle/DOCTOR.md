@@ -12,6 +12,11 @@ Doctor is read-only: inspect files, run free diagnostic commands, and report evi
 
 Ask Lucas uses Core or Task. `/luucycle implement <ref|request>` uses Task. Explicit `/luucycle doctor` uses Complete.
 
+## Output modes
+
+- **Explicit `/luucycle doctor`:** the only user-facing mode that prints the full report below, including the checks table and readiness statuses.
+- **Implicit Task (`/luucycle implement`):** keep audit evidence and readiness internal. When the Task scope passes, emit no Doctor output and continue to planning. If any check is `FAIL`, announce only each failed check and what failed, then stop; do not print passing rows, the full checks table, or readiness tables.
+
 ## Checks
 
 1. **Orca runtime.** Read the installed `orchestration` skill, resolve its executable once, and reuse it. When that skill is missing, use the safe bootstrap order from `INIT.md`; on Linux outside a managed terminal, never run bare `orca`. Verify the selected executable resolves, its version command succeeds, `status --json` reports runtime state, and `skills get orchestration` returns the version-matched guide.
@@ -28,9 +33,9 @@ Ask Lucas uses Core or Task. `/luucycle implement <ref|request>` uses Task. Expl
    - verify the declared Model Flag and Bypass Flag appear in that CLI's help, unless the roster explicitly records `none` with a reason;
    - never run a model prompt to test a flag. A missing binary or contradicted flag is `FAIL` for a selected worker and `WARN` when unrelated to the current task.
 
-## Report
+## Explicit report
 
-Present one compact table:
+For explicit `/luucycle doctor`, present one compact table:
 
 | Component | Status | Evidence | Next action |
 | --- | --- | --- | --- |
