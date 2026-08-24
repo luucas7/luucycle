@@ -14,16 +14,28 @@ Branch of luucycle for **growing the roster**. Run it only for `/luucycle roster
 
 4. **Propose the three best.** Pick up to three models across cost tiers: high (sharpest), medium (best value), and low (bulk/verification). Each proposal carries every field required by [ROSTER-FORMAT.md](ROSTER-FORMAT.md), a first role it can serve, and the source/date used for cost and model availability. Do not duplicate an agent already eligible for that role.
 
-5. **Confirm before writing.** Present the exact roster snapshots and role changes, then wait for explicit approval. A billed model probe requires separate approval immediately before the call.
+5. **Confirm before writing.** Present the exact roster entries and role changes, then wait for explicit approval. A billed model probe requires separate approval immediately before the call.
 
-6. **Append the approved state.** Create missing files from [ROSTER-FORMAT.md](ROSTER-FORMAT.md), append each approved snapshot to `.agents/luucycle/ROSTER.md`, and update the approved role lists in `.agents/luucycle/ROLES.md`. Corrections append a snapshot with `Supersedes`; they do not rewrite history.
+6. **Plan and apply the approved state.** Encode the approved entries and complete replacement role lists as the proposal JSON described in [ROSTER-FORMAT.md](ROSTER-FORMAT.md), then run:
 
-7. **Verify roster health.** Run the roster and accessible-CLI checks in `DOCTOR.md`. Fix only entries added in this approved pass; report unrelated existing failures without rewriting them.
+   ```bash
+   python3 "<skill-root>/scripts/roster.py" plan --json <proposal.json> "<repo-root>"
+   ```
 
-**Completion criterion:** every approved snapshot and role change is present, every non-`none` Model/Bypass Flag appears in first-party help, no proposal was silently dropped, and Doctor confirms the new state or names the unresolved field.
+   Review the returned `previews`, `changes`, `base_hashes`, and validation status with the user. After explicit approval of that plan, save the full plan JSON and run:
+
+   ```bash
+   python3 "<skill-root>/scripts/roster.py" apply --json <plan.json> "<repo-root>"
+   ```
+
+   Existing roster updates go through `plan` and `apply`; do not hand-edit existing roster files. If `.agents/luucycle/` is missing, create the initial approved `ROSTER.md`, `ROLES.md`, and `WARNINGS.md` from [ROSTER-FORMAT.md](ROSTER-FORMAT.md), then immediately run `python3 "<skill-root>/scripts/roster.py" check --json "<repo-root>"` before continuing.
+
+7. **Verify roster health.** Run `python3 "<skill-root>/scripts/roster.py" check --json "<repo-root>"`, then run the roster and enabled-CLI checks in `DOCTOR.md`. Fix only entries added in this approved pass; report unrelated existing failures without rewriting them.
+
+**Completion criterion:** every approved roster entry and role change is present, every non-`none` Model/Bypass Flag appears in first-party help, no proposal was silently dropped, and Doctor confirms the new state or names the unresolved field.
 
 ## Gotchas
 
-- **No model selection (freebuff-style).** A CLI can be a bare interactive picker with no flags. Record `none - interactive picker` as the Model Flag and say so in Strengths; never invent a flag.
+- **No model selection (freebuff-style).** A CLI can be a bare interactive picker with no flags. Record `none - interactive picker` as the Model Flag; never invent a flag.
 - **A model flag is not a model catalog.** When first-party help exposes a selector but no accepted IDs, record the verified default with `none - auto default` instead of guessing IDs.
 - **Billed probes are exceptional.** Use free help/catalog commands first. When acceptance still cannot be established, propose one probe on the cheapest candidate and run it only after the user approves that billed call.

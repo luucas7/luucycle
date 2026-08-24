@@ -9,17 +9,16 @@ Create `.agents/luucycle/ROSTER.md` with this header:
 ```md
 # luucycle Roster
 
-Append-only snapshots of worker facts. The latest snapshot for an Agent ID is current.
+Current worker facts. Each Agent ID appears once.
 
 ## Agents
 ```
 
-Append snapshots in this exact form:
+Add or update agents in this exact form:
 
 ```md
-### <agent-id> @ <YYYY-MM-DDTHH:MM:SSZ>
+### <agent-id>
 
-- Agent ID: `<agent-id>`
 - CLI: `<product name>`
 - Command: `<executable>`
 - Invocation: `<non-model subcommand and argument template>`
@@ -28,17 +27,15 @@ Append snapshots in this exact form:
 - Bypass Flag: `<flag template or none - reason>`
 - Permission Profile: `<what the bypass permits>`
 - Cost: `low|medium|high`
-- Accessible: `true|false`
-- Strength: `<one line>`
-- Supersedes: `<immediately prior snapshot heading for this Agent ID, or none for its first snapshot>`
+- Enabled: `true|false`
 - Verified: `<YYYY-MM-DD; evidence source>`
 ```
 
-Use `<cli>:<model>` as the Agent ID when possible. A correction or access change appends a snapshot with the same Agent ID and points `Supersedes` to that Agent ID's immediately prior snapshot; existing snapshots remain unchanged.
+The heading is the Agent ID. Use `<cli>:<model>` when possible and update the existing entry when its facts change.
 
 ## ROLES.md
 
-Create `.agents/luucycle/ROLES.md` with this exact table. Eligible agents are ordered Agent IDs separated by `<br>`; the first accessible current snapshot wins.
+Create `.agents/luucycle/ROLES.md` with this exact table. Eligible agents are ordered Agent IDs separated by `<br>`; the first enabled entry wins.
 
 ```md
 # luucycle Roles
@@ -52,7 +49,33 @@ Create `.agents/luucycle/ROLES.md` with this exact table. Eligible agents are or
 | `scaffolder` | boilerplate, scripts, docs, easy tasks | raw task + routed skill | delivered files + verification | |
 ```
 
-Every accessible Agent ID appears in at least one role. Every role lists at least one accessible Agent ID before it can be selected.
+Every enabled Agent ID appears in at least one role. Every role lists at least one enabled Agent ID before it can be selected.
+
+## Script Contracts
+
+`scripts/roster.py` owns mechanical validation, listing, selection, planning, and applying:
+
+```bash
+python3 "<skill-root>/scripts/roster.py" check --json "<repo-root>"
+python3 "<skill-root>/scripts/roster.py" list --json "<repo-root>"
+python3 "<skill-root>/scripts/roster.py" select --json [--max-cost low|medium|high] <role> "<repo-root>"
+python3 "<skill-root>/scripts/roster.py" plan --json <proposal.json> "<repo-root>"
+python3 "<skill-root>/scripts/roster.py" apply --json <plan.json> "<repo-root>"
+```
+
+`check` returns `status`, `agents`, `enabled_agents`, `roles`, `errors`, and `warnings` when files exist; missing files return `status`, `errors`, and `warnings`.
+
+`list` returns `status`, `agents`, `errors`, and `warnings`. Each agent has `agent_id`, `cli`, `model`, `cost`, `enabled`, `roles`, and `verified`.
+
+`select` returns `status`, `role`, `max_cost`, `primary`, `fallback`, `contracts`, `skipped`, `errors`, and `warnings`. Each contract has `agent_id`, `cli`, `command`, `invocation`, `model`, `model_flag`, `resolved_model_flag`, `bypass_flag`, `resolved_bypass_flag`, `permission_profile`, `cost`, `enabled`, `verified`, and `command_preview`.
+
+`plan` accepts:
+
+```json
+{"version":1,"roster":[{"agent_id":"<id>","cli":"<product>","command":"<executable>","invocation":"<args>","model":"<model>","model_flag":"<template or none - reason>","bypass_flag":"<template or none - reason>","permission_profile":"<profile>","cost":"low|medium|high","enabled":"true|false","verified":"<YYYY-MM-DD; evidence>"}],"roles":{"builder":["<agent-id>"]}}
+```
+
+`plan` returns `status`, `plan_version`, `repo_root`, `proposal`, `base_hashes`, `expected_hashes`, `previews`, `changes`, `validation`, `errors`, and `warnings`. `apply` accepts that full plan, verifies the base hashes, writes only `ROSTER.md` and `ROLES.md`, and returns `status`, `written`, `expected_hashes`, `validation`, `errors`, and `warnings`.
 
 ## WARNINGS.md
 
