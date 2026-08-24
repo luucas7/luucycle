@@ -6,7 +6,7 @@ Branch of luucycle for **preparing fresh work**. The user invokes `grill-with-do
 
 1. **Verify alignment readiness.** Run the scoped audit in `DOCTOR.md` and require **Feature alignment** to be `READY`. Stop on `BLOCKED` or `UNKNOWN`; get explicit acceptance before continuing from `DEGRADED`. Report implementation readiness separately so the user knows whether the later handoff is ready, but do not block alignment on an Orca or roster gap.
 
-2. **Detect the tracker.** Read `docs/agents/issue-tracker.md` and classify it - the handoff reference in step 4 depends on it:
+2. **Detect the tracker.** Read `docs/agents/issue-tracker.md` and classify it - the handoff reference in step 5 depends on it:
    - **GitHub** (template uses the `gh` CLI) → the parent ref is an issue number.
    - **Local markdown** (template uses `.scratch/`) → the parent ref is the spec file path, `.scratch/<feature-slug>/spec.md`.
    - **Other** (GitLab, Linear, freeform prose) → the ref is whatever the recorded workflow produces; ask the user for the concrete form if it is not obvious.
@@ -20,6 +20,13 @@ Branch of luucycle for **preparing fresh work**. The user invokes `grill-with-do
    | 3 | `/to-tickets` | linked tracer-bullet tickets |
    | 4 | `/luucycle implement <parent ref>` | orchestrated implementation |
 
-4. **Hand off.** Give the user the parent reference produced by the alignment flow and the exact `/luucycle implement <parent ref>` command to run in a new conversation.
+4. **Run the alignment stages.** Present one command at a time and wait for the user to invoke it in the current conversation. On each return, inspect the reported result and its project or tracker artifacts before presenting the next command:
+   - `/grill-with-docs` completes when it reports alignment and every design, decision, or vocabulary artifact it names exists;
+   - `/to-spec` completes when the parent spec exists in the configured tracker; record its concrete reference;
+   - `/to-tickets` completes when the child tickets exist and link back to that parent.
 
-**Completion criterion:** alignment readiness is settled, the tracker is detected, the plan is approved, and the fresh-conversation handoff contains a concrete parent reference.
+   Stop at the first incomplete stage with the missing artifact or repair command. Do not advance on a completion claim without its expected artifact.
+
+5. **Hand off.** Give the user the recorded parent reference and the exact `/luucycle implement <parent ref>` command to run in a new conversation.
+
+**Completion criterion:** alignment readiness is settled, the tracker is detected, the plan is approved, all three stage artifacts are verified in order, and the fresh-conversation handoff contains the recorded parent reference.

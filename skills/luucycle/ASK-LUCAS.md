@@ -1,6 +1,6 @@
 # Ask Lucas
 
-Safe, advisory entry point for luucycle. Run this branch for bare `/luucycle`, explicit `/luucycle ask-lucas`, or any invocation that does not match a supported subcommand.
+Advisory entry point for luucycle. Run this branch for explicit `/luucycle ask-lucas` or any invocation that does not match a supported subcommand.
 
 Understand the intended route, audit the setup relevant to that route, then recommend the exact command. This branch remains advisory.
 
@@ -16,7 +16,6 @@ If a problem blocks the user's intended route, recommend its repair command firs
 | --- | --- |
 | User only wants to check setup or roster health | Report the Doctor result already produced; mention `/luucycle doctor` as the standalone re-check command |
 | User wants to see the recorded agents, models, or role assignments | `/luucycle roster list` |
-| `/luucycle implement` has no argument | Ask for the spec, tracker reference, or direct implementation request |
 | Existing spec, ticket, issue, or direct request is ready to build | `/luucycle implement <ref|request>` |
 | New feature still needs alignment and tickets | `/luucycle prepare` |
 | Fresh environment, new machine, or missing required skills | `/luucycle init` |

@@ -4,12 +4,12 @@ Orchestrator agent skill: decomposes a request into tasks, routes each task to t
 
 ## What it does
 
-luucycle sits **on top of** the skills already installed in your repo - it never reimplements their work. Bare `/luucycle` audits the core setup and the dependencies relevant to your intended route, then recommends what to do without dispatching anything. Implementation starts only with the explicit `/luucycle implement <ref|request>` command, then follows the same process every time:
+luucycle sits **on top of** the skills already installed in your repo - it never reimplements their work. Bare `/luucycle` shows the available commands and recommends `/luucycle init`. Implementation starts only with the explicit `/luucycle implement <ref|request>` command, then follows the same process every time:
 
 1. **Decompose** the request into tasks.
 2. **Route** each task to the skill that owns that kind of work (spec → `to-spec`, code → `implement`, UI → `impeccable`, ... see `ROUTING.md`).
 3. **Assign** each task a model from the roster (`.agents/luucycle/ROSTER.md` / `.agents/luucycle/ROLES.md` at the repo root) - the worker agents you approved.
-4. **Confirm** the task/skill/model plan with you before any work starts.
+4. **Confirm** each task's routed skill, primary agent, and fallback agent with you before any work starts.
 5. **Dispatch** one worker per task through Orca's orchestration layer.
 6. **Gate** UI work through impeccable, the Gatekeeper.
 7. **Report** every worker's final status and run a retrospective on the orchestration itself.
@@ -22,7 +22,9 @@ Same process on every implementation run (RULES rule 7): predictable orchestrati
 - **The skills it orchestrates**: the [matt-pocock engineering set](https://github.com/mattpocock/skills) (grilling, spec, tickets, implement, ...), [impeccable](https://github.com/pbakaus/impeccable) (UI gate), and Orca's `orchestration` + `orca-cli` skills. The `init` branch installs all of this for you.
 - **A configured issue tracker for feature alignment or tracker-backed work** - `/setup-matt-pocock-skills` records where issues live in `docs/agents/issue-tracker.md`.
 
-Run `/luucycle doctor` for the complete non-mutating readiness report. Bare `/luucycle` runs only the checks relevant to its recommendation.
+Run `/luucycle doctor` for the complete non-mutating readiness report. Use `/luucycle ask-lucas` for an audit-backed recommendation.
+
+Mechanical diagnostics and roster operations live in `skills/luucycle/scripts/doctor.py` and `skills/luucycle/scripts/roster.py`; the Markdown branches decide scope, routing, and approvals.
 
 ## Install
 
@@ -40,14 +42,14 @@ Examples use `/luucycle`. In Codex, `$luucycle` is equivalent (`$luucycle implem
 
 | Command | What it does | Example |
 | --- | --- | --- |
-| `/luucycle` | Audit setup, then recommend a copyable next command; never dispatch | `/luucycle` |
-| `/luucycle ask-lucas` | Explicitly open the same audit-backed advisory router | `/luucycle ask-lucas` |
-| `/luucycle doctor` | Check Orca, skills, tracker/design setup, roster, roles, and every accessible CLI without changing state | `/luucycle doctor` |
+| `/luucycle` | Show the available commands and recommend initialization | `/luucycle` |
+| `/luucycle ask-lucas` | Audit relevant setup and recommend a copyable next command | `/luucycle ask-lucas` |
+| `/luucycle doctor` | Check Orca, skills, tracker/design setup, roster, roles, and every enabled CLI without changing state | `/luucycle doctor` |
 | `/luucycle implement <ref|request>` | Decompose → route → assign a model → plan approval → dispatch → UI gate → retrospective | `/luucycle implement #42` |
 | `/luucycle prepare` | Prepare a fresh feature: verify prerequisites, then script `/grill-with-docs` → `/to-spec` → `/to-tickets` in one session, and hand over to `implement` | `/luucycle prepare` |
 | `/luucycle init` | Install the skill library (mattpocock, impeccable, orca skills), run `/impeccable init`, bootstrap the roster | `/luucycle init` |
-| `/luucycle roster list` | List each current agent with its CLI, model, cost, accessibility, roles, and verification date without probing it | `/luucycle roster list` |
-| `/luucycle roster add` | Grow the roster with a new CLI or model: discover, propose, confirm, append to `.agents/luucycle/ROSTER.md` + map into `.agents/luucycle/ROLES.md` (repo root) | `/luucycle roster add` |
+| `/luucycle roster list` | List each agent with its CLI, model, cost, enabled state, roles, and verification date without probing it | `/luucycle roster list` |
+| `/luucycle roster add` | Grow or update the roster with a CLI/model: discover, propose, confirm, write `.agents/luucycle/ROSTER.md` + map into `.agents/luucycle/ROLES.md` (repo root) | `/luucycle roster add` |
 
 Invocations such as `/luucycle build the onboarding flow` do not implement. Ask Lucas recommends the explicit equivalent: `/luucycle implement "build the onboarding flow"`.
 
@@ -78,7 +80,7 @@ Installed copies must come from `npx skills add luucas7/luucycle` (symlink insta
 ## Structure
 
 - `SKILL.md` - command router + implementation authorization boundary
-- `ASK-LUCAS.md` - safe default that audits readiness and recommends the next command without dispatching
+- `ASK-LUCAS.md` - advisory router that audits readiness and recommends the next command without dispatching
 - `DOCTOR.md` - non-mutating installation and roster health check
 - `DOCTOR-REPORT.md` - full report format loaded only by explicit Doctor
 - `IMPLEMENT.md` - explicit implementation orchestration flow
@@ -87,8 +89,10 @@ Installed copies must come from `npx skills add luucas7/luucycle` (symlink insta
 - `ROSTER-LIST.md` - current roster view
 - `ROSTER-ADD.md` - roster growth branch
 - `ROUTING.md` - which skill owns which kind of work
-- `ROSTER-FORMAT.md` - canonical roster snapshots, roles table, and warnings skeleton
-- `scripts/check_roster.py` - deterministic roster/snapshot/role validation used by Doctor
+- `ROSTER-FORMAT.md` - canonical roster entries, roles table, and warnings skeleton
+- `scripts/doctor.py` - read-only readiness diagnostics for Doctor, Ask Lucas, init, and implement
+- `scripts/roster.py` - roster validation, listing, selection, planned writes, and hash-guarded apply
+- `scripts/check_roster.py` - compatibility entrypoint for roster validation
 - `agents/openai.yaml` - Codex UI metadata and explicit-only invocation policy
 - `.agents/luucycle/ROSTER.md` / `.agents/luucycle/ROLES.md` / `.agents/luucycle/WARNINGS.md` - **user data** at the repo root, never inside the skill (`npx skills update` wipes `.agents/skills/luucycle/`); seeded by `roster add`
 - `RULES.md` - shared authorization and execution guardrails

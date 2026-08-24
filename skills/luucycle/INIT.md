@@ -28,10 +28,10 @@ Branch of luucycle for **bootstrapping the skill library** in a fresh environmen
 
 4. **Hand off user-invoked setup.** Ask the user to run `/impeccable init` for UI readiness and `/setup-matt-pocock-skills` for feature-alignment readiness, one at a time in the current project. These commands are user-invoked; present the exact next command and wait for its result instead of simulating the invocation. On resume, inspect the resulting project artifacts and skip completed setup. A setup the user defers leaves only its readiness scope degraded.
 
-5. **Verify runtime, skills, and project setup.** Run checks 1–3 from `DOCTOR.md`. Retry an approved failed install command at most once; if verification still fails, stop with the evidence. Roster failures are expected until step 6.
+5. **Verify runtime, skills, and project setup.** Run `python3 "<skill-root>/scripts/doctor.py" "<repo-root>" --scope core --json`, then run Task scope with the setup skills the user approved. Retry an approved failed install command at most once; if verification still fails, stop with the evidence. Roster failures are expected until step 6.
 
-6. **Bootstrap the roster.** Run the `roster add` branch ([ROSTER-ADD.md](ROSTER-ADD.md)) for each newly installed CLI the user wants in the roster (it creates `.agents/luucycle/` at the repo root if absent). An empty roster is blocking (RULES rule 10) - never finish init with zero `Accessible: true` agents and no `roster add` run.
+6. **Bootstrap the roster.** Run the `roster add` branch ([ROSTER-ADD.md](ROSTER-ADD.md)) for each newly installed CLI the user wants in the roster (it creates `.agents/luucycle/` at the repo root if absent). An empty roster is blocking (RULES rule 10) - never finish init with zero `Enabled: true` agents and no `roster add` run.
 
-7. **Run the final audit.** Run all of `DOCTOR.md` after roster bootstrap and report its three readiness scopes.
+7. **Run the final audit.** Run `python3 "<skill-root>/scripts/doctor.py" "<repo-root>" --scope complete --json` after roster bootstrap and report the three readiness scopes from `DOCTOR.md`.
 
-**Completion criterion:** the resolved Orca runtime and version-matched orchestration guide are available, every approved install command and result is verified, at least one worker is accessible and role-mapped, and Doctor reports the state of implementation, feature alignment, and UI readiness without hiding deferred gaps.
+**Completion criterion:** the resolved Orca runtime and version-matched orchestration guide are available, every approved install command and result is verified, at least one worker is enabled, CLI-verified, and role-mapped, and Doctor reports the state of implementation, feature alignment, and UI readiness without hiding deferred gaps.

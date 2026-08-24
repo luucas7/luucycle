@@ -1,6 +1,6 @@
 interface:
   display_name: "luucycle"
   short_description: "Route explicit multi-agent workflows"
-  default_prompt: "Use $luucycle to audit my setup and recommend the next command."
+  default_prompt: "Use $luucycle to show me the available commands and how to initialize it."
 policy:
   allow_implicit_invocation: false
