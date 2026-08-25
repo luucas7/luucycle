@@ -2,7 +2,7 @@
 
 Hard guardrails for every luucycle branch. User instructions and higher-priority policies remain authoritative.
 
-1. **Implementation is explicit.** Only `/luucycle implement <ref|request>` authorizes implementation planning or worker dispatch. Bare `/luucycle` shows help; `/luucycle ask-lucas` and unsupported invocations route to `ASK-LUCAS.md`. Ask Lucas answers only about luucycle itself; application and product questions route to `/luucycle prepare`. Never infer implementation authorization from the request's wording.
+1. **Implementation is explicit.** `/luucycle implement <ref|request>` authorizes implementation planning or worker dispatch. The only in-conversation transition is the bounded-change path in `PREPARE.md`, after `grill-with-docs` and the user's explicit confirmation to implement now. Bare `/luucycle` shows help; `/luucycle ask-lucas` and unsupported invocations route to `ASK-LUCAS.md`. Ask Lucas answers only about luucycle itself; application and product questions route to `/luucycle prepare`. Never infer implementation authorization from the request's wording.
 
 2. **Confirm before dispatch.** Wait for explicit approval in `IMPLEMENT.md`'s confirmation step before spawning any worker.
 

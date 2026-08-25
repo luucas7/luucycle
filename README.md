@@ -4,7 +4,7 @@ Orchestrator agent skill: decomposes a request into tasks, routes each task to t
 
 ## What it does
 
-luucycle sits **on top of** the skills already installed in your repo - it never reimplements their work. Bare `/luucycle` shows the available commands and recommends `/luucycle init`. Implementation starts only with the explicit `/luucycle implement <ref|request>` command, then follows the same process every time:
+luucycle sits **on top of** the skills already installed in your repo - it never reimplements their work. Bare `/luucycle` shows the available commands and recommends `/luucycle init`. Implementation starts with the explicit `/luucycle implement <ref|request>` command, except for the explicitly confirmed bounded-change transition from `/luucycle prepare`, then follows the same process every time:
 
 1. **Decompose** the request into tasks.
 2. **Route** each task to the skill that owns that kind of work (spec → `to-spec`, code → `implement`, UI → `impeccable`, ... see `ROUTING.md`).
@@ -46,7 +46,7 @@ Examples use `/luucycle`. In Codex, `$luucycle` is equivalent (`$luucycle implem
 | `/luucycle ask-lucas` | Answer questions about luucycle itself and recommend a copyable luucycle command | `/luucycle ask-lucas How does implementation approval work?` |
 | `/luucycle doctor` | Check Orca, skills, tracker/design setup, roster, roles, and every enabled CLI without changing state | `/luucycle doctor` |
 | `/luucycle implement <ref|request>` | Decompose → route → assign a model → plan approval → dispatch → UI gate → retrospective | `/luucycle implement #42` |
-| `/luucycle prepare` | Start `/grill-with-docs` for an app or product topic, then decide whether to stop, implement directly, or create a spec and tickets | `/luucycle prepare` |
+| `/luucycle prepare` | Start `/grill-with-docs` for an app or product topic, then normally create a spec and tickets or, for a bounded change, confirm direct implementation | `/luucycle prepare` |
 | `/luucycle init` | Install the skill library (mattpocock, impeccable, orca skills), run `/impeccable init`, bootstrap the roster | `/luucycle init` |
 | `/luucycle roster list` | List each agent with its CLI, model, cost, enabled state, roles, and verification date without probing it | `/luucycle roster list` |
 | `/luucycle roster add [cli]` | Discover every installed worker CLI, or inspect one named CLI; propose its best models, confirm, then update the roster and roles | `/luucycle roster add` |
@@ -61,8 +61,8 @@ The `prepare` branch is the entry point for application and product questions. I
 /luucycle prepare
    └─ /grill-with-docs          launched immediately in the same conversation
       ├─ no change              stop with the recorded decision
-      ├─ bounded change         /luucycle implement <request> in a new conversation
-      └─ durable planning       /to-spec → /to-tickets in the same conversation
+      ├─ bounded change         explicit confirmation → implement in this conversation
+      └─ durable planning       normal path: /to-spec → /to-tickets in the same conversation
                                 └─ /luucycle implement <parent ref> in a new conversation
 ```
 
@@ -85,7 +85,7 @@ Installed copies must come from `npx skills add luucas7/luucycle` (symlink insta
 - `DOCTOR.md` - non-mutating installation and roster health check
 - `DOCTOR-REPORT.md` - full report format loaded only by explicit Doctor
 - `IMPLEMENT.md` - explicit implementation orchestration flow
-- `PREPARE.md` - app/product alignment branch (`grill-with-docs` → stop, direct implementation, or spec/tickets)
+- `PREPARE.md` - app/product alignment branch (`grill-with-docs` → normally spec/tickets, or confirmed direct implementation)
 - `INIT.md` - bootstrap branch
 - `ROSTER-LIST.md` - current roster view
 - `ROSTER-ADD.md` - roster growth branch
