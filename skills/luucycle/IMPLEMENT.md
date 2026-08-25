@@ -9,10 +9,10 @@
 3. **Assign workers.** Read `.agents/luucycle/ROLES.md`; for each task, choose the narrowest matching `When` criterion and record the role and any ambiguity rationale internally. Then run:
 
    ```bash
-   python3 "<skill-root>/scripts/roster.py" select --json <role> "<repo-root>"
+   python3 "<skill-root>/scripts/roster.py" select --json [--max-cost low|medium|high] [--avoid <agent-id>]... [--avoid-cli <cli>]... <role> "<repo-root>"
    ```
 
-   Add `--max-cost low|medium|high` only when the user gave a cost ceiling. Use the returned `primary`, `fallback`, and `contracts` fields as the assignment source of truth. If selection returns `FAIL`, stop with its errors and recommend `/luucycle roster add`.
+   Add `--max-cost low|medium|high` only when the user gave a cost ceiling. For every task after the first, pass `--avoid` for each Agent ID already assigned in this plan (primary or fallback) and `--avoid-cli` for each CLI already used as a primary, so every task gets a distinct agent when the roster allows. Each returned fallback runs on a different CLI product than the primary, so a credit or availability outage on one product never strands the task. If selection returns `FAIL`, stop with its errors and recommend `/luucycle roster add`. Keep every returned warning (single-CLI role, no different-CLI fallback, forced reuse) for the confirmation step.
 
 4. **Confirm the plan.** Present exactly one user-facing table:
 
@@ -20,7 +20,7 @@
    | --- | --- | --- | --- |
    | ... | ... | ... | none |
 
-   Show the stable roster Agent ID in both assignment columns and `none` when no fallback is returned. Wait for explicit approval of this exact assignment before dispatch. Keep the role, ambiguity rationale, and script contracts for worker prompts and the final receipt.
+   Show the stable roster Agent ID in both assignment columns and `none` when no fallback is returned. Wait for explicit approval of this exact assignment before dispatch. Keep the role, ambiguity rationale, and script contracts for worker prompts and the final receipt. When selection warned about roster limits (single-CLI role, no different-CLI fallback, or a reused agent), add one short note under the table naming each limit and proposing `/luucycle roster add`, so approval covers the roster's real constraints.
 
 5. **Dispatch with a skill contract.** Load the `orchestration` skill and its version-matched guide once for coordination and recovery. Read `.agents/luucycle/WARNINGS.md`. Every worker request includes the task, routed skill and how to load it, required context, completion criterion, role output format, and the approved roster contract. Require the receipt to name the loaded skill; pause the task when it cannot.
 

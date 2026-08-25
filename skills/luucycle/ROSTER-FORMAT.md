@@ -58,7 +58,7 @@ Every enabled Agent ID appears in at least one role. Every role lists at least o
 ```bash
 python3 "<skill-root>/scripts/roster.py" check --json "<repo-root>"
 python3 "<skill-root>/scripts/roster.py" list --json "<repo-root>"
-python3 "<skill-root>/scripts/roster.py" select --json [--max-cost low|medium|high] <role> "<repo-root>"
+python3 "<skill-root>/scripts/roster.py" select --json [--max-cost low|medium|high] [--avoid <agent-id>]... [--avoid-cli <cli>]... <role> "<repo-root>"
 python3 "<skill-root>/scripts/roster.py" plan --json <proposal.json> "<repo-root>"
 python3 "<skill-root>/scripts/roster.py" apply --json <plan.json> "<repo-root>"
 ```
@@ -67,7 +67,7 @@ python3 "<skill-root>/scripts/roster.py" apply --json <plan.json> "<repo-root>"
 
 `list` returns `status`, `agents`, `errors`, and `warnings`. Each agent has `agent_id`, `cli`, `model`, `cost`, `enabled`, `roles`, and `verified`.
 
-`select` returns `status`, `role`, `max_cost`, `primary`, `fallback`, `contracts`, `skipped`, `errors`, and `warnings`. Each contract has `agent_id`, `cli`, `command`, `invocation`, `model`, `model_flag`, `resolved_model_flag`, `bypass_flag`, `resolved_bypass_flag`, `permission_profile`, `cost`, `enabled`, `verified`, and `command_preview`.
+`select` returns `status`, `role`, `max_cost`, `primary`, `fallback`, `contracts`, `skipped`, `errors`, and `warnings`. The primary is the first eligible agent not named by `--avoid` and not running a CLI named by `--avoid-cli`; `--avoid` excludes one Agent ID from selection for this role and `--avoid-cli` excludes every agent running a given CLI product (repeat either flag to exclude several). The fallback is the first eligible agent after the primary with the same permission profile, a different CLI product, and no `--avoid` naming. Each contract has `agent_id`, `cli`, `command`, `invocation`, `model`, `model_flag`, `resolved_model_flag`, `bypass_flag`, `resolved_bypass_flag`, `permission_profile`, `cost`, `enabled`, `verified`, and `command_preview`. `skipped` records the reason for each eligible agent passed over (`avoided`, `cli_avoided`, `same_cli_as_primary`, `permission_profile_mismatch`, `already_assigned`) alongside the existing `unknown`, `disabled`, and `cost>...` entries. `warnings` additionally reports a single-CLI role, a missing different-CLI fallback, and forced primary reuse, each naming the smallest repair command (`/luucycle roster add`).
 
 `plan` accepts:
 

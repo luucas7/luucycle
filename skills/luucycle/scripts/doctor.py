@@ -885,6 +885,34 @@ def check_enabled_clis(repo_root: Path, roster_payload: dict[str, Any] | None, e
     return [aggregate, *cli_checks]
 
 
+def check_cli_diversity(roster_payload: dict[str, Any] | None) -> dict[str, Any] | None:
+    agents = (roster_payload or {}).get("agents", [])
+    enabled = [item for item in agents if str(item.get("enabled")) == "true" and item.get("roles")]
+    if not enabled:
+        return None
+    clis = sorted({str(item.get("cli", "") or "unknown") for item in enabled})
+    evidence = [f"distinct_clis={len(clis)}", f"clis={','.join(clis)}"]
+    if len(clis) >= 2:
+        return make_check(
+            "roster.cli_diversity",
+            "PASS",
+            required=False,
+            summary="Enabled role-mapped workers span multiple CLI products",
+            evidence=evidence,
+        )
+    return make_check(
+        "roster.cli_diversity",
+        "WARN",
+        required=False,
+        summary="All enabled role-mapped workers run the same CLI product",
+        evidence=evidence,
+        warning=[
+            f"single-CLI roster ({clis[0]}): a credit or availability outage on that product "
+            "strands every task; run /luucycle roster add to enable a second CLI"
+        ],
+    )
+
+
 def overall_status(checks: list[dict[str, Any]]) -> str:
     required = [check for check in checks if check["required"]]
     if any(check["status"] == "FAIL" for check in required):
@@ -915,6 +943,9 @@ def run_diagnostic(
     roster_payload, roster_check = check_roster(repo_root, skill_root, env)
     checks.append(roster_check)
     checks.extend(check_enabled_clis(repo_root, roster_payload, env))
+    diversity_check = check_cli_diversity(roster_payload)
+    if diversity_check is not None:
+        checks.append(diversity_check)
 
     status = overall_status(checks)
     errors = sorted({message for check in checks for message in check["error"]})
@@ -941,16 +972,17 @@ def write_skill(path: Path, name: str) -> None:
     (path / "SKILL.md").write_text(f"---\nname: {name}\ndescription: Test skill.\n---\n\n# {name}\n")
 
 
-def write_roster(repo_root: Path, command: str, *, model_flag: str = "--model {model}") -> None:
+def write_roster(repo_root: Path, command: str, *, model_flag: str = "--model {model}", second_cli: str | None = None) -> None:
     roster_dir = repo_root / ".agents" / "luucycle"
     roster_dir.mkdir(parents=True, exist_ok=True)
-    roster = f"""# luucycle Roster
+    entries = [("fake:gpt-test", "Fake")]
+    if second_cli:
+        entries.append(("fake2:gpt-test", second_cli))
+    roster = "# luucycle Roster\n\n## Agents\n\n"
+    roster += "\n\n".join(
+        f"""### {agent_id}
 
-## Agents
-
-### fake:gpt-test
-
-- CLI: `Fake`
+- CLI: `{cli}`
 - Command: `{command}`
 - Invocation: `exec`
 - Model: `gpt-test`
@@ -959,10 +991,13 @@ def write_roster(repo_root: Path, command: str, *, model_flag: str = "--model {m
 - Permission Profile: `test bypass`
 - Cost: `low`
 - Enabled: `true`
-- Verified: `2026-08-25; self-test`
-"""
+- Verified: `2026-08-25; self-test`"""
+        for agent_id, cli in entries
+    )
+    roster += "\n"
+    eligible_cell = "<br>".join(f"`{agent_id}`" for agent_id, _ in entries)
     roles = "\n".join(
-        f"| `{role}` | work | context | output | `fake:gpt-test` |"
+        f"| `{role}` | work | context | output | {eligible_cell} |"
         for role in ("verifier", "builder", "architect", "researcher", "scaffolder")
     )
     (roster_dir / "ROSTER.md").write_text(roster)
@@ -1037,10 +1072,12 @@ def self_test() -> None:
         env.pop("CODEX_HOME", None)
 
         result = run_diagnostic(repo, "core", [], env)
-        assert result["status"] == "READY", json.dumps(result, indent=2)
+        assert result["status"] == "DEGRADED", json.dumps(result, indent=2)
         assert all(all(key in record for key in CHECK_KEYS) for record in result["check"])
         assert any(record["check"] == "orca.guide" and record["status"] == "PASS" for record in result["check"])
         assert any(record["check"] == "cli.fake:gpt-test" and record["status"] == "PASS" for record in result["check"])
+        assert any(record["check"] == "roster.cli_diversity" and record["status"] == "WARN" for record in result["check"])
+        assert any("single-CLI roster" in message for message in result["warning"]), result["warning"]
 
         missing = run_diagnostic(repo, "task", ["missing-skill"], env)
         assert missing["status"] == "BLOCKED", json.dumps(missing, indent=2)
@@ -1054,6 +1091,11 @@ def self_test() -> None:
         assert timed["timed_out"] is True, timed
         assert option_from_template("none - documented") == (None, "none")
         assert option_from_template("none") == (None, "none_without_reason")
+
+        write_roster(repo, "fake-worker", second_cli="Fake Two")
+        two_cli = run_diagnostic(repo, "core", [], env)
+        assert two_cli["status"] == "READY", json.dumps(two_cli, indent=2)
+        assert any(record["check"] == "roster.cli_diversity" and record["status"] == "PASS" for record in two_cli["check"])
 
         write_roster(repo, "fake-worker", model_flag="--absent {model}")
         bad_flag = run_diagnostic(repo, "core", [], env)

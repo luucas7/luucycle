@@ -6,7 +6,7 @@ Hard guardrails for every luucycle branch. User instructions and higher-priority
 
 2. **Confirm before dispatch.** Wait for explicit approval in `IMPLEMENT.md`'s confirmation step before spawning any worker.
 
-3. **Bounded, approved fallback.** The approved plan names each task's primary worker and at most one fallback. Use that fallback only when it is enabled, has the same permission profile, and does not exceed the approved cost tier. Otherwise pause the task and request approval. Report every fallback in the final receipt.
+3. **Bounded, approved fallback.** The approved plan names each task's primary worker and at most one fallback. Use that fallback only when it is enabled, has the same permission profile, runs on a different CLI product than the primary, and does not exceed the approved cost tier. A fallback on the same CLI as the primary cannot rescue a credit or availability outage, so it is not an approved fallback. Otherwise pause the task and request approval. Report every fallback in the final receipt.
 
 4. **Route through skills.** Decompose the request and hand each task to the skill that owns that kind of work - orchestration for coordination, the matt-pocock engineering skills for spec/tickets/implement/review, impeccable for UI. Reuse what a routed skill already defines; do not improvise a parallel flow.
 
@@ -29,3 +29,5 @@ Hard guardrails for every luucycle branch. User instructions and higher-priority
 13. **Read-only branches do not mutate.** `/luucycle doctor`, `/luucycle roster list`, and the health check inside Ask Lucas may inspect files and run free diagnostic commands only. They never install, update, start services, edit configuration or roster state, dispatch workers, or call a model. They report evidence and the smallest explicit repair command.
 
 14. **Billed probes need fresh consent.** Roster discovery uses free help, catalog, config, or first-party documentation first. A model probe that may bill the user runs only after separate approval immediately before that call.
+
+15. **Vary workers and CLIs across the plan.** Every task gets a distinct primary agent when the roster allows, the fallback always runs on a different CLI product than the primary, and any selection warning that signals a roster limit (single-CLI, no different-CLI fallback, forced reuse) is surfaced in the confirmation table with a proposal for `/luucycle roster add`.

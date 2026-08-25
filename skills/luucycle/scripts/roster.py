@@ -7,6 +7,7 @@ import argparse
 import json
 import os
 import re
+import shutil
 import tempfile
 from dataclasses import dataclass
 from hashlib import sha256
@@ -33,6 +34,18 @@ HEADING = re.compile(r"^### (?P<agent>.+)$")
 FIELD = re.compile(r"^- (?P<name>[A-Za-z ]+): (?P<value>.+)$")
 COST_ORDER = {"low": 0, "medium": 1, "high": 2}
 PLAN_VERSION = 1
+WORKER_CLI_CANDIDATES = (
+    "codex",
+    "cline",
+    "opencode",
+    "agy",
+    "claude",
+    "gemini",
+    "aider",
+    "cursor-agent",
+    "amp",
+    "goose",
+)
 
 FIELD_TO_JSON = {
     "CLI": "cli",
@@ -724,7 +737,13 @@ def apply_plan(repo_root: Path, plan_path: str) -> dict[str, object]:
     }
 
 
-def select_agents(repo_root: Path, role: str, max_cost: str) -> dict[str, object]:
+def select_agents(
+    repo_root: Path,
+    role: str,
+    max_cost: str,
+    avoid: list[str] | None = None,
+    avoid_cli: list[str] | None = None,
+) -> dict[str, object]:
     state = read_state(repo_root)
     if state.missing:
         return {
@@ -748,6 +767,10 @@ def select_agents(repo_root: Path, role: str, max_cost: str) -> dict[str, object
     if role not in roles:
         return {"status": "FAIL", "role": role, "errors": [f"unknown role: {role}"], "warnings": []}
 
+    avoid_set = set(avoid or [])
+    avoid_cli_set = set(avoid_cli or [])
+    warnings = list(validation["warnings"])
+
     max_rank = COST_ORDER[max_cost]
     eligible: list[AgentEntry] = []
     skipped: list[dict[str, str]] = []
@@ -770,17 +793,58 @@ def select_agents(repo_root: Path, role: str, max_cost: str) -> dict[str, object
             "role": role,
             "max_cost": max_cost,
             "errors": [f"role {role}: no enabled eligible agent at or below {max_cost} cost"],
-            "warnings": validation["warnings"],
+            "warnings": warnings,
             "skipped": skipped,
         }
-    primary = eligible[0]
-    fallback = None
-    fallback_skipped = []
+
+    distinct_clis = sorted({entry.fields.get("CLI", "") for entry in eligible})
+    if len(distinct_clis) < 2:
+        warnings.append(
+            f"role {role}: every eligible agent runs the same CLI ({distinct_clis[0]}) - "
+            "a credit or availability outage on that product strands the whole role; "
+            "consider /luucycle roster add"
+        )
+
+    primary: AgentEntry | None = None
+    primary_skipped: list[dict[str, str]] = []
+    for entry in eligible:
+        if entry.agent_id in avoid_set:
+            primary_skipped.append({"agent_id": entry.agent_id, "reason": "avoided"})
+            continue
+        if entry.fields.get("CLI", "") in avoid_cli_set:
+            primary_skipped.append({"agent_id": entry.agent_id, "reason": "cli_avoided"})
+            continue
+        primary = entry
+        break
+    if primary is None:
+        primary = eligible[0]
+        warnings.append(
+            f"role {role}: every eligible agent is already assigned in this plan or runs an "
+            f"excluded CLI; reusing {primary.agent_id} - consider /luucycle roster add"
+        )
+
+    fallback: AgentEntry | None = None
+    fallback_skipped: list[dict[str, str]] = []
+    primary_cli = primary.fields.get("CLI", "")
+    primary_profile = primary.fields.get("Permission Profile", "")
     for entry in eligible[1:]:
-        if entry.fields.get("Permission Profile") == primary.fields.get("Permission Profile"):
-            fallback = entry
-            break
-        fallback_skipped.append({"agent_id": entry.agent_id, "reason": "permission_profile_mismatch"})
+        if entry.agent_id in avoid_set:
+            fallback_skipped.append({"agent_id": entry.agent_id, "reason": "already_assigned"})
+            continue
+        if entry.fields.get("CLI", "") == primary_cli:
+            fallback_skipped.append({"agent_id": entry.agent_id, "reason": "same_cli_as_primary"})
+            continue
+        if entry.fields.get("Permission Profile", "") != primary_profile:
+            fallback_skipped.append({"agent_id": entry.agent_id, "reason": "permission_profile_mismatch"})
+            continue
+        fallback = entry
+        break
+    if fallback is None:
+        warnings.append(
+            f"role {role}: no fallback on a different CLI than {primary.agent_id} with the "
+            "same permission profile; consider /luucycle roster add"
+        )
+
     return {
         "status": "PASS",
         "role": role,
@@ -791,9 +855,9 @@ def select_agents(repo_root: Path, role: str, max_cost: str) -> dict[str, object
             "primary": primary.contract(),
             "fallback": fallback.contract() if fallback else None,
         },
-        "skipped": skipped + fallback_skipped,
+        "skipped": skipped + primary_skipped + fallback_skipped,
         "errors": [],
-        "warnings": validation["warnings"],
+        "warnings": warnings,
     }
 
 
@@ -821,10 +885,17 @@ def exit_code(result: dict[str, object]) -> int:
     return 1 if result.get("status") == "FAIL" else 0
 
 
-def sample_roster(agent_id: str, model: str, cost: str = "medium", enabled: str = "true", profile: str = "workspace write") -> str:
+def sample_roster(
+    agent_id: str,
+    model: str,
+    cost: str = "medium",
+    enabled: str = "true",
+    profile: str = "workspace write",
+    cli: str = "Codex",
+) -> str:
     return f"""### {agent_id}
 
-- CLI: `Codex`
+- CLI: `{cli}`
 - Command: `codex`
 - Invocation: `exec`
 - Model: `{model}`
@@ -842,14 +913,14 @@ def write_sample_repo(root: Path) -> Path:
     roster_dir.mkdir(parents=True)
     roster = "\n\n".join(
         [
-            sample_roster("codex:gpt-primary", "gpt-primary", "medium", "true", "workspace write").strip(),
-            sample_roster("codex:gpt-disabled", "gpt-disabled", "low", "false", "workspace write").strip(),
-            sample_roster("codex:gpt-fallback", "gpt-fallback", "medium", "true", "workspace write").strip(),
-            sample_roster("codex:gpt-high", "gpt-high", "high", "true", "full access").strip(),
+            sample_roster("codex:gpt-primary", "gpt-primary", "medium", "true", "workspace write", "Codex").strip(),
+            sample_roster("codex:gpt-disabled", "gpt-disabled", "low", "false", "workspace write", "Codex").strip(),
+            sample_roster("claude:gpt-fallback", "gpt-fallback", "medium", "true", "workspace write", "Claude").strip(),
+            sample_roster("gemini:gpt-high", "gpt-high", "high", "true", "full access", "Gemini").strip(),
         ]
     )
     all_role_rows = "\n".join(
-        f"| `{role}` | work | context | output | `codex:gpt-primary`<br>`codex:gpt-disabled`<br>`codex:gpt-fallback`<br>`codex:gpt-high` |"
+        f"| `{role}` | work | context | output | `codex:gpt-primary`<br>`codex:gpt-disabled`<br>`claude:gpt-fallback`<br>`gemini:gpt-high` |"
         for role in REQUIRED_ROLES
     )
     (roster_dir / "ROSTER.md").write_text("# luucycle Roster\n\nCurrent worker facts. Each Agent ID appears once.\n\n## Agents\n\n" + roster + "\n")
@@ -891,15 +962,30 @@ def self_test() -> None:
         roster_dir = write_sample_repo(root)
         result = validate(root)
         assert result["status"] == "PASS", result
-        assert result["enabled_agents"] == ["codex:gpt-fallback", "codex:gpt-high", "codex:gpt-primary"], result
+        assert result["enabled_agents"] == ["claude:gpt-fallback", "codex:gpt-primary", "gemini:gpt-high"], result
 
         selection = select_agents(root, "builder", "medium")
         assert selection["status"] == "PASS", selection
         assert selection["primary"] == "codex:gpt-primary", selection
-        assert selection["fallback"] == "codex:gpt-fallback", selection
+        assert selection["fallback"] == "claude:gpt-fallback", selection
         assert selection["contracts"]["primary"]["resolved_model_flag"] == "--model gpt-primary", selection
         high_selection = select_agents(root, "builder", "low")
         assert high_selection["status"] == "FAIL", high_selection
+
+        avoided = select_agents(root, "builder", "medium", avoid=["codex:gpt-primary"])
+        assert avoided["status"] == "PASS", avoided
+        assert avoided["primary"] == "claude:gpt-fallback", avoided
+        assert avoided["fallback"] is None, avoided
+        assert any("no fallback on a different CLI" in message for message in avoided["warnings"]), avoided
+
+        avoided_cli = select_agents(root, "builder", "medium", avoid_cli=["Codex"])
+        assert avoided_cli["status"] == "PASS", avoided_cli
+        assert avoided_cli["primary"] == "claude:gpt-fallback", avoided_cli
+
+        exhausted = select_agents(root, "builder", "medium", avoid=["codex:gpt-primary", "claude:gpt-fallback"])
+        assert exhausted["status"] == "PASS", exhausted
+        assert exhausted["primary"] == "codex:gpt-primary", exhausted
+        assert any("reusing codex:gpt-primary" in message for message in exhausted["warnings"]), exhausted
 
         proposal_path = root / "proposal.json"
         plan_path = root / "plan.json"
@@ -920,13 +1006,13 @@ def self_test() -> None:
                     "verified": "2026-08-23; local help",
                 }
             ],
-            "roles": {"builder": ["codex:gpt-new", "codex:gpt-primary", "codex:gpt-fallback"]},
+            "roles": {"builder": ["codex:gpt-new", "codex:gpt-primary", "claude:gpt-fallback"]},
         }
         proposal_path.write_text(json_dumps(proposal))
         planned = plan_roster(root, str(proposal_path))
         assert planned["status"] == "PASS", planned
         assert "codex:gpt-new" in planned["previews"]["ROSTER.md"], planned
-        assert "codex:gpt-high" in planned["previews"]["ROSTER.md"], planned
+        assert "gemini:gpt-high" in planned["previews"]["ROSTER.md"], planned
         assert any(line.startswith("| `verifier` |") for line in planned["previews"]["ROLES.md"].splitlines()), planned
         plan_path.write_text(json_dumps(planned))
         applied = apply_plan(root, str(plan_path))
@@ -945,7 +1031,7 @@ def self_test() -> None:
             json_dumps(
                 {
                     "version": PLAN_VERSION,
-                    "roles": {"builder": ["codex:gpt-primary", "codex:gpt-fallback"]},
+                    "roles": {"builder": ["codex:gpt-primary", "claude:gpt-fallback"]},
                 }
             )
         )
@@ -956,6 +1042,36 @@ def self_test() -> None:
         rejected = apply_plan(root, str(plan_path))
         assert rejected["status"] == "FAIL", rejected
         assert any("does not match approved base" in error for error in rejected["errors"]), rejected
+
+    with tempfile.TemporaryDirectory() as directory:
+        root = Path(directory)
+        roster_dir = root / ".agents" / "luucycle"
+        roster_dir.mkdir(parents=True)
+        single_roster = "\n\n".join(
+            [
+                sample_roster("codex:agent-a", "agent-a", "low", "true", "workspace write", "Codex").strip(),
+                sample_roster("codex:agent-b", "agent-b", "low", "true", "workspace write", "Codex").strip(),
+            ]
+        )
+        (roster_dir / "ROSTER.md").write_text(
+            "# luucycle Roster\n\nCurrent worker facts. Each Agent ID appears once.\n\n## Agents\n\n" + single_roster + "\n"
+        )
+        (roster_dir / "ROLES.md").write_text(
+            "# luucycle Roles\n\n"
+            f"{ROLES_HEADER}\n{ROLES_SEPARATOR}\n"
+            + "\n".join(
+                f"| `{role}` | work | context | output | `codex:agent-a`<br>`codex:agent-b` |"
+                for role in REQUIRED_ROLES
+            )
+            + "\n"
+        )
+        (roster_dir / "WARNINGS.md").write_text("# luucycle WARNINGS\n\n_None yet._\n")
+        single_cli = select_agents(root, "builder", "medium")
+        assert single_cli["status"] == "PASS", single_cli
+        assert single_cli["primary"] == "codex:agent-a", single_cli
+        assert single_cli["fallback"] is None, single_cli
+        assert any("same CLI" in message for message in single_cli["warnings"]), single_cli
+        assert any("no fallback on a different CLI" in message for message in single_cli["warnings"]), single_cli
 
     bad_proposal, _, _, errors = normalize_proposal({"roster": [{"agent_id": "missing-fields"}]})
     assert bad_proposal["roster"] == [], bad_proposal
@@ -993,6 +1109,8 @@ def main(argv: list[str] | None = None) -> int:
     select_parser.add_argument("role")
     add_common_args(select_parser)
     select_parser.add_argument("--max-cost", choices=tuple(COST_ORDER), default="high")
+    select_parser.add_argument("--avoid", action="append", default=[], metavar="AGENT_ID")
+    select_parser.add_argument("--avoid-cli", action="append", default=[], metavar="CLI")
 
     plan_parser = subparsers.add_parser("plan")
     plan_parser.add_argument("proposal")
@@ -1015,7 +1133,7 @@ def main(argv: list[str] | None = None) -> int:
     elif args.command == "list":
         result = compact_list(repo_root)
     elif args.command == "select":
-        result = select_agents(repo_root, args.role, args.max_cost)
+        result = select_agents(repo_root, args.role, args.max_cost, args.avoid, args.avoid_cli)
     elif args.command == "plan":
         result = plan_roster(repo_root, args.proposal)
     elif args.command == "apply":
