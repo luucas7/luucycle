@@ -26,11 +26,15 @@ Branch of luucycle for **bootstrapping the skill library** in a fresh environmen
 
 3. **Confirm and install.** Present the missing entries, verified install commands, evidence, and scopes. Wait for approval, then run only the approved commands and preserve the user's scope choices.
 
-4. **Hand off user-invoked setup.** Ask the user to run `/impeccable init` for UI readiness and `/setup-matt-pocock-skills` for feature-alignment readiness, one at a time in the current project. These commands are user-invoked; present the exact next command and wait for its result instead of simulating the invocation. On resume, inspect the resulting project artifacts and skip completed setup. A setup the user defers leaves only its readiness scope degraded.
+4. **Inspect, then hand off user-invoked setup.** Before recommending either setup command, read its installed skill and inspect the current project's existing artifacts read-only.
+   - For Impeccable, inspect at minimum the resolved `PRODUCT.md`, `DESIGN.md`, and `.impeccable/`. Apply the installed Impeccable skill's own validity and conditionality rules; absence of an artifact that the skill makes optional is not by itself an incomplete setup.
+   - For Matt Pocock, derive the complete expected artifact set, content checks, and conditional artifacts from the installed `setup-matt-pocock-skills` skill on every run. Do not substitute a Luucycle-invented checklist.
+
+   Treat each setup independently. When its artifacts are already present and valid, report it briefly as already satisfied, do not recommend its init command, and continue. Only when its artifacts are absent or incomplete, present the exact next command (`/impeccable init` or `/setup-matt-pocock-skills`) and wait for its result instead of simulating the invocation. Handle at most one pending command at a time; on resume, repeat the read-only inspection before deciding whether that setup is satisfied. This gate never overwrites, regenerates, updates, or repairs an existing artifact. A setup the user defers leaves only its readiness scope degraded.
 
 5. **Verify runtime, skills, and project setup.** Run `python3 "<skill-root>/scripts/doctor.py" "<repo-root>" --scope core --json`, then run Task scope with the setup skills the user approved. Retry an approved failed install command at most once; if verification still fails, stop with the evidence. Roster failures are expected until step 6.
 
-6. **Bootstrap the roster.** Run the `roster add` branch ([ROSTER-ADD.md](ROSTER-ADD.md)) for each newly installed CLI the user wants in the roster (it creates `.agents/luucycle/` at the repo root if absent). An empty roster is blocking (RULES rule 10) - never finish init with zero `Enabled: true` agents and no `roster add` run.
+6. **Bootstrap the roster.** Run the bare `roster add` branch ([ROSTER-ADD.md](ROSTER-ADD.md)) once so it inventories every installed worker CLI and proposes models for each one (it creates `.agents/luucycle/` at the repo root if absent). Let the user exclude detected CLIs or models at confirmation; do not preselect only the current/default CLI. An empty roster is blocking (RULES rule 10) - never finish init with zero `Enabled: true` agents and no `roster add` run.
 
 7. **Run the final audit.** Run `python3 "<skill-root>/scripts/doctor.py" "<repo-root>" --scope complete --json` after roster bootstrap and report the three readiness scopes from `DOCTOR.md`.
 

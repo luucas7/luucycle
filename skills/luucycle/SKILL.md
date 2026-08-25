@@ -19,7 +19,7 @@ Route explicit luucycle commands to the matching branch. Treat `/luucycle` and `
 | `/luucycle prepare` | Prepare aligned, ticketed work, then hand over to `implement` | [PREPARE.md](PREPARE.md) |
 | `/luucycle init` | Install the skill library and bootstrap the roster | [INIT.md](INIT.md) |
 | `/luucycle roster list` | Show agents, models, enabled state, and roles | [ROSTER-LIST.md](ROSTER-LIST.md) |
-| `/luucycle roster add` | Add a CLI/model to the roster | [ROSTER-ADD.md](ROSTER-ADD.md) |
+| `/luucycle roster add [cli]` | Discover installed worker CLIs, or inspect one named CLI, then add models to the roster | [ROSTER-ADD.md](ROSTER-ADD.md) |
 | anything else | Explain the valid commands and recommend one | [ASK-LUCAS.md](ASK-LUCAS.md) |
 
 For bare `/luucycle`, return a user-facing table derived from the supported command rows above. Use only `Command` and `Description` columns; omit internal file links, `anything else`, and `implement` without an argument. Finish by recommending the copyable `/luucycle init` command in the user's language. Do not run checks or load another branch.

@@ -49,7 +49,7 @@ Examples use `/luucycle`. In Codex, `$luucycle` is equivalent (`$luucycle implem
 | `/luucycle prepare` | Prepare a fresh feature: verify prerequisites, then script `/grill-with-docs` → `/to-spec` → `/to-tickets` in one session, and hand over to `implement` | `/luucycle prepare` |
 | `/luucycle init` | Install the skill library (mattpocock, impeccable, orca skills), run `/impeccable init`, bootstrap the roster | `/luucycle init` |
 | `/luucycle roster list` | List each agent with its CLI, model, cost, enabled state, roles, and verification date without probing it | `/luucycle roster list` |
-| `/luucycle roster add` | Grow or update the roster with a CLI/model: discover, propose, confirm, write `.agents/luucycle/ROSTER.md` + map into `.agents/luucycle/ROLES.md` (repo root) | `/luucycle roster add` |
+| `/luucycle roster add [cli]` | Discover every installed worker CLI, or inspect one named CLI; propose its best models, confirm, then update the roster and roles | `/luucycle roster add` |
 
 Invocations such as `/luucycle build the onboarding flow` do not implement. Ask Lucas recommends the explicit equivalent: `/luucycle implement "build the onboarding flow"`.
 
