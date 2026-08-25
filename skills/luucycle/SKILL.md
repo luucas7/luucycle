@@ -12,11 +12,11 @@ Route explicit luucycle commands to the matching branch. Treat `/luucycle` and `
 | Invocation | Branch | File |
 | --- | --- | --- |
 | `/luucycle` | Show the available commands and recommend initialization | — |
-| `/luucycle ask-lucas` | Audit the relevant setup and recommend the exact next command | [ASK-LUCAS.md](ASK-LUCAS.md) |
+| `/luucycle ask-lucas` | Answer questions about luucycle itself and recommend its exact next command | [ASK-LUCAS.md](ASK-LUCAS.md) |
 | `/luucycle doctor` | Run the complete non-mutating readiness audit | [DOCTOR.md](DOCTOR.md) |
 | `/luucycle implement <ref\|request>` | Decompose, route, confirm, and dispatch implementation | [IMPLEMENT.md](IMPLEMENT.md) |
 | `/luucycle implement` without an argument | Ask for the missing reference or request | — |
-| `/luucycle prepare` | Prepare aligned, ticketed work, then hand over to `implement` | [PREPARE.md](PREPARE.md) |
+| `/luucycle prepare` | Start app or product alignment with `grill-with-docs`, then choose the delivery path | [PREPARE.md](PREPARE.md) |
 | `/luucycle init` | Install the skill library and bootstrap the roster | [INIT.md](INIT.md) |
 | `/luucycle roster list` | Show agents, models, enabled state, and roles | [ROSTER-LIST.md](ROSTER-LIST.md) |
 | `/luucycle roster add [cli]` | Discover installed worker CLIs, or inspect one named CLI, then add models to the roster | [ROSTER-ADD.md](ROSTER-ADD.md) |

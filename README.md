@@ -22,7 +22,7 @@ Same process on every implementation run (RULES rule 7): predictable orchestrati
 - **The skills it orchestrates**: the [matt-pocock engineering set](https://github.com/mattpocock/skills) (grilling, spec, tickets, implement, ...), [impeccable](https://github.com/pbakaus/impeccable) (UI gate), and Orca's `orchestration` + `orca-cli` skills. The `init` branch installs all of this for you.
 - **A configured issue tracker for feature alignment or tracker-backed work** - `/setup-matt-pocock-skills` records where issues live in `docs/agents/issue-tracker.md`.
 
-Run `/luucycle doctor` for the complete non-mutating readiness report. Use `/luucycle ask-lucas` for an audit-backed recommendation.
+Run `/luucycle doctor` for the complete non-mutating readiness report. Use `/luucycle ask-lucas` for questions about luucycle's commands, skills, setup, or workflow. Application and product questions start with `/luucycle prepare`.
 
 Mechanical diagnostics and roster operations live in `skills/luucycle/scripts/doctor.py` and `skills/luucycle/scripts/roster.py`; the Markdown branches decide scope, routing, and approvals.
 
@@ -43,26 +43,27 @@ Examples use `/luucycle`. In Codex, `$luucycle` is equivalent (`$luucycle implem
 | Command | What it does | Example |
 | --- | --- | --- |
 | `/luucycle` | Show the available commands and recommend initialization | `/luucycle` |
-| `/luucycle ask-lucas` | Audit relevant setup and recommend a copyable next command | `/luucycle ask-lucas` |
+| `/luucycle ask-lucas` | Answer questions about luucycle itself and recommend a copyable luucycle command | `/luucycle ask-lucas How does implementation approval work?` |
 | `/luucycle doctor` | Check Orca, skills, tracker/design setup, roster, roles, and every enabled CLI without changing state | `/luucycle doctor` |
 | `/luucycle implement <ref|request>` | Decompose → route → assign a model → plan approval → dispatch → UI gate → retrospective | `/luucycle implement #42` |
-| `/luucycle prepare` | Prepare a fresh feature: verify prerequisites, then script `/grill-with-docs` → `/to-spec` → `/to-tickets` in one session, and hand over to `implement` | `/luucycle prepare` |
+| `/luucycle prepare` | Start `/grill-with-docs` for an app or product topic, then decide whether to stop, implement directly, or create a spec and tickets | `/luucycle prepare` |
 | `/luucycle init` | Install the skill library (mattpocock, impeccable, orca skills), run `/impeccable init`, bootstrap the roster | `/luucycle init` |
 | `/luucycle roster list` | List each agent with its CLI, model, cost, enabled state, roles, and verification date without probing it | `/luucycle roster list` |
 | `/luucycle roster add [cli]` | Discover every installed worker CLI, or inspect one named CLI; propose its best models, confirm, then update the roster and roles | `/luucycle roster add` |
 
-Invocations such as `/luucycle build the onboarding flow` do not implement. Ask Lucas recommends the explicit equivalent: `/luucycle implement "build the onboarding flow"`.
+Invocations such as `/luucycle should ranking be calculated client-side or server-side?` do not analyze or implement the application. Ask Lucas redirects them to `/luucycle prepare`, where `grill-with-docs` aligns the decision first.
 
 ## The flow at a glance
 
-The `prepare` branch is the entry point for new work that still needs alignment. It lines up the alignment skills, then the explicit `implement` branch takes over:
+The `prepare` branch is the entry point for application and product questions. It starts the alignment session itself; the aligned result determines the next branch:
 
 ```
-/luucycle prepare               prepare a new feature
-   └─ /grill-with-docs          align the design, build shared vocabulary (same session)
-      └─ /to-spec               spec → tracker; becomes the parent issue (same session)
-         └─ /to-tickets         tracer-bullet tickets with blocking edges (same session)
-            └─ /luucycle implement <ref>  new session - dispatch, gate, retrospective
+/luucycle prepare
+   └─ /grill-with-docs          launched immediately in the same conversation
+      ├─ no change              stop with the recorded decision
+      ├─ bounded change         /luucycle implement <request> in a new conversation
+      └─ durable planning       /to-spec → /to-tickets in the same conversation
+                                └─ /luucycle implement <parent ref> in a new conversation
 ```
 
 The reference passed to `/luucycle implement` depends on the configured tracker: a GitHub issue number (`#42`), a local spec path (`.scratch/<feature-slug>/spec.md`), or the tracker's native identifier.
@@ -80,11 +81,11 @@ Installed copies must come from `npx skills add luucas7/luucycle` (symlink insta
 ## Structure
 
 - `SKILL.md` - command router + implementation authorization boundary
-- `ASK-LUCAS.md` - advisory router that audits readiness and recommends the next command without dispatching
+- `ASK-LUCAS.md` - advisor for luucycle's own workflow; application and product questions redirect to `prepare`
 - `DOCTOR.md` - non-mutating installation and roster health check
 - `DOCTOR-REPORT.md` - full report format loaded only by explicit Doctor
 - `IMPLEMENT.md` - explicit implementation orchestration flow
-- `PREPARE.md` - new-feature preparation branch (grill → spec → tickets → `implement`)
+- `PREPARE.md` - app/product alignment branch (`grill-with-docs` → stop, direct implementation, or spec/tickets)
 - `INIT.md` - bootstrap branch
 - `ROSTER-LIST.md` - current roster view
 - `ROSTER-ADD.md` - roster growth branch

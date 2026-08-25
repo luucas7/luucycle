@@ -1,8 +1,17 @@
 # Ask Lucas
 
-Advisory entry point for luucycle. Run this branch for explicit `/luucycle ask-lucas` or any invocation that does not match a supported subcommand.
+Advisor for **luucycle's own operating model**. Run this branch for explicit `/luucycle ask-lucas` or any invocation that does not match a supported subcommand.
 
-Understand the intended route, audit the setup relevant to that route, then recommend the exact command. This branch remains advisory.
+Answer questions about luucycle commands, skills, workflow, setup, readiness, roster, routing, and recovery. Audit only the luucycle setup relevant to the answer, then recommend the exact command when one is needed. This branch remains advisory.
+
+## Scope boundary
+
+Classify the request before investigating it:
+
+- A question about how **luucycle** works belongs here. Answer it from luucycle's instructions and configuration.
+- A question about the **application or product** belongs to `/luucycle prepare`. This includes product behavior, domain rules, bugs, architecture, implementation choices, and feature ideas, even when the user frames the change as clear or asks to fix it afterwards.
+
+For an application or product question, do not inspect or analyze the application. Explain that alignment starts with `/luucycle prepare` and give that copyable command. The `prepare` branch runs `grill-with-docs`; that alignment decides whether the topic ends with no change, proceeds directly to implementation, or first becomes a spec and tickets.
 
 ## Health check
 
@@ -16,14 +25,14 @@ If a problem blocks the user's intended route, recommend its repair command firs
 | --- | --- |
 | User only wants to check setup or roster health | Report the Doctor result already produced; mention `/luucycle doctor` as the standalone re-check command |
 | User wants to see the recorded agents, models, or role assignments | `/luucycle roster list` |
-| Existing spec, ticket, issue, or direct request is ready to build | `/luucycle implement <ref|request>` |
-| New feature still needs alignment and tickets | `/luucycle prepare` |
+| User asks how luucycle handles an existing spec, ticket, issue, or implementation request | Explain the rule and, when useful, show `/luucycle implement <ref|request>` |
+| User asks about application or product behavior, code, architecture, a bug, or a feature | `/luucycle prepare` |
 | Fresh environment, new machine, or missing required skills | `/luucycle init` |
 | New CLI/model or an empty roster | `/luucycle roster add` |
 | User is unsure which skill owns the work | Read `ROUTING.md`, explain the match, then recommend the relevant luucycle command |
 | Failed implementation run | Inspect `.agents/luucycle/WARNINGS.md`, explain the likely recovery, and recommend retrying with `/luucycle implement <ref|request>` when appropriate |
 
-If the intended route is still ambiguous after reading the request, ask one concise question. Otherwise give the recommendation directly, including a copyable command populated with the user's reference or request when available.
+If the request cannot be classified as luucycle-related or application/product-related, ask one concise question. Otherwise give the answer or recommendation directly.
 
 ## Boundary
 
