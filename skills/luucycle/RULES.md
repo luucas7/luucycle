@@ -2,11 +2,11 @@
 
 Hard guardrails for every luucycle branch. User instructions and higher-priority policies remain authoritative.
 
-1. **Implementation is explicit.** `/luucycle implement <ref|request>` authorizes implementation planning or worker dispatch. The only in-conversation transition is the bounded-change path in `PREPARE.md`, after `grill-with-docs` and the user's explicit confirmation to implement now. Bare `/luucycle` shows help; `/luucycle ask-lucas` and unsupported invocations route to `ASK-LUCAS.md`. Ask Lucas answers only about luucycle itself; application and product questions route to `/luucycle prepare`. Never infer implementation authorization from the request's wording.
+1. **Implementation is explicit.** `/luucycle implement <ref|request>` authorizes coordination and planning, not unapproved execution. The only in-conversation transition is the bounded-change path in `PREPARE.md`, after `grill-with-docs` and the user's explicit confirmation to implement now. Bare `/luucycle` shows help; `/luucycle ask-lucas` and unsupported invocations route to `ASK-LUCAS.md`. Ask Lucas answers only about luucycle itself; application and product questions route to `/luucycle prepare`. Never infer implementation authorization from the request's wording.
 
-2. **Confirm before dispatch.** Wait for explicit approval in `IMPLEMENT.md`'s confirmation step before spawning any worker.
+2. **Approve each selected phase.** An implementation run may contain an Audit phase, an Execution phase, or both in that order. Use Audit when the user requests a perimeter check or when existing or partial work makes the requested scope uncertain; otherwise propose Execution directly. Before dispatching a selected phase, present its exact worker plan and wait for explicit approval. An approved Audit authorizes only read-only investigation; it may inspect code and diffs, run non-persistent tests, and collect evidence, but it does not edit files, create artifacts, or change external state. After Audit, conclude with evidence when no execution is needed; otherwise present a new Execution plan and wait for its approval. An approved Execution plan authorizes its complete listed work.
 
-3. **Bounded, approved fallback.** The approved plan names each task's primary worker and at most one fallback. Use that fallback only when it is enabled, has the same permission profile, runs on a different CLI product than the primary, and does not exceed the approved cost tier. A fallback on the same CLI as the primary cannot rescue a credit or availability outage, so it is not an approved fallback. Otherwise pause the task and request approval. Report every fallback in the final receipt.
+3. **Bounded, approved fallback.** Each approved phase plan names every task's primary worker and at most one fallback. Use that fallback only when it is enabled, has the same permission profile, runs on a different CLI product than the primary, and does not exceed the approved cost tier. A fallback on the same CLI as the primary cannot rescue a credit or availability outage, so it is not an approved fallback. Otherwise pause the task and request approval. Report every fallback in the final receipt.
 
 4. **Route through skills.** Decompose the request and hand each task to the skill that owns that kind of work - orchestration for coordination, the matt-pocock engineering skills for spec/tickets/implement/review, impeccable for UI. Reuse what a routed skill already defines; do not improvise a parallel flow.
 
@@ -14,7 +14,7 @@ Hard guardrails for every luucycle branch. User instructions and higher-priority
 
 6. **One source of truth.** The roster owns agent facts, the roles file owns role eligibility, `doctor.py` owns diagnostic mechanics, `roster.py` owns roster mechanics, and this file owns shared guardrails. Branch files own only their branch-specific decisions.
 
-7. **Same process every implementation run.** Predictability is the goal: follow the `IMPLEMENT.md` steps in order for every explicit implementation request, whatever the task.
+7. **Same phase process every implementation run.** Predictability is the goal: follow the selected Audit and/or Execution path in `IMPLEMENT.md` in order for every explicit implementation request.
 
 8. **One roster entry per agent.** Correct or refresh an agent by updating its existing entry. The exact schema lives in [ROSTER-FORMAT.md](ROSTER-FORMAT.md).
 
@@ -30,4 +30,4 @@ Hard guardrails for every luucycle branch. User instructions and higher-priority
 
 14. **Billed probes need fresh consent.** Roster discovery uses free help, catalog, config, or first-party documentation first. A model probe that may bill the user runs only after separate approval immediately before that call.
 
-15. **Vary workers and CLIs across the plan.** Every task gets a distinct primary agent when the roster allows, the fallback always runs on a different CLI product than the primary, and any selection warning that signals a roster limit (single-CLI, no different-CLI fallback, forced reuse) is surfaced in the confirmation table with a proposal for `/luucycle roster add`.
+15. **Vary workers and CLIs across the phase plan.** Every task gets a distinct primary agent when the roster allows, the fallback always runs on a different CLI product than the primary, and any selection warning that signals a roster limit (single-CLI, no different-CLI fallback, forced reuse) is surfaced in the confirmation table with a proposal for `/luucycle roster add`.
