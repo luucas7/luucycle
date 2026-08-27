@@ -10,6 +10,7 @@ import re
 import shutil
 import tempfile
 from dataclasses import dataclass
+from decimal import Decimal, InvalidOperation
 from hashlib import sha256
 from pathlib import Path
 from typing import Any
@@ -22,13 +23,14 @@ FIELDS = (
     "Model",
     "Model Flag",
     "Bypass Flag",
-    "Permission Profile",
     "Cost",
     "Enabled",
     "Verified",
 )
+LEGACY_FIELDS = ("Permission Profile",)
 REQUIRED_ROLES = ("verifier", "builder", "architect", "researcher", "scaffolder")
-ROLES_HEADER = "| Role | When | Context to inject | Output format | Eligible agents (first = best) |"
+ROLES_HEADER = "| Role | When | Context to inject | Output format | Eligible agents (`agent@fit`, highest first) |"
+LEGACY_ROLES_HEADERS = {"| Role | When | Context to inject | Output format | Eligible agents (first = best) |"}
 ROLES_SEPARATOR = "| --- | --- | --- | --- | --- |"
 HEADING = re.compile(r"^### (?P<agent>.+)$")
 FIELD = re.compile(r"^- (?P<name>[A-Za-z ]+): (?P<value>.+)$")
@@ -54,13 +56,19 @@ FIELD_TO_JSON = {
     "Model": "model",
     "Model Flag": "model_flag",
     "Bypass Flag": "bypass_flag",
-    "Permission Profile": "permission_profile",
     "Cost": "cost",
     "Enabled": "enabled",
     "Verified": "verified",
 }
 JSON_TO_FIELD = {value: key for key, value in FIELD_TO_JSON.items()}
-AGENT_PROPOSAL_KEYS = {"agent_id", "Agent ID", *FIELDS, *FIELD_TO_JSON.values()}
+AGENT_PROPOSAL_KEYS = {
+    "agent_id",
+    "Agent ID",
+    *FIELDS,
+    *FIELD_TO_JSON.values(),
+    *LEGACY_FIELDS,
+    "permission_profile",
+}
 
 
 @dataclass(frozen=True)
@@ -80,18 +88,23 @@ class AgentEntry:
         result.update(self.fields)
         return result
 
-    def summary(self, roles: dict[str, list[str]]) -> dict[str, object]:
+    def summary(self, roles: dict[str, list[str]], role_scores: dict[str, dict[str, Decimal]]) -> dict[str, object]:
+        assigned_roles = [role for role, agent_ids in roles.items() if self.agent_id in agent_ids]
         return {
             "agent_id": self.agent_id,
             "cli": self.fields.get("CLI", ""),
             "model": self.fields.get("Model", ""),
             "cost": self.fields.get("Cost", ""),
             "enabled": self.fields.get("Enabled", ""),
-            "roles": [role for role, agent_ids in roles.items() if self.agent_id in agent_ids],
+            "roles": assigned_roles,
+            "role_fit": {
+                role: format_role_score(role_scores.get(role, {}).get(self.agent_id, Decimal("1.0")))
+                for role in assigned_roles
+            },
             "verified": self.fields.get("Verified", ""),
         }
 
-    def contract(self) -> dict[str, object]:
+    def contract(self, role_fit: Decimal | None = None) -> dict[str, object]:
         model_flag = self.fields.get("Model Flag", "")
         bypass_flag = self.fields.get("Bypass Flag", "")
         resolved_model_flag = resolve_template(model_flag, self.fields)
@@ -103,7 +116,7 @@ class AgentEntry:
             resolved_bypass_flag or "",
         ]
         command_preview = " ".join(part for part in parts if part).strip()
-        return {
+        contract = {
             "agent_id": self.agent_id,
             "cli": self.fields.get("CLI", ""),
             "command": self.fields.get("Command", ""),
@@ -113,12 +126,14 @@ class AgentEntry:
             "resolved_model_flag": resolved_model_flag,
             "bypass_flag": bypass_flag,
             "resolved_bypass_flag": resolved_bypass_flag,
-            "permission_profile": self.fields.get("Permission Profile", ""),
             "cost": self.fields.get("Cost", ""),
             "enabled": self.fields.get("Enabled", ""),
             "verified": self.fields.get("Verified", ""),
             "command_preview": command_preview,
         }
+        if role_fit is not None:
+            contract["role_fit"] = format_role_score(role_fit)
+        return contract
 
 
 @dataclass(frozen=True)
@@ -128,6 +143,7 @@ class RoleRow:
     context: str
     output: str
     agents: list[str]
+    scores: dict[str, Decimal]
     line: int = 0
 
 
@@ -145,6 +161,10 @@ class RolesDocument:
     @property
     def roles(self) -> dict[str, list[str]]:
         return {row.role: list(row.agents) for row in self.rows}
+
+    @property
+    def role_scores(self) -> dict[str, dict[str, Decimal]]:
+        return {row.role: dict(row.scores) for row in self.rows}
 
     @property
     def row_by_role(self) -> dict[str, RoleRow]:
@@ -171,6 +191,33 @@ class RosterState:
 def clean(value: str) -> str:
     value = value.strip()
     return value[1:-1] if len(value) >= 2 and value[0] == value[-1] == "`" else value
+
+
+def format_role_score(score: Decimal) -> str:
+    rendered = format(score.normalize(), "f")
+    return rendered if "." in rendered else f"{rendered}.0"
+
+
+def parse_role_reference(value: str, label: str, errors: list[str]) -> tuple[str, Decimal | None]:
+    if "@" not in value:
+        return value, None
+    agent_id, _, raw_score = value.rpartition("@")
+    if not agent_id or not raw_score:
+        errors.append(f"{label}: expected <agent-id>@<fit>")
+        return agent_id or value, None
+    try:
+        score = Decimal(raw_score)
+    except InvalidOperation:
+        errors.append(f"{label}: role fit must be a decimal greater than 0 and at most 1")
+        return agent_id, None
+    if not score.is_finite():
+        errors.append(f"{label}: role fit must be a finite decimal greater than 0 and at most 1")
+        return agent_id, None
+    decimal_places = max(0, -score.as_tuple().exponent)
+    if score <= 0 or score > 1 or decimal_places > 2:
+        errors.append(f"{label}: role fit must be a decimal greater than 0 and at most 1, with at most two places")
+        return agent_id, None
+    return agent_id, score
 
 
 def tick(value: str) -> str:
@@ -246,6 +293,8 @@ def parse_roster_document(text: str) -> RosterDocument:
         field = FIELD.match(line)
         if field and current_agent is not None:
             name = field.group("name")
+            if name in LEGACY_FIELDS:
+                continue
             if name not in FIELDS:
                 errors.append(f"{current_agent}: unknown field {name}")
             elif name in current_fields:
@@ -289,7 +338,7 @@ def parse_roles_document(text: str) -> RolesDocument:
     roles_seen: set[str] = set()
     header_found = False
     for line_number, line in enumerate(text.splitlines(), 1):
-        if line == ROLES_HEADER:
+        if line == ROLES_HEADER or line in LEGACY_ROLES_HEADERS:
             header_found = True
             continue
         if line.startswith("| Role |"):
@@ -308,7 +357,22 @@ def parse_roles_document(text: str) -> RolesDocument:
         roles_seen.add(role)
         if any(not cell for cell in cells[1:4]):
             errors.append(f"ROLES.md line {line_number}: When, Context, and Output must be populated")
-        agents = [clean(item) for item in re.split(r"\s*<br>\s*", cells[4]) if item.strip()]
+        agents: list[str] = []
+        scores: dict[str, Decimal] = {}
+        for index, item in enumerate(re.split(r"\s*<br>\s*", cells[4])):
+            if not item.strip():
+                continue
+            agent_id, score = parse_role_reference(
+                clean(item),
+                f"ROLES.md line {line_number} agent {index + 1}",
+                errors,
+            )
+            if agent_id in agents:
+                errors.append(f"ROLES.md line {line_number}: duplicate Agent ID {agent_id}")
+                continue
+            agents.append(agent_id)
+            if score is not None:
+                scores[agent_id] = score
         rows.append(
             RoleRow(
                 role=role,
@@ -316,6 +380,7 @@ def parse_roles_document(text: str) -> RolesDocument:
                 context=cells[2],
                 output=cells[3],
                 agents=agents,
+                scores=scores,
                 line=line_number,
             )
         )
@@ -372,7 +437,10 @@ def validate_texts(roster_text: str, roles_text: str, warnings_text: str) -> dic
 
     return {
         "status": "FAIL" if errors else "WARN" if warnings else "PASS",
-        "agents": [entry.summary(roles) for entry in sorted(agents_by_id.values(), key=lambda item: item.agent_id)],
+        "agents": [
+            entry.summary(roles, roles_doc.role_scores)
+            for entry in sorted(agents_by_id.values(), key=lambda item: item.agent_id)
+        ],
         "enabled_agents": enabled,
         "roles": roles,
         "errors": errors,
@@ -403,7 +471,14 @@ def render_roster(entries: list[AgentEntry]) -> str:
 def render_roles(rows: list[RoleRow]) -> str:
     rendered_rows = []
     for row in rows:
-        agent_cell = "<br>".join(tick(agent_id) for agent_id in row.agents)
+        agent_cell = "<br>".join(
+            tick(
+                f"{agent_id}@{format_role_score(row.scores[agent_id])}"
+                if agent_id in row.scores
+                else agent_id
+            )
+            for agent_id in row.agents
+        )
         rendered_rows.append(
             f"| {tick(row.role)} | {row.when} | {row.context} | {row.output} | {agent_cell} |"
         )
@@ -483,12 +558,16 @@ def normalize_roles_proposal(value: object, errors: list[str]) -> dict[str, list
             continue
         normalized_ids = []
         seen: set[str] = set()
-        for index, agent_id in enumerate(agent_ids):
-            clean_agent_id = ensure_clean_scalar(agent_id, f"roles.{clean_role}[{index}]", errors)
+        for index, reference in enumerate(agent_ids):
+            label = f"roles.{clean_role}[{index}]"
+            clean_reference = ensure_clean_scalar(reference, label, errors)
+            clean_agent_id, score = parse_role_reference(clean_reference, label, errors)
             if clean_agent_id in seen:
                 errors.append(f"roles.{clean_role}: duplicate Agent ID {clean_agent_id}")
             seen.add(clean_agent_id)
-            normalized_ids.append(clean_agent_id)
+            normalized_ids.append(
+                f"{clean_agent_id}@{format_role_score(score)}" if score is not None else clean_agent_id
+            )
         roles[clean_role] = normalized_ids
     return roles
 
@@ -576,17 +655,35 @@ def build_planned_texts(
             errors.append(f"roles.{role}: role does not exist in ROLES.md")
     if errors:
         return "", "", errors
-    updated_rows = [
-        RoleRow(
-            role=row.role,
-            when=row.when,
-            context=row.context,
-            output=row.output,
-            agents=role_updates.get(row.role, row.agents),
-            line=row.line,
+    updated_rows = []
+    for row in roles_doc.rows:
+        agents = row.agents
+        scores = row.scores
+        if row.role in role_updates:
+            agents = []
+            scores = {}
+            for index, reference in enumerate(role_updates[row.role]):
+                agent_id, score = parse_role_reference(
+                    reference,
+                    f"roles.{row.role}[{index}]",
+                    errors,
+                )
+                agents.append(agent_id)
+                if score is not None:
+                    scores[agent_id] = score
+        updated_rows.append(
+            RoleRow(
+                role=row.role,
+                when=row.when,
+                context=row.context,
+                output=row.output,
+                agents=agents,
+                scores=scores,
+                line=row.line,
+            )
         )
-        for row in roles_doc.rows
-    ]
+    if errors:
+        return "", "", errors
     return render_roster(updated_entries), render_roles(updated_rows), []
 
 
@@ -772,7 +869,8 @@ def select_agents(
     warnings = list(validation["warnings"])
 
     max_rank = COST_ORDER[max_cost]
-    eligible: list[AgentEntry] = []
+    role_row = roles_doc.row_by_role[role]
+    eligible: list[tuple[AgentEntry, Decimal]] = []
     skipped: list[dict[str, str]] = []
     for agent_id in roles[role]:
         entry = agents_by_id.get(agent_id)
@@ -786,7 +884,8 @@ def select_agents(
         if COST_ORDER.get(cost, 99) > max_rank:
             skipped.append({"agent_id": agent_id, "reason": f"cost>{max_cost}"})
             continue
-        eligible.append(entry)
+        eligible.append((entry, role_row.scores.get(agent_id, Decimal("1.0"))))
+    eligible.sort(key=lambda candidate: candidate[1], reverse=True)
     if not eligible:
         return {
             "status": "FAIL",
@@ -797,7 +896,7 @@ def select_agents(
             "skipped": skipped,
         }
 
-    distinct_clis = sorted({entry.fields.get("CLI", "") for entry in eligible})
+    distinct_clis = sorted({entry.fields.get("CLI", "") for entry, _ in eligible})
     if len(distinct_clis) < 2:
         warnings.append(
             f"role {role}: every eligible agent runs the same CLI ({distinct_clis[0]}) - "
@@ -806,8 +905,9 @@ def select_agents(
         )
 
     primary: AgentEntry | None = None
+    primary_fit: Decimal | None = None
     primary_skipped: list[dict[str, str]] = []
-    for entry in eligible:
+    for entry, role_fit in eligible:
         if entry.agent_id in avoid_set:
             primary_skipped.append({"agent_id": entry.agent_id, "reason": "avoided"})
             continue
@@ -815,34 +915,35 @@ def select_agents(
             primary_skipped.append({"agent_id": entry.agent_id, "reason": "cli_avoided"})
             continue
         primary = entry
+        primary_fit = role_fit
         break
     if primary is None:
-        primary = eligible[0]
+        primary, primary_fit = eligible[0]
         warnings.append(
             f"role {role}: every eligible agent is already assigned in this plan or runs an "
             f"excluded CLI; reusing {primary.agent_id} - consider /luucycle roster add"
         )
 
     fallback: AgentEntry | None = None
+    fallback_fit: Decimal | None = None
     fallback_skipped: list[dict[str, str]] = []
     primary_cli = primary.fields.get("CLI", "")
-    primary_profile = primary.fields.get("Permission Profile", "")
-    for entry in eligible[1:]:
+    for entry, role_fit in eligible:
+        if entry.agent_id == primary.agent_id:
+            continue
         if entry.agent_id in avoid_set:
             fallback_skipped.append({"agent_id": entry.agent_id, "reason": "already_assigned"})
             continue
         if entry.fields.get("CLI", "") == primary_cli:
             fallback_skipped.append({"agent_id": entry.agent_id, "reason": "same_cli_as_primary"})
             continue
-        if entry.fields.get("Permission Profile", "") != primary_profile:
-            fallback_skipped.append({"agent_id": entry.agent_id, "reason": "permission_profile_mismatch"})
-            continue
         fallback = entry
+        fallback_fit = role_fit
         break
     if fallback is None:
         warnings.append(
-            f"role {role}: no fallback on a different CLI than {primary.agent_id} with the "
-            "same permission profile; consider /luucycle roster add"
+            f"role {role}: no fallback on a different CLI than {primary.agent_id}; "
+            "consider /luucycle roster add"
         )
 
     return {
@@ -852,8 +953,8 @@ def select_agents(
         "primary": primary.agent_id,
         "fallback": fallback.agent_id if fallback else None,
         "contracts": {
-            "primary": primary.contract(),
-            "fallback": fallback.contract() if fallback else None,
+            "primary": primary.contract(primary_fit),
+            "fallback": fallback.contract(fallback_fit) if fallback else None,
         },
         "skipped": skipped + primary_skipped + fallback_skipped,
         "errors": [],
@@ -890,7 +991,6 @@ def sample_roster(
     model: str,
     cost: str = "medium",
     enabled: str = "true",
-    profile: str = "workspace write",
     cli: str = "Codex",
 ) -> str:
     return f"""### {agent_id}
@@ -901,7 +1001,6 @@ def sample_roster(
 - Model: `{model}`
 - Model Flag: `--model {{model}}`
 - Bypass Flag: `none - sandboxed`
-- Permission Profile: `{profile}`
 - Cost: `{cost}`
 - Enabled: `{enabled}`
 - Verified: `2026-08-22; local help`
@@ -913,14 +1012,14 @@ def write_sample_repo(root: Path) -> Path:
     roster_dir.mkdir(parents=True)
     roster = "\n\n".join(
         [
-            sample_roster("codex:gpt-primary", "gpt-primary", "medium", "true", "workspace write", "Codex").strip(),
-            sample_roster("codex:gpt-disabled", "gpt-disabled", "low", "false", "workspace write", "Codex").strip(),
-            sample_roster("claude:gpt-fallback", "gpt-fallback", "medium", "true", "workspace write", "Claude").strip(),
-            sample_roster("gemini:gpt-high", "gpt-high", "high", "true", "full access", "Gemini").strip(),
+            sample_roster("codex:gpt-primary", "gpt-primary", "medium", "true", "Codex").strip(),
+            sample_roster("codex:gpt-disabled", "gpt-disabled", "low", "false", "Codex").strip(),
+            sample_roster("claude:gpt-fallback", "gpt-fallback", "medium", "true", "Claude").strip(),
+            sample_roster("gemini:gpt-high", "gpt-high", "high", "true", "Gemini").strip(),
         ]
     )
     all_role_rows = "\n".join(
-        f"| `{role}` | work | context | output | `codex:gpt-primary`<br>`codex:gpt-disabled`<br>`claude:gpt-fallback`<br>`gemini:gpt-high` |"
+        f"| `{role}` | work | context | output | `claude:gpt-fallback@0.7`<br>`codex:gpt-primary@0.9`<br>`codex:gpt-disabled@0.8`<br>`gemini:gpt-high@0.6` |"
         for role in REQUIRED_ROLES
     )
     (roster_dir / "ROSTER.md").write_text("# luucycle Roster\n\nCurrent worker facts. Each Agent ID appears once.\n\n## Agents\n\n" + roster + "\n")
@@ -938,7 +1037,7 @@ def self_test() -> None:
     assert entries[0]["Model"] == "gpt-test"
     roles, errors = parse_roles(
         f"{ROLES_HEADER}\n{ROLES_SEPARATOR}\n"
-        "| `builder` | build | context | output | `codex:gpt-test` |"
+        "| `builder` | build | context | output | `codex:gpt-test@0.75` |"
     )
     assert not errors, errors
     assert roles == {"builder": ["codex:gpt-test"]}, roles
@@ -957,6 +1056,19 @@ def self_test() -> None:
     _, errors = parse_roster(roster + roster)
     assert any("duplicate Agent ID" in error for error in errors), errors
 
+    legacy_profile = roster.replace(
+        "- Cost: `medium`",
+        "- Permission Profile: `workspace write with differently worded approval`\n- Cost: `medium`",
+    )
+    _, errors = parse_roster(legacy_profile)
+    assert not errors, errors
+
+    _, errors = parse_roles(
+        f"{ROLES_HEADER}\n{ROLES_SEPARATOR}\n"
+        "| `builder` | build | context | output | `codex:gpt-test@1.01` |"
+    )
+    assert any("role fit must be" in error for error in errors), errors
+
     with tempfile.TemporaryDirectory() as directory:
         root = Path(directory)
         roster_dir = write_sample_repo(root)
@@ -968,6 +1080,8 @@ def self_test() -> None:
         assert selection["status"] == "PASS", selection
         assert selection["primary"] == "codex:gpt-primary", selection
         assert selection["fallback"] == "claude:gpt-fallback", selection
+        assert selection["contracts"]["primary"]["role_fit"] == "0.9", selection
+        assert selection["contracts"]["fallback"]["role_fit"] == "0.7", selection
         assert selection["contracts"]["primary"]["resolved_model_flag"] == "--model gpt-primary", selection
         high_selection = select_agents(root, "builder", "low")
         assert high_selection["status"] == "FAIL", high_selection
@@ -1000,13 +1114,12 @@ def self_test() -> None:
                     "model": "gpt-new",
                     "model_flag": "--model {model}",
                     "bypass_flag": "none - sandboxed",
-                    "permission_profile": "workspace write",
                     "cost": "low",
                     "enabled": "true",
                     "verified": "2026-08-23; local help",
                 }
             ],
-            "roles": {"builder": ["codex:gpt-new", "codex:gpt-primary", "claude:gpt-fallback"]},
+            "roles": {"builder": ["codex:gpt-new@0.95", "codex:gpt-primary@0.9", "claude:gpt-fallback@0.7"]},
         }
         proposal_path.write_text(json_dumps(proposal))
         planned = plan_roster(root, str(proposal_path))
@@ -1031,7 +1144,7 @@ def self_test() -> None:
             json_dumps(
                 {
                     "version": PLAN_VERSION,
-                    "roles": {"builder": ["codex:gpt-primary", "claude:gpt-fallback"]},
+                    "roles": {"builder": ["codex:gpt-primary@0.9", "claude:gpt-fallback@0.7"]},
                 }
             )
         )
@@ -1049,8 +1162,8 @@ def self_test() -> None:
         roster_dir.mkdir(parents=True)
         single_roster = "\n\n".join(
             [
-                sample_roster("codex:agent-a", "agent-a", "low", "true", "workspace write", "Codex").strip(),
-                sample_roster("codex:agent-b", "agent-b", "low", "true", "workspace write", "Codex").strip(),
+                sample_roster("codex:agent-a", "agent-a", "low", "true", "Codex").strip(),
+                sample_roster("codex:agent-b", "agent-b", "low", "true", "Codex").strip(),
             ]
         )
         (roster_dir / "ROSTER.md").write_text(
@@ -1060,7 +1173,7 @@ def self_test() -> None:
             "# luucycle Roles\n\n"
             f"{ROLES_HEADER}\n{ROLES_SEPARATOR}\n"
             + "\n".join(
-                f"| `{role}` | work | context | output | `codex:agent-a`<br>`codex:agent-b` |"
+                f"| `{role}` | work | context | output | `codex:agent-a@0.9`<br>`codex:agent-b@0.8` |"
                 for role in REQUIRED_ROLES
             )
             + "\n"
@@ -1072,6 +1185,37 @@ def self_test() -> None:
         assert single_cli["fallback"] is None, single_cli
         assert any("same CLI" in message for message in single_cli["warnings"]), single_cli
         assert any("no fallback on a different CLI" in message for message in single_cli["warnings"]), single_cli
+
+    with tempfile.TemporaryDirectory() as directory:
+        root = Path(directory)
+        roster_dir = root / ".agents" / "luucycle"
+        roster_dir.mkdir(parents=True)
+        primary_block = sample_roster("codex:legacy-primary", "legacy-primary", cli="Codex").strip().replace(
+            "- Cost: `medium`",
+            "- Permission Profile: `workspace auto approval`\n- Cost: `medium`",
+        )
+        fallback_block = sample_roster("cline:legacy-fallback", "legacy-fallback", cli="Cline").strip().replace(
+            "- Cost: `medium`",
+            "- Permission Profile: `accept edits and commands without prompting`\n- Cost: `medium`",
+        )
+        (roster_dir / "ROSTER.md").write_text(
+            "# luucycle Roster\n\nCurrent worker facts. Each Agent ID appears once.\n\n## Agents\n\n"
+            f"{primary_block}\n\n{fallback_block}\n"
+        )
+        legacy_header = next(iter(LEGACY_ROLES_HEADERS))
+        legacy_rows = "\n".join(
+            f"| `{role}` | work | context | output | `codex:legacy-primary`<br>`cline:legacy-fallback` |"
+            for role in REQUIRED_ROLES
+        )
+        (roster_dir / "ROLES.md").write_text(
+            f"# luucycle Roles\n\n{legacy_header}\n{ROLES_SEPARATOR}\n{legacy_rows}\n"
+        )
+        (roster_dir / "WARNINGS.md").write_text("# luucycle WARNINGS\n\n_None yet._\n")
+        legacy_selection = select_agents(root, "builder", "medium")
+        assert legacy_selection["status"] == "PASS", legacy_selection
+        assert legacy_selection["primary"] == "codex:legacy-primary", legacy_selection
+        assert legacy_selection["fallback"] == "cline:legacy-fallback", legacy_selection
+        assert "permission_profile" not in legacy_selection["contracts"]["primary"], legacy_selection
 
     bad_proposal, _, _, errors = normalize_proposal({"roster": [{"agent_id": "missing-fields"}]})
     assert bad_proposal["roster"] == [], bad_proposal

@@ -988,14 +988,13 @@ def write_roster(repo_root: Path, command: str, *, model_flag: str = "--model {m
 - Model: `gpt-test`
 - Model Flag: `{model_flag}`
 - Bypass Flag: `--bypass`
-- Permission Profile: `test bypass`
 - Cost: `low`
 - Enabled: `true`
 - Verified: `2026-08-25; self-test`"""
         for agent_id, cli in entries
     )
     roster += "\n"
-    eligible_cell = "<br>".join(f"`{agent_id}`" for agent_id, _ in entries)
+    eligible_cell = "<br>".join(f"`{agent_id}@{1 - index / 10:.1f}`" for index, (agent_id, _) in enumerate(entries))
     roles = "\n".join(
         f"| `{role}` | work | context | output | {eligible_cell} |"
         for role in ("verifier", "builder", "architect", "researcher", "scaffolder")
@@ -1003,7 +1002,7 @@ def write_roster(repo_root: Path, command: str, *, model_flag: str = "--model {m
     (roster_dir / "ROSTER.md").write_text(roster)
     (roster_dir / "ROLES.md").write_text(
         "# luucycle Roles\n\n"
-        "| Role | When | Context to inject | Output format | Eligible agents (first = best) |\n"
+        "| Role | When | Context to inject | Output format | Eligible agents (`agent@fit`, highest first) |\n"
         "| --- | --- | --- | --- | --- |\n"
         f"{roles}\n"
     )
