@@ -22,7 +22,7 @@ Same process on every implementation run (RULES rule 7): predictable orchestrati
 - **The skills it orchestrates**: the [matt-pocock engineering set](https://github.com/mattpocock/skills) (grilling, spec, tickets, implement, ...), [impeccable](https://github.com/pbakaus/impeccable) (UI gate), and Orca's `orchestration` + `orca-cli` skills. The `init` branch installs all of this for you.
 - **A configured issue tracker for feature alignment or tracker-backed work** - `/setup-matt-pocock-skills` records where issues live in `docs/agents/issue-tracker.md`.
 
-Run `/luucycle doctor` for the complete non-mutating readiness report. Use `/luucycle ask-lucas` for questions about luucycle's commands, skills, setup, or workflow. Application and product questions start with `/luucycle prepare`.
+Run `/luucycle doctor` for the complete non-mutating readiness report. Use `/luucycle ask-lucas` (or `/luucycle help`) for questions about luucycle's commands, skills, setup, or workflow. Application and product questions start with `/luucycle prepare`.
 
 Mechanical diagnostics and roster operations live in `skills/luucycle/scripts/doctor.py` and `skills/luucycle/scripts/roster.py`; the Markdown branches decide scope, routing, and approvals.
 
@@ -43,7 +43,7 @@ Examples use `/luucycle`. In Codex, `$luucycle` is equivalent (`$luucycle implem
 | Command | What it does | Example |
 | --- | --- | --- |
 | `/luucycle` | Show the available commands and recommend initialization | `/luucycle` |
-| `/luucycle ask-lucas` | Answer questions about luucycle itself and recommend a copyable luucycle command | `/luucycle ask-lucas How does implementation approval work?` |
+| `/luucycle ask-lucas` (alias: `/luucycle help`) | Answer questions about luucycle itself and recommend a copyable luucycle command | `/luucycle ask-lucas How does implementation approval work?` |
 | `/luucycle doctor` | Check Orca, skills, tracker/design setup, roster, roles, and every enabled CLI without changing state | `/luucycle doctor` |
 | `/luucycle implement <ref|request>` | Decompose → route → assign a model → plan approval → dispatch → UI gate → retrospective | `/luucycle implement #42` |
 | `/luucycle prepare` | Start `/grill-with-docs` for an app or product topic, then normally create a spec and tickets or, for a bounded change, confirm direct implementation | `/luucycle prepare` |

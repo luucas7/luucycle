@@ -12,7 +12,7 @@ Route explicit luucycle commands to the matching branch. Treat `/luucycle` and `
 | Invocation | Branch | File |
 | --- | --- | --- |
 | `/luucycle` | Show the available commands and recommend initialization | — |
-| `/luucycle ask-lucas` | Answer questions about luucycle itself and recommend its exact next command | [ASK-LUCAS.md](ASK-LUCAS.md) |
+| `/luucycle ask-lucas` or `/luucycle help` | Answer questions about luucycle itself and recommend its exact next command | [ASK-LUCAS.md](ASK-LUCAS.md) |
 | `/luucycle doctor` | Run the complete non-mutating readiness audit | [DOCTOR.md](DOCTOR.md) |
 | `/luucycle implement <ref\|request>` | Decompose, route, confirm, and dispatch implementation | [IMPLEMENT.md](IMPLEMENT.md) |
 | `/luucycle implement` without an argument | Ask for the missing reference or request | — |

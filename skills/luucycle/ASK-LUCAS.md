@@ -1,6 +1,6 @@
 # Ask Lucas
 
-Advisor for **luucycle's own operating model**. Run this branch for explicit `/luucycle ask-lucas` or any invocation that does not match a supported subcommand.
+Advisor for **luucycle's own operating model**. Run this branch for explicit `/luucycle ask-lucas`, its `/luucycle help` alias, or any invocation that does not match a supported subcommand.
 
 Answer questions about luucycle commands, skills, workflow, setup, readiness, roster, routing, and recovery. Audit only the luucycle setup relevant to the answer, then recommend the exact command when one is needed. This branch remains advisory.
 
