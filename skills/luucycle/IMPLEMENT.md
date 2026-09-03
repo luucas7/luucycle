@@ -13,7 +13,7 @@
 
    - Break its work into tasks and route each one through [ROUTING.md](ROUTING.md). Record every routed skill and whether any Execution task touches UI.
    - Run Doctor's Task scope in [implicit mode](DOCTOR.md#output), repeating `--required-skill` for every routed skill. Continue on `READY`; continue on `DEGRADED` only when every gap is unrelated to the phase; stop on `BLOCKED` or `UNKNOWN` with the smallest repair command.
-   - Read `.agents/luucycle/ROLES.md`; for each task, choose the narrowest matching `When` criterion and record the role and any ambiguity rationale internally. Then run:
+   - Resolve `<repo-root>` as an absolute path with `git rev-parse --show-toplevel`. Read `<repo-root>/.agents/luucycle/ROLES.md`; for each task, choose the narrowest matching `When` criterion and record the role and any ambiguity rationale internally. Then run:
 
      ```bash
      python3 "<skill-root>/scripts/roster.py" select --json [--max-cost low|medium|high] [--avoid <agent-id>]... [--avoid-cli <cli>]... <role> "<repo-root>"
@@ -41,15 +41,17 @@
 
    Wait for explicit approval of this exact phase plan before dispatch.
 
-3. **Dispatch Audit and report its outcome.** Skip this step unless the approved phase is Audit. Load the `orchestration` skill and its version-matched guide once for coordination and recovery. Read `.agents/luucycle/WARNINGS.md`. Every Audit worker request includes its mission, routed skill and how to load it, read-only boundary, required evidence, completion criterion, role output format, and the approved roster contract. Require the receipt to name the loaded skill. A worker unable to proceed returns `BLOCKED: <unavailable capability>; evidence: <observed failure>; partial state: none` instead of guessing or waiting silently.
+   Before dispatch, read `<repo-root>/.agents/luucycle/WARNINGS.md` in the initial base checkout. Resolve each project path against the target worktree root from Orca's full worktree ID. Inject the task-specific role, roster contract, and warnings directly into the worker request.
+
+3. **Dispatch Audit and report its outcome.** Skip this step unless the approved phase is Audit. Load the `orchestration` skill and its version-matched guide once for coordination and recovery. Every Audit worker request includes its mission, routed skill and how to load it, read-only boundary, required evidence, completion criterion, role output format, and the approved roster contract. Require the receipt to name the loaded skill. A worker unable to proceed returns `BLOCKED: <unavailable capability>; evidence: <observed failure>; partial state: none` instead of guessing or waiting silently.
 
    Synthesize the worker reports without substituting the coordinator's independent perimeter conclusion. Surface any disagreement or out-of-scope finding with its evidence. If Audit was the only selected phase, or it establishes that no execution is needed, conclude directly with the evidence. Otherwise return to step 2 to prepare a distinct Execution plan.
 
-4. **Dispatch Execution with a skill contract.** Skip this step unless the approved phase is Execution. Load the `orchestration` skill and its version-matched guide once for coordination and recovery. Read `.agents/luucycle/WARNINGS.md`. Every Execution worker request includes the task, routed skill and how to load it, required context, completion criterion, role output format, and the approved roster contract. Require the receipt to name the loaded skill. A worker unable to proceed returns `BLOCKED: <unavailable capability>; evidence: <observed failure>; partial state: <none or exact changes>` immediately; it does not guess or wait silently.
+4. **Dispatch Execution with a skill contract.** Skip this step unless the approved phase is Execution. Load the `orchestration` skill and its version-matched guide once for coordination and recovery. Every Execution worker request includes the task, routed skill and how to load it, required context, completion criterion, role output format, and the approved roster contract. Require the receipt to name the loaded skill. A worker unable to proceed returns `BLOCKED: <unavailable capability>; evidence: <observed failure>; partial state: <none or exact changes>` immediately; it does not guess or wait silently.
 
 5. **Gatekeeper (UI Gate).** RULES rule 5: impeccable approval is the completion condition for an interface-touching task.
    - **One gate per final state.** Review only the fully merged diff. After `CHANGES REQUIRED`, dispatch one fix worker and re-gate the updated diff. Allow at most two fix/re-gate cycles; then pause and ask the user how to proceed. Confirm every verdict references code that still exists.
-   - **One fresh terminal per gate pass.** Re-using a gate worker's terminal replays its previous conversation and can re-emit the old verdict. Create a new terminal for every re-gate.
+   - **One fresh terminal per gate pass.** Create a fresh agent terminal in the initial base worktree containing the fully merged diff for every gate and re-gate pass. Each pass starts with the current code and a fresh conversation.
 
 6. **Handle a blocked or unavailable worker.** A primary `BLOCKED` report is sufficient when it names the unavailable capability and observed failure. For a worker that never reports, diagnose its terminal and lifecycle with the loaded orchestration guide. Re-dispatch once to the approved fallback under RULES rule 3, including the primary's diagnostic and exact partial state; otherwise pause the task with the evidence.
    - **Diagnose before waiting.** Use the guide's worker-state and terminal-state commands to verify heartbeat and execution state before a long wait. Treat a dispatch as dead only when the guide's evidence satisfies its dead-worker condition.
