@@ -4,7 +4,7 @@ Orchestrator agent skill: decomposes a request into tasks, routes each task to t
 
 ## What it does
 
-luucycle sits **on top of** the skills already installed in your repo - it never reimplements their work. Bare `/luucycle` shows the available commands and recommends `/luucycle init`. Implementation starts with the explicit `/luucycle implement <ref|request>` command, except for the explicitly confirmed bounded-change transition from `/luucycle prepare`, then follows the same process every time:
+luucycle sits **on top of** the skills already installed in your repo - it never reimplements their work. Bare `/luucycle` shows the available commands and recommends `/luucycle init`. Implementation starts with the explicit `/luucycle implement <ref|request>` command, except for the explicitly confirmed bounded-change transition from `/luucycle cook`, then follows the same process every time:
 
 1. **Decompose** the request into tasks.
 2. **Route** each task to the skill that owns that kind of work (spec → `to-spec`, code → `implement`, UI → `impeccable`, ... see `ROUTING.md`).
@@ -22,7 +22,7 @@ Same process on every implementation run (RULES rule 7): predictable orchestrati
 - **The skills it orchestrates**: the [matt-pocock engineering set](https://github.com/mattpocock/skills) (grilling, spec, tickets, implement, ...), [impeccable](https://github.com/pbakaus/impeccable) (UI gate), and Orca's `orchestration` + `orca-cli` skills. The `init` branch installs all of this for you.
 - **A configured issue tracker for feature alignment or tracker-backed work** - `/setup-matt-pocock-skills` records where issues live in `docs/agents/issue-tracker.md`.
 
-Run `/luucycle doctor` for the complete non-mutating readiness report. Use `/luucycle ask-lucas` (or `/luucycle help`) for questions about luucycle's commands, skills, setup, or workflow. Application and product questions start with `/luucycle prepare`.
+Run `/luucycle doctor` for the complete non-mutating readiness report. Use `/luucycle ask-lucas` (or `/luucycle help`) for questions about luucycle's commands, skills, setup, or workflow. Application and product questions start with `/luucycle cook`.
 
 Mechanical diagnostics and roster operations live in `skills/luucycle/scripts/doctor.py` and `skills/luucycle/scripts/roster.py`; the Markdown branches decide scope, routing, and approvals.
 
@@ -46,19 +46,19 @@ Examples use `/luucycle`. In Codex, `$luucycle` is equivalent (`$luucycle implem
 | `/luucycle ask-lucas` (alias: `/luucycle help`) | Answer questions about luucycle itself and recommend a copyable luucycle command | `/luucycle ask-lucas How does implementation approval work?` |
 | `/luucycle doctor` | Check Orca, skills, tracker/design setup, roster, roles, and every enabled CLI without changing state | `/luucycle doctor` |
 | `/luucycle implement <ref|request>` | Decompose → route → assign a model → plan approval → dispatch → UI gate → retrospective | `/luucycle implement #42` |
-| `/luucycle prepare` | Start `/grill-with-docs` for an app or product topic, then normally create a spec and tickets or, for a bounded change, confirm direct implementation | `/luucycle prepare` |
+| `/luucycle cook` | Start `/grill-with-docs` for an app or product topic, then normally create a spec and tickets or, for a bounded change, confirm direct implementation | `/luucycle cook` |
 | `/luucycle init` | Install the skill library (mattpocock, impeccable, orca skills), run `/impeccable init`, bootstrap the roster | `/luucycle init` |
 | `/luucycle roster list` | List each agent with its CLI, model, cost, enabled state, roles, and verification date without probing it | `/luucycle roster list` |
 | `/luucycle roster add [cli]` | Discover every installed worker CLI, or inspect one named CLI; propose its best models, confirm, then update the roster and roles | `/luucycle roster add` |
 
-Invocations such as `/luucycle should ranking be calculated client-side or server-side?` do not analyze or implement the application. Ask Lucas redirects them to `/luucycle prepare`, where `grill-with-docs` aligns the decision first.
+Invocations such as `/luucycle should ranking be calculated client-side or server-side?` do not analyze or implement the application. Ask Lucas redirects them to `/luucycle cook`, where `grill-with-docs` aligns the decision first.
 
 ## The flow at a glance
 
-The `prepare` branch is the entry point for application and product questions. It starts the alignment session itself; the aligned result determines the next branch:
+The `cook` branch is the entry point for application and product questions. It starts the alignment session itself; the aligned result determines the next branch:
 
 ```
-/luucycle prepare
+/luucycle cook
    └─ /grill-with-docs          launched immediately in the same conversation
       ├─ no change              stop with the recorded decision
       ├─ bounded change         explicit confirmation → implement in this conversation
@@ -81,11 +81,11 @@ Installed copies must come from `npx skills add luucas7/luucycle` (symlink insta
 ## Structure
 
 - `SKILL.md` - command router + implementation authorization boundary
-- `ASK-LUCAS.md` - advisor for luucycle's own workflow; application and product questions redirect to `prepare`
+- `ASK-LUCAS.md` - advisor for luucycle's own workflow; application and product questions redirect to `cook`
 - `DOCTOR.md` - non-mutating installation and roster health check
 - `DOCTOR-REPORT.md` - full report format loaded only by explicit Doctor
 - `IMPLEMENT.md` - explicit implementation orchestration flow
-- `PREPARE.md` - app/product alignment branch (`grill-with-docs` → normally spec/tickets, or confirmed direct implementation)
+- `COOK.md` - app/product alignment branch (`grill-with-docs` → normally spec/tickets, or confirmed direct implementation)
 - `INIT.md` - bootstrap branch
 - `ROSTER-LIST.md` - current roster view
 - `ROSTER-ADD.md` - roster growth branch

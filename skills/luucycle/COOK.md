@@ -1,12 +1,12 @@
-# luucycle prepare
+# luucycle cook
 
-Branch of luucycle for **aligning application and product work**. Invoking `/luucycle prepare` starts `grill-with-docs` in the current conversation. The normal result is durable planning through `to-spec` and `to-tickets`; a clearly bounded change may instead proceed directly to implementation in this conversation after explicit user confirmation.
+Branch of luucycle for **aligning application and product work**. Invoking `/luucycle cook` starts `grill-with-docs` in the current conversation. The normal result is durable planning through `to-spec` and `to-tickets`; a clearly bounded change may instead proceed directly to implementation in this conversation after explicit user confirmation.
 
 ## Steps
 
 1. **Verify alignment readiness.** Run the scoped audit in `DOCTOR.md` and require **Feature alignment** to be `READY`. Stop on `BLOCKED` or `UNKNOWN`; get explicit acceptance before continuing from `DEGRADED`. Report implementation readiness separately so the user knows whether the later handoff is ready, but do not block alignment on an Orca or roster gap.
 
-2. **Start alignment.** Load and run the installed `grill-with-docs` skill immediately in this conversation, using the application or product topic already present in the conversation. `/luucycle prepare` is the authorization to start this interactive alignment; do not ask the user to invoke `/grill-with-docs` separately. If no topic is available, let `grill-with-docs` elicit it.
+2. **Start alignment.** Load and run the installed `grill-with-docs` skill immediately in this conversation, using the application or product topic already present in the conversation. `/luucycle cook` is the authorization to start this interactive alignment; do not ask the user to invoke `/grill-with-docs` separately. If no topic is available, let `grill-with-docs` elicit it.
 
 3. **Choose the delivery path with the user.** Once `grill-with-docs` reports alignment and every design, decision, or vocabulary artifact it names exists, classify the agreed result. Prefer durable planning unless the agreed change is clearly bounded:
 
@@ -26,4 +26,4 @@ Branch of luucycle for **aligning application and product work**. Invoking `/luu
 
 5. **Hand off planned work.** After `to-spec` and `to-tickets`, give the exact `/luucycle implement <parent ref>` command for a fresh conversation. For the direct path, implementation already continues in the current conversation. For the no-change path, provide no implementation command.
 
-**Completion criterion:** alignment readiness is settled, `grill-with-docs` has completed with its named artifacts present, the user has confirmed one of the three delivery paths, and either direct implementation has been explicitly authorized in the current conversation or the selected spec/ticket artifacts and fresh-conversation handoff have been verified and provided.
+**Completion criterion:** The topic is cooked. This means alignment readiness is settled, `grill-with-docs` has completed with its named artifacts present, the user has confirmed one of the three delivery paths, and either direct implementation has been explicitly authorized in the current conversation or the selected spec/ticket artifacts and fresh-conversation handoff have been verified and provided.

@@ -16,7 +16,7 @@ Route explicit luucycle commands to the matching branch. Treat `/luucycle` and `
 | `/luucycle doctor` | Run the complete non-mutating readiness audit | [DOCTOR.md](DOCTOR.md) |
 | `/luucycle implement <ref\|request>` | Decompose, route, confirm, and dispatch implementation | [IMPLEMENT.md](IMPLEMENT.md) |
 | `/luucycle implement` without an argument | Ask for the missing reference or request | — |
-| `/luucycle prepare` | Start app or product alignment with `grill-with-docs`, then choose the delivery path | [PREPARE.md](PREPARE.md) |
+| `/luucycle cook` | Start app or product alignment with `grill-with-docs`, then choose the delivery path | [COOK.md](COOK.md) |
 | `/luucycle init` | Install the skill library and bootstrap the roster | [INIT.md](INIT.md) |
 | `/luucycle roster list` | Show agents, models, enabled state, and roles | [ROSTER-LIST.md](ROSTER-LIST.md) |
 | `/luucycle roster add [cli]` | Discover installed worker CLIs, or inspect one named CLI, then add models to the roster | [ROSTER-ADD.md](ROSTER-ADD.md) |
