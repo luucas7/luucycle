@@ -29,6 +29,8 @@
 
    State that Audit is read-only: workers may inspect code, diffs, issues, and configuration, and may run only non-persistent tests or diagnostics. They do not edit files, create artifacts, publish comments, or change external state.
 
+   Capture the current branch name as the workers' initial base branch and display `Base branch: <name>` immediately before the Execution plan table. Work from that branch. If Orca creates temporary branches or worktrees, rebase their final work onto the initial base branch before completing the task.
+
    For **Execution**, present exactly one table:
 
    | Task | Routed skill | Primary agent | Fallback agent |
