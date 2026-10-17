@@ -31,13 +31,6 @@ ROUTING_ROW = re.compile(r"^\|\s*(?P<intent>[^|]+)\|\s*(?P<skill>[^|]+)\|")
 OPTION = re.compile(r"(?<![A-Za-z0-9_-])(--[A-Za-z0-9][A-Za-z0-9_-]*|-[A-Za-z])")
 
 
-def trim_text(value: str, limit: int = 1200) -> str:
-    text = value.strip()
-    if len(text) <= limit:
-        return text
-    return text[: limit - 3].rstrip() + "..."
-
-
 def clean(value: str) -> str:
     value = value.strip()
     return value[1:-1] if len(value) >= 2 and value[0] == value[-1] == "`" else value
@@ -275,7 +268,7 @@ def check_orca(env: dict[str, str]) -> tuple[list[dict[str, Any]], list[str] | N
                 required=True,
                 summary="Orca status returned nonzero",
                 evidence=[*status_evidence, f"exit={status['returncode']}"],
-                error=[trim_text(status["stderr"] or status["stdout"])],
+                error=[value for value in (status["stderr"], status["stdout"]) if value],
             )
         )
     else:
@@ -370,7 +363,7 @@ def check_orca(env: dict[str, str]) -> tuple[list[dict[str, Any]], list[str] | N
                 required=True,
                 summary="Version-matched orchestration guide is unavailable",
                 evidence=[*guide_evidence, f"exit={guide['returncode']}"],
-                error=[trim_text(guide_text)],
+                error=[guide_text],
             )
         )
     return checks, argv
@@ -700,7 +693,7 @@ def check_roster(repo_root: Path, skill_root: Path, env: dict[str, str]) -> tupl
             required=True,
             summary="Roster validation did not return parseable JSON",
             evidence=[*evidence, f"exit={result['returncode']}"],
-            error=[f"json parse error: {exc}", trim_text(result["stderr"] or result["stdout"])],
+            error=[f"json parse error: {exc}", *[value for value in (result["stderr"], result["stdout"]) if value]],
         )
 
     roster_status = payload.get("status")

@@ -85,6 +85,7 @@ Installed copies must come from `npx skills add luucas7/luucycle` (symlink insta
 - `DOCTOR.md` - non-mutating installation and roster health check
 - `DOCTOR-REPORT.md` - full report format loaded only by explicit Doctor
 - `IMPLEMENT.md` - explicit implementation orchestration flow
+- `COMPACT.md` - implementation return contract, projection, targeted reads and session relay
 - `COOK.md` - app/product alignment branch (`grill-with-docs` → normally spec/tickets, or confirmed direct implementation)
 - `INIT.md` - bootstrap branch
 - `ROSTER-LIST.md` - current roster view
@@ -94,6 +95,13 @@ Installed copies must come from `npx skills add luucas7/luucycle` (symlink insta
 - `scripts/doctor.py` - read-only readiness diagnostics for Doctor, Ask Lucas, init, and implement
 - `scripts/roster.py` - roster validation, listing, selection, planned writes, and hash-guarded apply
 - `scripts/check_roster.py` - compatibility entrypoint for roster validation
+- `scripts/compact.py` - read-only projection of versioned returns and digest-guarded lookup by exact ID
 - `agents/openai.yaml` - Codex UI metadata and explicit-only invocation policy
 - `.agents/luucycle/ROSTER.md` / `.agents/luucycle/ROLES.md` / `.agents/luucycle/WARNINGS.md` - **user data** at the repo root, never inside the skill (`npx skills update` wipes `.agents/skills/luucycle/`); seeded by `roster add`
 - `RULES.md` - shared authorization and execution guardrails
+
+## Local return-contract checks
+
+No consumer repository or tracker is needed. The deterministic synthetic scenario
+and byte comparison live under `tests/`; see [tests/README.md](tests/README.md) for
+commands, coverage, and the limits of this demonstration.

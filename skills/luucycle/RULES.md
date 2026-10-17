@@ -12,7 +12,7 @@ Hard guardrails for every luucycle branch. User instructions and higher-priority
 
 5. **Gate all UI through impeccable.** Any change that touches the interface passes through impeccable before it is considered complete.
 
-6. **One source of truth.** The roster owns agent facts, the roles file owns role eligibility, `doctor.py` owns diagnostic mechanics, `roster.py` owns roster mechanics, and this file owns shared guardrails. Branch files own only their branch-specific decisions.
+6. **One source of truth.** The roster owns agent facts, the roles file owns role eligibility, `doctor.py` owns diagnostic mechanics, `roster.py` owns roster mechanics, [COMPACT.md](COMPACT.md) owns implementation return/projection/relay contracts, and this file owns shared guardrails. Branch files own only their branch-specific decisions.
 
 7. **Same phase process every implementation run.** Predictability is the goal: follow the selected Audit and/or Execution path in `IMPLEMENT.md` in order for every explicit implementation request.
 
