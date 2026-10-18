@@ -32,7 +32,7 @@ Mechanical diagnostics and roster operations live in `skills/luucycle/scripts/do
 npx skills add luucas7/luucycle
 ```
 
-Make sure to initialize the skill environnement : `/luucycle init`.
+Make sure to initialize the skill environment: `/luucycle init`.
 
 ## Commands (branches)
 
@@ -45,7 +45,7 @@ Examples use `/luucycle`. In Codex, `$luucycle` is equivalent (`$luucycle implem
 | `/luucycle` | Show the available commands and recommend initialization | `/luucycle` |
 | `/luucycle ask-lucas` (alias: `/luucycle help`) | Answer questions about luucycle itself and recommend a copyable luucycle command | `/luucycle ask-lucas How does implementation approval work?` |
 | `/luucycle doctor` | Check Orca, skills, tracker/design setup, roster, roles, and every enabled CLI without changing state | `/luucycle doctor` |
-| `/luucycle implement <ref|request>` | Decompose → route → assign a model → plan approval → dispatch → UI gate → retrospective | `/luucycle implement #42` |
+| `/luucycle implement <ref\|request>` | Decompose → route → assign a model → plan approval → dispatch → UI gate → retrospective | `/luucycle implement #42` |
 | `/luucycle cook` | Start `/grill-with-docs` for an app or product topic, then normally create a spec and tickets or, for a bounded change, confirm direct implementation | `/luucycle cook` |
 | `/luucycle init` | Install the skill library (mattpocock, impeccable, orca skills), run `/impeccable init`, bootstrap the roster | `/luucycle init` |
 | `/luucycle roster list` | List each agent with its CLI, model, cost, enabled state, roles, and verification date without probing it | `/luucycle roster list` |
