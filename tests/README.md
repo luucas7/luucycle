@@ -8,6 +8,7 @@ python3 -B tests/benchmark_compact.py
 python3 -B skills/luucycle/scripts/doctor.py --self-test
 python3 -B skills/luucycle/scripts/roster.py --self-test
 python3 -B skills/luucycle/scripts/check_roster.py --self-test
+python3 -B skills/luucycle/scripts/check_skill_hygiene.py skills/luucycle
 python3 -B skills/luucycle/check_links.py
 ```
 
@@ -40,6 +41,12 @@ mal formée, champ requis absent, champ inconnu, ID ou clé dupliqués, statut i
 erreur non résolue, résultat partiel, compte incohérent et empreinte modifiée.
 Un test de non-régression conserve intégralement les deux flux d'un échec Doctor,
 y compris une preuve située après le caractère 1 200.
+
+La suite de tests comportementaux (`behavioral_trace.py` et `test_behavioral_trace.py`)
+assure la vérification déterministe d'invariants d'orchestration :
+- **Zéro prompt post-settlement** (`zero_post_settlement_prompts`) : aucune relance ou sollicitation du worker après le règlement ou l'arrêt de la tâche.
+- **Libération immédiate des terminaux** (`immediate_terminal_release`) : libération sans délai du terminal et de la session dès la fin du travail.
+- **Respect du compact return** (`projection_boundary_respect`) : consommation de la projection compacte par le coordinateur sans inspection injustifiée des payloads détaillés.
 
 ## Repérage des points d'entrée
 

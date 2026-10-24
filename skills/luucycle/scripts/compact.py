@@ -21,8 +21,9 @@ from typing import Any
 SCHEMA = "luucycle.return.v1"
 ENVELOPE_KEYS = {"schema", "kind", "complete", "expected_count", "items", "errors"}
 ITEM_KEYS = {"id", "status", "decision", "ids", "evidence", "changes", "blockers", "controls", "detail"}
-STATUSES = {"PENDING", "RUNNING", "DONE", "BLOCKED", "FAILED", "UNKNOWN", "PAUSED"}
+STATUSES = {"PENDING", "RUNNING", "DONE", "BLOCKED", "FAILED", "UNKNOWN", "PAUSED", "SEALED"}
 STOP_STATUSES = {"BLOCKED", "FAILED", "UNKNOWN", "PAUSED"}
+TERMINAL_STATUSES = {"DONE", "BLOCKED", "FAILED", "SEALED"}
 KINDS = {"tasks", "workers", "orca", "relay"}
 
 
@@ -98,6 +99,8 @@ def decode(raw: bytes) -> dict[str, Any]:
                 raise ContractError(f"{label}: {key} must be an array")
         if not isinstance(item["controls"], dict) or not isinstance(item["detail"], dict):
             raise ContractError(f"{label}: controls and detail must be objects")
+        if "sealed" in item["controls"] and type(item["controls"]["sealed"]) is not bool:
+            raise ContractError(f"{label}: sealed must be an explicit boolean")
         if payload["kind"] == "relay" and not {"approvals", "verified_state", "incidents"} <= item["controls"].keys():
             raise ContractError(f"{label}: relay lacks approvals, verified_state or incidents")
     if payload["kind"] == "relay" and (payload["expected_count"] != 1 or len(payload["items"]) != 1):
@@ -146,6 +149,76 @@ def project(raw: bytes, source: str) -> dict[str, Any]:
             "next": "verify_source_or_item" if issues else "review_controls"}
 
 
+def check_input(
+    raw: bytes | dict[str, Any],
+    source: str = "<memory>",
+    worker_id: str = "",
+    sha256: str | None = None,
+) -> dict[str, Any]:
+    if isinstance(raw, dict):
+        raw_bytes = encode(raw)
+        artifact_source = source if source != "<memory>" else "memory:payload"
+    else:
+        raw_bytes = raw
+        artifact_source = source
+    artifact = source_ref(raw_bytes, artifact_source)
+    try:
+        if sha256 and hashlib.sha256(raw_bytes).hexdigest() != sha256:
+            raise ContractError("source changed; re-project and re-verify before deciding")
+        payload = decode(raw_bytes)
+        if not payload["complete"]:
+            raise ContractError("source collection is incomplete; re-project and verify before input")
+        if payload["errors"]:
+            raise ContractError("source collection has unresolved errors; input is rejected")
+        matches = [item for item in payload["items"] if item["id"] == worker_id]
+        if not matches:
+            matches = [item for item in payload["items"] if item.get("ids", {}).get("worker") == worker_id]
+        if len(matches) != 1:
+            raise ContractError("exact ID not found; no prefix or substitute lookup")
+        item = matches[0]
+        is_sealed = (item["status"] in TERMINAL_STATUSES or
+                     item.get("controls", {}).get("sealed") is True)
+        if is_sealed:
+            diagnostic = "worker is sealed; post-completion input is rejected"
+            return {
+                "schema": SCHEMA,
+                "status": "STOP",
+                "diagnostic": diagnostic,
+                "issues": [diagnostic],
+                "source": artifact,
+                "id": item["id"],
+                "worker_status": item["status"],
+                "sealed": True,
+            }
+        if item["status"] != "RUNNING":
+            diagnostic = f"worker is not RUNNING ({item['status']}); input is rejected"
+            return {
+                "schema": SCHEMA,
+                "status": "STOP",
+                "diagnostic": diagnostic,
+                "issues": [diagnostic],
+                "source": artifact,
+                "id": item["id"],
+                "worker_status": item["status"],
+                "sealed": False,
+            }
+        return {
+            "schema": SCHEMA,
+            "status": "OK",
+            "source": artifact,
+            "id": item["id"],
+            "worker_status": item["status"],
+            "sealed": False,
+        }
+    except (ContractError, TypeError, RecursionError) as exc:
+        return {
+            "schema": SCHEMA,
+            "status": "STOP",
+            "issues": [str(exc)],
+            "next": "verify_source",
+        }
+
+
 def read_source(path: str, reference: str | None) -> tuple[bytes, str]:
     if path == "-":
         if not reference:
@@ -160,18 +233,24 @@ def read_source(path: str, reference: str | None) -> tuple[bytes, str]:
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     subparsers = parser.add_subparsers(dest="command", required=True)
-    for command in ("project", "get"):
-        sub = subparsers.add_parser(command)
+    for command in ("project", "get", "check-input"):
+        aliases = ["check_input"] if command == "check-input" else []
+        sub = subparsers.add_parser(command, aliases=aliases)
         sub.add_argument("source", help="JSON file, or - for a read-only pipe")
         sub.add_argument("--source-ref", help="exact existing record reference for stdin")
-        if command == "get":
+        if command in ("get", "check-input"):
             sub.add_argument("--id", required=True, help="exact record ID; no prefix matching")
+        if command == "get":
             sub.add_argument("--sha256", required=True, help="source digest from the projection")
+        elif command == "check-input":
+            sub.add_argument("--sha256", default=None, help="source digest from the projection")
     args = parser.parse_args(argv)
     try:
         raw, reference = read_source(args.source, args.source_ref)
         if args.command == "project":
             result = project(raw, reference)
+        elif args.command in ("check-input", "check_input"):
+            result = check_input(raw, reference, args.id, args.sha256)
         else:
             if hashlib.sha256(raw).hexdigest() != args.sha256:
                 raise ContractError("source changed; re-project and re-verify before deciding")

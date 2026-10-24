@@ -96,6 +96,7 @@ Installed copies must come from `npx skills add luucas7/luucycle` (symlink insta
 - `scripts/roster.py` - roster validation, listing, selection, planned writes, and hash-guarded apply
 - `scripts/check_roster.py` - compatibility entrypoint for roster validation
 - `scripts/compact.py` - read-only projection of versioned returns and digest-guarded lookup by exact ID
+- `scripts/check_skill_hygiene.py` - static Markdown skill hygiene linter enforcing writing-for-agents principles
 - `agents/openai.yaml` - Codex UI metadata and explicit-only invocation policy
 - `.agents/luucycle/ROSTER.md` / `.agents/luucycle/ROLES.md` / `.agents/luucycle/WARNINGS.md` - **user data** at the repo root, never inside the skill (`npx skills update` wipes `.agents/skills/luucycle/`); seeded by `roster add`
 - `RULES.md` - shared authorization and execution guardrails

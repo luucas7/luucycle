@@ -8,7 +8,7 @@ from copy import deepcopy
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "skills/luucycle/scripts"))
-from compact import encode, project
+from compact import encode, project, check_input
 from synthetic_returns import envelope, record, scenario
 from benchmark_compact import CRITICAL, measure
 
@@ -229,6 +229,162 @@ class CompactTests(unittest.TestCase):
             self.assertEqual(project(encode(bad), "fixture:bad")["status"], "STOP")
         self.assertEqual(item["ids"], original["ids"])
         self.assertEqual(item["decision"], original["decision"])
+
+    def test_sealed_status_recognized_in_schema(self):
+        item = record(1, status="SEALED")
+        packet = envelope("workers", [item])
+        raw = encode(packet)
+        projected = project(raw, "fixture:sealed.json")
+        self.assertEqual(projected["status"], "REVIEW")
+        self.assertEqual(projected["counts"], {"SEALED": 1})
+        self.assertEqual(projected["items"][0]["status"], "SEALED")
+        code, result = self.cli("get", "-", "--source-ref", "fixture:sealed.json",
+                                "--id", item["id"], "--sha256", hashlib.sha256(raw).hexdigest(), raw=raw)
+        self.assertEqual(code, 0)
+        self.assertEqual(result["status"], "INSPECT")
+        self.assertEqual(result["item"]["status"], "SEALED")
+
+    def test_check_input_rejects_sealed_and_settled_workers_fail_closed(self):
+        for status in ("DONE", "BLOCKED", "FAILED", "SEALED"):
+            with self.subTest(status=status):
+                item = record(1, status=status)
+                item["ids"]["worker"] = "worker:SYNTH-0001"
+                raw = encode(envelope("workers", [item]))
+                digest = hashlib.sha256(raw).hexdigest()
+
+                code, result = self.cli("check-input", "-", "--source-ref", "fixture:worker.json",
+                                        "--id", item["id"], "--sha256", digest, raw=raw)
+                self.assertEqual(code, 2)
+                self.assertEqual(result["status"], "STOP")
+                self.assertEqual(result["diagnostic"], "worker is sealed; post-completion input is rejected")
+                self.assertIn("worker is sealed; post-completion input is rejected", result["issues"])
+                self.assertTrue(result["sealed"])
+
+                code, res_worker = self.cli("check-input", "-", "--source-ref", "fixture:worker.json",
+                                            "--id", "worker:SYNTH-0001", raw=raw)
+                self.assertEqual(code, 2)
+                self.assertEqual(res_worker["status"], "STOP")
+                self.assertTrue(res_worker["sealed"])
+
+                direct = check_input(raw, "fixture:worker.json", item["id"], digest)
+                self.assertEqual(direct["status"], "STOP")
+                self.assertEqual(direct["diagnostic"], "worker is sealed; post-completion input is rejected")
+                self.assertTrue(direct["sealed"])
+
+        item = record(2, status="RUNNING")
+        item["controls"]["sealed"] = True
+        raw = encode(envelope("workers", [item]))
+        code, result = self.cli("check-input", "-", "--source-ref", "fixture:worker-flag.json",
+                                "--id", item["id"], raw=raw)
+        self.assertEqual(code, 2)
+        self.assertEqual(result["status"], "STOP")
+        self.assertEqual(result["diagnostic"], "worker is sealed; post-completion input is rejected")
+        self.assertTrue(result["sealed"])
+
+        direct = check_input(raw, "fixture:worker-flag.json", item["id"])
+        self.assertEqual(direct["status"], "STOP")
+        self.assertEqual(direct["diagnostic"], "worker is sealed; post-completion input is rejected")
+        self.assertTrue(direct["sealed"])
+
+    def test_check_input_accepts_active_running_worker(self):
+        item = record(1, status="RUNNING")
+        item["ids"]["worker"] = "worker:SYNTH-0001"
+        item["controls"]["sealed"] = False
+        raw = encode(envelope("workers", [item]))
+        digest = hashlib.sha256(raw).hexdigest()
+
+        code, result = self.cli("check-input", "-", "--source-ref", "fixture:worker.json",
+                                "--id", item["id"], "--sha256", digest, raw=raw)
+        self.assertEqual(code, 0)
+        self.assertEqual(result["status"], "OK")
+        self.assertFalse(result["sealed"])
+        self.assertEqual(result["worker_status"], "RUNNING")
+
+        code, res_worker = self.cli("check-input", "-", "--source-ref", "fixture:worker.json",
+                                    "--id", "worker:SYNTH-0001", raw=raw)
+        self.assertEqual(code, 0)
+        self.assertEqual(res_worker["status"], "OK")
+        self.assertFalse(res_worker["sealed"])
+
+        direct = check_input(raw, "fixture:worker.json", item["id"])
+        self.assertEqual(direct["status"], "OK")
+        self.assertFalse(direct["sealed"])
+
+    def test_relay_preserves_sealed_state_and_rejects_resumed_input(self):
+        packet = deepcopy(self.packets["relay"])
+        packet["items"][0]["status"] = "SEALED"
+        packet["items"][0]["blockers"] = []
+        packet["items"][0]["controls"]["sealed"] = True
+        raw = encode(packet)
+        digest = hashlib.sha256(raw).hexdigest()
+
+        projected = project(raw, "fixture:relay-sealed.json")
+        item = projected["items"][0]
+        self.assertEqual(item["status"], "SEALED")
+        self.assertTrue(item["controls"]["sealed"])
+        self.assertEqual(projected["counts"], {"SEALED": 1})
+        self.assertEqual(projected["status"], "REVIEW")
+
+        code, got = self.cli("get", "-", "--source-ref", "fixture:relay-sealed.json",
+                             "--id", packet["items"][0]["id"], "--sha256", digest, raw=raw)
+        self.assertEqual(code, 0)
+        self.assertEqual(got["status"], "INSPECT")
+        self.assertEqual(got["item"]["status"], "SEALED")
+        self.assertTrue(got["item"]["controls"]["sealed"])
+
+        code, checked = self.cli("check-input", "-", "--source-ref", "fixture:relay-sealed.json",
+                                 "--id", packet["items"][0]["id"], "--sha256", digest, raw=raw)
+        self.assertEqual(code, 2)
+        self.assertEqual(checked["status"], "STOP")
+        self.assertEqual(checked["diagnostic"], "worker is sealed; post-completion input is rejected")
+        self.assertTrue(checked["sealed"])
+
+    def test_check_input_mismatched_digest_unknown_id_and_malformed_controls(self):
+        item = record(1, status="RUNNING")
+        raw = encode(envelope("workers", [item]))
+
+        code, result = self.cli("check-input", "-", "--source-ref", "fixture:worker.json",
+                                "--id", item["id"], "--sha256", "0" * 64, raw=raw)
+        self.assertEqual(code, 2)
+        self.assertEqual(result["status"], "STOP")
+
+        code, result = self.cli("check-input", "-", "--source-ref", "fixture:worker.json",
+                                "--id", "unknown:ID", raw=raw)
+        self.assertEqual(code, 2)
+        self.assertEqual(result["status"], "STOP")
+
+        bad_item = record(1)
+        bad_item["controls"]["sealed"] = "not-a-bool"
+        bad_raw = encode(envelope("workers", [bad_item]))
+        bad_result = project(bad_raw, "fixture:bad-sealed.json")
+        self.assertEqual(bad_result["status"], "STOP")
+        self.assertIn("sealed must be an explicit boolean", bad_result["issues"][0])
+
+    def test_check_input_rejects_non_running_statuses_and_incomplete_collections(self):
+        for status in ("PENDING", "PAUSED", "UNKNOWN"):
+            item = record(1, status=status)
+            raw = encode(envelope("workers", [item]))
+            code, result = self.cli("check-input", "-", "--source-ref", "fixture:worker.json",
+                                    "--id", item["id"], raw=raw)
+            self.assertEqual(code, 2)
+            self.assertEqual(result["status"], "STOP")
+            self.assertIn("not RUNNING", result["diagnostic"])
+            self.assertFalse(result["sealed"])
+
+        running_item = record(1, status="RUNNING")
+        incomplete_raw = encode(envelope("workers", [running_item], complete=False))
+        code, result = self.cli("check-input", "-", "--source-ref", "fixture:worker.json",
+                                "--id", running_item["id"], raw=incomplete_raw)
+        self.assertEqual(code, 2)
+        self.assertEqual(result["status"], "STOP")
+        self.assertIn("incomplete", result["issues"][0])
+
+        error_raw = encode(envelope("workers", [running_item], errors=["network timeout"]))
+        code, result = self.cli("check-input", "-", "--source-ref", "fixture:worker.json",
+                                "--id", running_item["id"], raw=error_raw)
+        self.assertEqual(code, 2)
+        self.assertEqual(result["status"], "STOP")
+        self.assertIn("unresolved errors", result["issues"][0])
 
 
 if __name__ == "__main__":

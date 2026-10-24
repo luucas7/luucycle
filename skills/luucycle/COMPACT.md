@@ -55,7 +55,7 @@ explicit, never a substitute for an unperformed check.
 | Key | Retained in projection |
 | --- | --- |
 | `id` | Exact unique record ID, never shortened or replaced by a title |
-| `status` | `PENDING`, `RUNNING`, `DONE`, `BLOCKED`, `FAILED`, `UNKNOWN`, or `PAUSED` |
+| `status` | `PENDING`, `RUNNING`, `DONE`, `BLOCKED`, `FAILED`, `UNKNOWN`, `PAUSED`, or `SEALED` |
 | `decision` | Object describing the required decision, or null |
 | `ids` | Namespaced exact string IDs, e.g. run/task/dispatch/roster agent/terminal/full worktree/thread/message/delivery/plan; never conflate them |
 | `evidence` | All decision evidence: source references, observed verdicts, commands and actual results, artifact references/digests |
@@ -74,8 +74,14 @@ authorized content/revision, receipt, and independent read-back verification.
 Preserve native `scope`, pagination, `failedStage`, `residualResources`, remote
 authority, liveness reasons, attention categories and literal `nextAction` argv
 when present. Unknown control fields also survive. Missing necessary evidence
-requires inspection, never a guessed value. The script checks shape and accounting;
-it does not infer buried facts or grant permission to act.
+requires inspection, never a guessed value. Worker lifecycle states follow the
+deterministic one-shot state machine: `PENDING` -> `RUNNING` -> settled (`DONE`,
+`BLOCKED`, `FAILED`) -> `SEALED`. Terminal sealing occurs immediately upon receiving
+the compact receipt: settled worker sessions transition to `SEALED` or record
+`sealed: true` in `controls`. A sealed worker session is terminal and irreversible;
+any post-settlement input, follow-up prompt, or dispatch command targeting a sealed
+session is rejected fail-closed. The script checks shape and accounting; it does
+not infer buried facts or grant permission to act.
 
 Projection removes only `detail`, retains all other values exactly, adds counts,
 the raw source reference, SHA-256 and byte length. It never truncates a field or
@@ -91,13 +97,19 @@ also stops projection; represent precision-sensitive quantities as exact strings
 ```bash
 python3 "<skill-root>/scripts/compact.py" project "<retained-return.json>"
 python3 "<skill-root>/scripts/compact.py" get "<retained-return.json>" --id "<exact-record-id>" --sha256 "<projection-source-sha256>"
+python3 "<skill-root>/scripts/compact.py" check-input "<retained-return.json>" --id "<worker-id>" [--sha256 "<projection-source-sha256>"]
 ```
 
 For read-only streaming, pass `- --source-ref "<exact-existing-record-reference>"`
-instead of the filename to either command. Retrieve that same record for a targeted
+instead of the filename to any command. Retrieve that same record for a targeted
 read; a digest mismatch stops the lookup. `get` returns one full item and collection
 completeness/errors; it retains `STOP` and exit 2 while the source has unresolved
 issues, even though the full item is available for inspection. It proves no global completion.
+`check-input` validates whether a worker session can receive an input before dispatching
+commands or prompts. If the worker has reached a terminal status (`DONE`, `BLOCKED`,
+`FAILED`, `SEALED`) or has `sealed: true` in controls, execution fails closed (exit 2,
+`status: "STOP"`, diagnostic `"worker is sealed; post-completion input is rejected"`).
+Active workers (`RUNNING`) succeed with exit 0 and `status: "OK"`.
 After repair, obtain a fresh complete response and re-project before continuing.
 
 Use this boundary at task/spec/ticket expansion, every worker return, runtime
@@ -123,7 +135,9 @@ approvals), `verified_state` (observation time, source, revision and limits), an
 `incidents` (failures, partial state, fallbacks and unresolved errors). `ids` carries
 the active Run/Task/Dispatch/agent/terminal/full worktree/message/Delivery IDs and
 initial base branch reference where relevant; `decision` names the next decision.
-Keep detailed history in the referenced records. If Audit has no approved relay
+Sealed worker states and `sealed: true` control flags are preserved across session
+relays without modification, preventing resumed sessions from re-probing or re-prompting
+settled workers. Keep detailed history in the referenced records. If Audit has no approved relay
 storage, return this checkpoint in the conversation using existing records only.
 
 On resume, read the relay and referenced approval, re-verify active authority,
