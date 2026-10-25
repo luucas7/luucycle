@@ -1,11 +1,15 @@
 ---
 name: luucycle
-description: Route luucycle setup, readiness, feature-alignment, roster, and multi-agent implementation commands.
+description: >-
+  Run when a prompt starts with `/luucycle` or the user invokes `$luucycle`. Route its
+  setup, readiness, feature-alignment, roster, and multi-agent implementation commands.
 ---
 
 # luucycle
 
-Route explicit luucycle commands to the matching branch. Treat `/luucycle` and `$luucycle` as equivalent; examples below use `/luucycle`. Branch files own command-specific script calls and contracts.
+Treat a prompt beginning with `/luucycle` as an explicit request to run this skill, including in Codex where the native skill trigger is `$luucycle`. Route it to the matching branch before considering the rest of the prompt as a direct coding request. Branch files own command-specific script calls and contracts.
+
+For every routed invocation, read [RULES.md](RULES.md) first, then read and execute exactly the selected branch. For `implement`, the request text is the task brief; it never approves the phase plan. Return the plan and wait for the user's explicit approval before dispatching a worker or changing project files.
 
 ## Command routing
 

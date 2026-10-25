@@ -38,7 +38,7 @@ Make sure to initialize the skill environment: `/luucycle init`.
 
 luucycle has a safe default and explicit branches. The command itself selects the branch; request wording never silently authorizes implementation.
 
-Examples use `/luucycle`. In Codex, `$luucycle` is equivalent (`$luucycle implement #42`, and so on).
+Examples use `/luucycle`, which is recognized as a luucycle command even when passed as prompt text. In Codex, `$luucycle` is the native explicit skill trigger (`$luucycle implement #42`).
 
 | Command | What it does | Example |
 | --- | --- | --- |
