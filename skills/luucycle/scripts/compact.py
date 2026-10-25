@@ -168,6 +168,8 @@ def check_input(
         payload = decode(raw_bytes)
         if not payload["complete"]:
             raise ContractError("source collection is incomplete; re-project and verify before input")
+        if payload["expected_count"] != len(payload["items"]):
+            raise ContractError("source collection count mismatch; input is rejected")
         if payload["errors"]:
             raise ContractError("source collection has unresolved errors; input is rejected")
         matches = [item for item in payload["items"] if item["id"] == worker_id]
@@ -227,6 +229,8 @@ def read_source(path: str, reference: str | None) -> tuple[bytes, str]:
     if reference:
         raise ContractError("--source-ref is only for stdin")
     location = Path(path).resolve(strict=True)
+    if not location.is_file():
+        raise ContractError("source must designate a regular file, not a directory or special file")
     return location.read_bytes(), str(location)
 
 

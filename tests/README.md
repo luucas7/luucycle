@@ -3,6 +3,7 @@
 Depuis la racine du dépôt, avec Python 3 et sa bibliothèque standard :
 
 ```bash
+export PYTHONDONTWRITEBYTECODE=1
 python3 -B -m unittest discover -s tests -v
 python3 -B tests/benchmark_compact.py
 python3 -B skills/luucycle/scripts/doctor.py --self-test
@@ -74,10 +75,89 @@ arrêts sur les fixtures. Ils ne peuvent pas découvrir une information critique
 qu'un producteur aurait cachée dans `detail`, vérifier la vérité d'un rapport,
 ni remplacer l'approbation et la validation des preuves par le coordinateur.
 
-Le format testé est la frontière normalisée `luucycle.return.v1`, pas le schéma
-natif d'une version d'Orca. Un adaptateur natif doit être vérifié sur le guide et
-les réponses de cette version avant utilisation ; aucun adaptateur natif certifié
-n'est livré ici. Un schéma natif directement présenté au projecteur provoque STOP.
+Les tests `test_compact.py` portent sur la frontière normalisée
+`luucycle.return.v1`. Un schéma natif directement présenté au projecteur provoque
+STOP. L'adaptateur distinct `orca_adapter.py` est testé par
+`test_orca_adapter.py` sur des receipts natifs Orca **1.4.229** versionnés avec
+provenance. Sa portée est l'inventaire local de workers terminés et libérés ;
+versions et hôtes distants supplémentaires restent non pris en charge et provoquent
+STOP. `orca_inbox.py` couvre séparément les Deliveries et l'autorité courante locale;
+son CLI projette les retours avant stdout. Voir
+[ORCA-ADAPTER.md](../skills/luucycle/ORCA-ADAPTER.md).
+
+L'inspection de fixtures conserve `source_verified: false`. La collecte réelle
+possède sa propre récupération en lecture seule et requiert un stockage autorisé.
+Sans attentes de preuve par tâche, elle renvoie `acceptance: NOT_EVALUATED` : la
+présence de vrais records ne vaut pas acceptation du travail des workers.
+
+Deux tests live sont ignorés par défaut. Leur opt-in explicite est
+`ORCA_ADAPTER_LIVE_TEST=1` ; ils interrogent le Run existant référencé par les
+specimens, avec le runtime correspondant, sans créer de worker ni envoyer de
+message. Les tests, même exécutés avec `-B`, créent des fichiers temporaires :
+définir `TMPDIR` vers un répertoire scratch autorisé avant exécution. Ils ne
+conviennent pas à une tâche qui interdit toute création de fichier.
+
+`test_orca_launch.py` contrôle l'alias Orca séparé de l'ID roster et le preflight
+gratuit par agent sélectionné, pas un lancement réel. `test_git_baseline.py`
+contrôle la capture/comparaison sans nettoyage des états Git sales, y compris
+index, fichiers non suivis et cibles absentes. Voir
+[GIT-BASELINE.md](../skills/luucycle/GIT-BASELINE.md) pour les limites et les
+changements préexistants protégés.
+
+Le contrôle d'hygiène ci-dessus cible uniquement `skills/luucycle`. Chaque bilan
+doit citer le périmètre, le nombre de fichiers et les diagnostics effectivement
+retournés ; ne pas confondre ce résultat avec un linter global de bibliothèque.
+
+`test_worker_contract.py` contrôle le constructeur de prompt, les preuves présentes
+dans le payload natif, les identités attribuées au lancement et le chemin d'envoi
+contrôlé. `test_orca_inbox.py` couvre les questions, les settlements avant libération,
+les preuves manquantes, les sources incohérentes et la projection avant stdout.
+Les specimens `fixtures/orca/delivery-1.4.229/` sont des réponses natives exactes
+du cycle ci-dessous avec empreintes et provenance; leur lecture hors ligne reste
+`source_verified: false` et n'appelle aucun modèle.
+
+## Cycle réel local — 25 octobre 2026
+
+Run `run_1ca5b4d322df`, Orca 1.4.229, dépôt jetable contenant avant exécution un
+index staged, des changements unstaged, un fichier non suivi et un fichier ignoré.
+Le test a construit un utilitaire UTF-8 puis révisé intentionnellement son contrat
+pour exercer une reprise dans un terminal neuf. Ce scénario reste distinct d'une
+détection automatique de défaut ou d'un fallback.
+
+| Tâche | Modèle effectif | Résultat |
+| --- | --- | --- |
+| Builder initial | Gemini 3.8 Flash High, alias `antigravity` | 2 tests verts, receipt validé |
+| Reprise TDD, terminal neuf | Codex `gpt-5.6-luna`, effort `high` | 3 tests verts, receipt validé |
+| Verifier indépendant, terminal neuf | Codex `gpt-5.6-luna`, effort `high` | 3 tests verts, aucune écriture |
+
+Les préférences natives demandées/effectives ont été comparées. Les trois
+Dispatchs ont été libérés puis leurs Deliveries acquittées. Les attestations du
+skill chargé étaient présentes dans `payload.task_evidence`; les chemins et
+empreintes ont été vérifiés, sans assimiler une déclaration à une preuve de lecture
+interne. La comparaison baseline a conservé HEAD, index et chaque contenu initial;
+les seuls deltas autorisés concernaient les deux nouveaux fichiers de la fixture.
+
+Le chemin contrôlé a enqueued un message pendant le travail du builder après
+lecture fraîche d'autorité. Après settlement et libération, il a refusé une autre
+tentative avec `sent: false` et aucun appel send. Cette observation vérifie ce chemin
+local; la paire read/send reste non atomique et les clients directs restent hors
+de son périmètre.
+
+Mesure mécanique sur les mêmes sources retenues et une projection conservant les
+contrôles de collection et de lifecycle, en octets JSON UTF-8 :
+
+| Tâche | Captures natives complètes | Enveloppe normalisée | Projection | Réduction normalisée |
+| --- | ---: | ---: | ---: | ---: |
+| Builder | 70 282 | 33 204 | 21 808 | 34,32 % |
+| Reprise | 87 974 | 40 806 | 23 945 | 41,32 % |
+| Verifier | 106 965 | 50 010 | 26 814 | 46,38 % |
+
+Les captures natives comprennent le guide et les lectures d'autorité répétées;
+leur comparaison avec la projection donne 68,97 à 74,93 %, avec un périmètre différent
+de la réduction normalisée. Ces chiffres ne mesurent pas les tokens ni le contexte
+total. L'objectif de moins de 2 000 tokens par tour demeure non démontré. La pagination
+de l'inventaire historique est testée hors ligne; l'inbox exige actuellement une
+page d'autorité complète. Fallback, remote et CAS atomique ne sont pas validés par ce cycle.
 
 ## Observation sur un projet réel — 17 octobre 2026
 

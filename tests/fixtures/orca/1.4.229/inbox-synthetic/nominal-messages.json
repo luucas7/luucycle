@@ -1,0 +1,30 @@
+{
+  "classification": "synthetic_test_case",
+  "messages": [
+    {
+      "type": "question",
+      "subject": "Need one decision",
+      "body": "Should I keep the compatibility helper?\nThe full second line must survive collection.",
+      "payload": {"taskId": "$TASK_ID", "dispatchId": "$DISPATCH_ID"}
+    },
+    {
+      "type": "worker_done",
+      "subject": "Implementation finished",
+      "body": "Implemented and verified the requested work. Task: $TASK_ID. Dispatch: $DISPATCH_ID. Outcome: succeeded.",
+      "payload": {
+        "taskId": "$TASK_ID",
+        "dispatchId": "$DISPATCH_ID",
+        "outcome": "succeeded",
+        "task_evidence": {
+          "schema": "luucycle.task-evidence.v1",
+          "task_id": "$TASK_ID",
+          "dispatch_id": "$DISPATCH_ID",
+          "routed_skill": {"identity": "luucycle", "path": "/synthetic/skills/luucycle/SKILL.md", "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"},
+          "loaded_skill": {"identity": "luucycle", "path": "/synthetic/skills/luucycle/SKILL.md", "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"},
+          "writes": {"artifact": false, "report": false},
+          "storage": {"kind": "existing_record", "ref": "synthetic"}
+        }
+      }
+    }
+  ]
+}

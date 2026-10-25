@@ -1,0 +1,187 @@
+{
+  "id": "ef3178a1-06b5-472a-83c0-c0038dfd99a5",
+  "ok": true,
+  "result": {
+    "dispatch": {
+      "id": "ctx_ba8cfb39ac4a",
+      "runId": "run_7c58413f7566",
+      "taskId": "task_50dad7d99f3f",
+      "task_id": "task_50dad7d99f3f",
+      "contractVersion": 1,
+      "assigneeHandle": "term_82afe023-83ba-47e0-bee0-6932d7dcd673",
+      "assigneePaneKey": "8feb50fe-5ac3-4c2e-9e39-1d3c7082bba1:7feb9e4e-e0bc-4c34-b5c4-f1257838640a",
+      "processIncarnation": "785af760-ee12-4d4f-8e9e-494515aaca17::/home/lucas/orca/workspaces/numitsu/luucycle-orchestration-smoke@@2cd2e7ec:132d5085-6880-4d0d-8a49-12ebc69e6821",
+      "capabilityRevokedAt": "2026-10-24T10:35:57.763Z",
+      "retryOfDispatchId": null,
+      "creatorDispatchId": null,
+      "hostScope": {
+        "kind": "local",
+        "hostId": "local"
+      },
+      "status": "completed",
+      "failureCount": 0,
+      "lastFailure": null,
+      "terminationReason": null,
+      "depth": 1,
+      "dispatchedAt": "2026-10-24 10:34:40",
+      "completedAt": "2026-10-24T10:35:57.763Z",
+      "createdAt": "2026-10-24 10:34:40",
+      "lastHeartbeatAt": null
+    },
+    "worker": {
+      "dispatchId": "ctx_ba8cfb39ac4a",
+      "runtimeEpoch": "30ca0cef-25d1-4bde-8f02-80bf63be9968",
+      "state": "succeeded",
+      "stage": "settled",
+      "worktreeId": "785af760-ee12-4d4f-8e9e-494515aaca17::/home/lucas/orca/workspaces/numitsu/luucycle-orchestration-smoke",
+      "agentTerminalHandle": "term_82afe023-83ba-47e0-bee0-6932d7dcd673",
+      "setupState": "not_applicable",
+      "effects": [
+        {
+          "kind": "worktree",
+          "action": "reused",
+          "id": "785af760-ee12-4d4f-8e9e-494515aaca17::/home/lucas/orca/workspaces/numitsu/luucycle-orchestration-smoke"
+        },
+        {
+          "kind": "setup",
+          "action": "not_applicable",
+          "state": "not_applicable"
+        },
+        {
+          "kind": "terminal",
+          "role": "agent",
+          "action": "created",
+          "id": "term_82afe023-83ba-47e0-bee0-6932d7dcd673",
+          "surface": "visible"
+        },
+        {
+          "kind": "dispatch_input",
+          "role": "agent",
+          "id": "term_82afe023-83ba-47e0-bee0-6932d7dcd673",
+          "state": "accepted"
+        }
+      ],
+      "residualResources": [
+        {
+          "kind": "terminal",
+          "role": "agent",
+          "action": "created",
+          "id": "term_82afe023-83ba-47e0-bee0-6932d7dcd673",
+          "surface": "visible"
+        }
+      ],
+      "startOptions": {
+        "worktree": "id:785af760-ee12-4d4f-8e9e-494515aaca17::/home/lucas/orca/workspaces/numitsu/luucycle-orchestration-smoke",
+        "mode": {
+          "mode": "terminal",
+          "preferred": "terminal",
+          "reason": "user_default",
+          "detail": "Started a terminal agent worker, the default for new agent tabs in your settings."
+        },
+        "resolvedWorktreeId": "785af760-ee12-4d4f-8e9e-494515aaca17::/home/lucas/orca/workspaces/numitsu/luucycle-orchestration-smoke",
+        "name": null,
+        "repo": null,
+        "baseBranch": null,
+        "terminal": null,
+        "agent": "codex",
+        "launch": {
+          "requested": {
+            "agent": "codex",
+            "model": "gpt-5.6-luna",
+            "effort": null
+          },
+          "effective": {
+            "agent": "codex",
+            "model": "gpt-5.6-luna",
+            "effort": null
+          }
+        },
+        "timeoutMs": 60000,
+        "setup": "not_applicable",
+        "setupSource": "existing_worktree"
+      },
+      "lastError": null,
+      "createdAt": "2026-10-24 10:34:40",
+      "updatedAt": "2026-10-24T10:35:57.764Z"
+    },
+    "projection": {
+      "id": "ctx_ba8cfb39ac4a",
+      "dispatchId": "ctx_ba8cfb39ac4a",
+      "taskId": "task_50dad7d99f3f",
+      "runId": "run_7c58413f7566",
+      "role": "worker",
+      "parent": null,
+      "provider": null,
+      "host": {
+        "kind": "local",
+        "id": "local"
+      },
+      "workspace": {
+        "id": "785af760-ee12-4d4f-8e9e-494515aaca17::/home/lucas/orca/workspaces/numitsu/luucycle-orchestration-smoke",
+        "kind": "folder_or_worktree"
+      },
+      "stage": {
+        "worker": "succeeded",
+        "dispatch": "completed",
+        "detail": "settled",
+        "activity": "unknown"
+      },
+      "outcome": "succeeded",
+      "liveness": {
+        "verdict": "exited",
+        "source": "resource_release"
+      },
+      "evidence": {
+        "durable": true,
+        "liveStatus": "unavailable",
+        "lastObservedAt": null
+      },
+      "resource": {
+        "state": "released",
+        "id": "wtr_e954fbd69c6f",
+        "ownerDispatchId": "ctx_ba8cfb39ac4a",
+        "releaseState": "released",
+        "terminalState": "released"
+      },
+      "nextAction": {
+        "kind": "none",
+        "argv": []
+      },
+      "attention": {
+        "categories": [
+          "root_completion"
+        ],
+        "requiresAction": false
+      }
+    },
+    "terminal": null,
+    "observation": {
+      "status": "missing",
+      "exactWorker": false
+    },
+    "terminalResource": {
+      "id": "wtr_e954fbd69c6f",
+      "ownershipState": "released",
+      "releaseState": "released",
+      "retainedReason": null,
+      "terminalHandle": "term_82afe023-83ba-47e0-bee0-6932d7dcd673",
+      "worktreeId": "785af760-ee12-4d4f-8e9e-494515aaca17::/home/lucas/orca/workspaces/numitsu/luucycle-orchestration-smoke",
+      "endpointId": "30ca0cef-25d1-4bde-8f02-80bf63be9968",
+      "endpointIncarnation": "785af760-ee12-4d4f-8e9e-494515aaca17::/home/lucas/orca/workspaces/numitsu/luucycle-orchestration-smoke@@2cd2e7ec:132d5085-6880-4d0d-8a49-12ebc69e6821",
+      "originDispatchId": "ctx_ba8cfb39ac4a",
+      "ownerDispatchId": "ctx_ba8cfb39ac4a",
+      "releaseRequestedAt": "2026-10-24 10:36:04",
+      "releaseCompletedAt": "2026-10-24 10:36:06",
+      "releaseError": null,
+      "recoveryAttemptCount": 0,
+      "lastRecoveryAt": null,
+      "archive": {
+        "source": "transcript",
+        "status": "captured"
+      }
+    }
+  },
+  "_meta": {
+    "runtimeId": "1cf07d1e-a598-4fef-947c-cd1ca367d452"
+  }
+}

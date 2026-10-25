@@ -1,0 +1,103 @@
+{
+  "id": "4fcf56e0-21c2-47af-9e55-d705d1cee63b",
+  "ok": true,
+  "result": {
+    "workers": [
+      {
+        "dispatchId": "ctx_ba8cfb39ac4a",
+        "taskId": "task_50dad7d99f3f",
+        "runId": "run_7c58413f7566",
+        "workerState": "succeeded",
+        "dispatchStatus": "completed",
+        "agentTerminalHandle": "term_82afe023-83ba-47e0-bee0-6932d7dcd673",
+        "terminalState": "released",
+        "resource": {
+          "id": "wtr_e954fbd69c6f",
+          "ownershipState": "released",
+          "releaseState": "released",
+          "retainedReason": null,
+          "terminalHandle": "term_82afe023-83ba-47e0-bee0-6932d7dcd673",
+          "worktreeId": "785af760-ee12-4d4f-8e9e-494515aaca17::/home/lucas/orca/workspaces/numitsu/luucycle-orchestration-smoke",
+          "endpointId": "30ca0cef-25d1-4bde-8f02-80bf63be9968",
+          "endpointIncarnation": "785af760-ee12-4d4f-8e9e-494515aaca17::/home/lucas/orca/workspaces/numitsu/luucycle-orchestration-smoke@@2cd2e7ec:132d5085-6880-4d0d-8a49-12ebc69e6821",
+          "originDispatchId": "ctx_ba8cfb39ac4a",
+          "ownerDispatchId": "ctx_ba8cfb39ac4a",
+          "releaseRequestedAt": "2026-10-24 10:36:04",
+          "releaseCompletedAt": "2026-10-24 10:36:06",
+          "releaseError": null,
+          "recoveryAttemptCount": 0,
+          "lastRecoveryAt": null,
+          "archive": {
+            "source": "transcript",
+            "status": "captured"
+          }
+        },
+        "projection": {
+          "id": "ctx_ba8cfb39ac4a",
+          "dispatchId": "ctx_ba8cfb39ac4a",
+          "taskId": "task_50dad7d99f3f",
+          "runId": "run_7c58413f7566",
+          "role": "worker",
+          "parent": null,
+          "provider": null,
+          "host": {
+            "kind": "local",
+            "id": "local"
+          },
+          "workspace": {
+            "id": "785af760-ee12-4d4f-8e9e-494515aaca17::/home/lucas/orca/workspaces/numitsu/luucycle-orchestration-smoke",
+            "kind": "folder_or_worktree"
+          },
+          "stage": {
+            "worker": "succeeded",
+            "dispatch": "completed",
+            "detail": "settled",
+            "activity": "unknown"
+          },
+          "outcome": "succeeded",
+          "liveness": {
+            "verdict": "exited",
+            "source": "resource_release"
+          },
+          "evidence": {
+            "durable": true,
+            "liveStatus": "unavailable",
+            "lastObservedAt": null
+          },
+          "resource": {
+            "state": "released"
+          },
+          "nextAction": {
+            "kind": "none",
+            "argv": []
+          },
+          "attention": {
+            "categories": [
+              "root_completion"
+            ],
+            "requiresAction": false
+          }
+        }
+      }
+    ],
+    "counts": {
+      "released": 4
+    },
+    "page": {
+      "limit": 1,
+      "total": 4,
+      "hasMore": true,
+      "nextCursor": "eyJ2ZXJzaW9uIjoyLCJzbmFwc2hvdCI6eyJkYXRhYmFzZUlkIjo1MTh9LCJhZnRlciI6eyJjcmVhdGVkQXQiOiIyMDI2LTEwLTI0IDEwOjM0OjQwIiwiZGlzcGF0Y2hJZCI6ImN0eF9iYThjZmIzOWFjNGEiLCJkYXRhYmFzZUlkIjo1MTh9fQ"
+    },
+    "warnings": [
+      "Showing 1 of 4 Dispatches, newest first; more are on later pages. Follow page.nextCursor with --cursor."
+    ],
+    "scope": {
+      "run": "run_7c58413f7566",
+      "source": "flag"
+    }
+  },
+  "_meta": {
+    "runtimeId": "1cf07d1e-a598-4fef-947c-cd1ca367d452"
+  }
+}

@@ -8,8 +8,12 @@ Orca commands, acknowledgments, authority, and lifecycle.
 ## Produce, retain, project
 
 Keep detailed task bodies, worker reports, transcripts, and raw runtime receipts
-outside the coordinator's context. Execution workers retain their detailed report
-as a local artifact with an exact path and digest. Send the coordinator a compact
+outside the coordinator's context. Choose durable evidence from the task permissions,
+not just the phase label. A task with authorized report storage retains its detailed
+report as a local artifact with an exact path and digest. A task using existing-record
+storage, including a read-only verifier inside Execution, reports through a complete
+native message linked to its Task result. Source edits alone do not grant report writes.
+Send the coordinator a compact
 receipt containing status, required decision, exact IDs, evidence, changes, and
 blockers, with the controls below. Use the guide's short lifecycle summary and
 report reference where supported; a completion signal alone proves no acceptance.
@@ -20,6 +24,19 @@ or message record for details, and an in-memory pipe for projection. If the runt
 cannot retain/retrieve those details within that boundary, stop with that limitation.
 Creating storage requires a separately approved Execution plan.
 
+Bind expected evidence before dispatch: exact routed skill, source path and SHA-256,
+task rights, and the permitted report location or existing-record reference. Require
+the receipt to attest the same loaded skill and digest, and validate them against
+the approved task and retrievable source. This checks evidence consistency, not
+independent proof of the model's internal reading. A missing proof, truncated
+archive, unverifiable reference or incomplete source leaves **acceptance incomplete**.
+Preserve that result and use a new dispatch if further work is needed; always keep
+the settled worker sealed rather than soliciting a replacement report from it.
+
+Every test/lint result names its command, exit status, exact linter scope or test
+selection, files inspected and diagnostic counts. Keep targeted and global results
+separate; a clean skill-only run says nothing about a whole-library lint result.
+
 Before a tool returns a large list or report to the model, capture the full result
 in the authorized artifact or consume it in a pipe, normalize it mechanically,
 then project it. Do not first print the raw result, or use `head`, text slicing,
@@ -28,13 +45,25 @@ status: a nonzero command, invalid JSON, missing page, count mismatch, unknown
 status, or unresolved error stops the affected decision for targeted verification.
 An empty or timed-out wait is only a checkpoint under the guide.
 
-`scripts/compact.py` consumes **luucycle.return.v1**, not native Orca JSON. Discover
-the installed guide and command help before adapting a native response. Use a
-deterministic adapter verified against that version: enumerate every page, record
-scope and cursors, preserve all native control fields (including unknown ones) in
-`controls`, and move only identified narrative detail into `detail`. An unsupported
-shape or unproven completeness is a stop, not an empty successful list. The fixture
-tests exercise this normalized boundary; they do not certify a native adapter.
+`scripts/compact.py` consumes **luucycle.return.v1**, not native Orca JSON. Its
+shape checks and SHA-256 do not authenticate native IDs. Use the distinct
+`scripts/orca_adapter.py` for settled/released inventory and `scripts/orca_inbox.py`
+for the local inbox/Delivery and current Dispatch boundaries documented in
+[ORCA-ADAPTER.md](ORCA-ADAPTER.md). They retrieve native Run, Task and current
+Dispatch records before projection. The inbox reader creates or replays a Delivery
+only for an explicitly authorized Run; it never acknowledges or sends messages.
+Use its mechanical `compact_delivery` projection instead of handwritten
+native-to-normalized envelopes. Unsupported versions, remote authorities and
+archive-content verification stop the affected decision; retain the native evidence
+for inspection or an authorized new dispatch.
+
+Discover the installed guide and command help first. Enumerate every supported
+page, record scope and cursors, preserve native control fields (including unknown
+ones) in `controls`, and move only identified narrative detail into `detail`.
+Unsupported shapes, missing pages and unverifiable completeness are STOP.
+Offline inspection always has `source_verified: false`; live source verification
+certifies only the declared retrieval scope. Acceptance is `NOT_EVALUATED` without
+task expectations and is never granted by projection or source verification alone.
 
 ## Versioned boundary
 
@@ -79,9 +108,10 @@ deterministic one-shot state machine: `PENDING` -> `RUNNING` -> settled (`DONE`,
 `BLOCKED`, `FAILED`) -> `SEALED`. Terminal sealing occurs immediately upon receiving
 the compact receipt: settled worker sessions transition to `SEALED` or record
 `sealed: true` in `controls`. A sealed worker session is terminal and irreversible;
-any post-settlement input, follow-up prompt, or dispatch command targeting a sealed
-session is rejected fail-closed. The script checks shape and accounting; it does
-not infer buried facts or grant permission to act.
+the coordinator rejects any post-settlement input, follow-up prompt, or dispatch
+targeting that session and uses a fresh terminal instead. Record whether this is
+observed protocol compliance or a verified runtime fence. The script checks shape
+and accounting; it does not infer buried facts or grant permission to act.
 
 Projection removes only `detail`, retains all other values exactly, adds counts,
 the raw source reference, SHA-256 and byte length. It never truncates a field or
@@ -95,9 +125,9 @@ also stops projection; represent precision-sensitive quantities as exact strings
 ## Targeted reads and runtime handling
 
 ```bash
-python3 "<skill-root>/scripts/compact.py" project "<retained-return.json>"
-python3 "<skill-root>/scripts/compact.py" get "<retained-return.json>" --id "<exact-record-id>" --sha256 "<projection-source-sha256>"
-python3 "<skill-root>/scripts/compact.py" check-input "<retained-return.json>" --id "<worker-id>" [--sha256 "<projection-source-sha256>"]
+PYTHONDONTWRITEBYTECODE=1 python3 -B "<skill-root>/scripts/compact.py" project "<retained-return.json>"
+PYTHONDONTWRITEBYTECODE=1 python3 -B "<skill-root>/scripts/compact.py" get "<retained-return.json>" --id "<exact-record-id>" --sha256 "<projection-source-sha256>"
+PYTHONDONTWRITEBYTECODE=1 python3 -B "<skill-root>/scripts/compact.py" check-input "<retained-return.json>" --id "<worker-id>" [--sha256 "<projection-source-sha256>"]
 ```
 
 For read-only streaming, pass `- --source-ref "<exact-existing-record-reference>"`
@@ -105,12 +135,28 @@ instead of the filename to any command. Retrieve that same record for a targeted
 read; a digest mismatch stops the lookup. `get` returns one full item and collection
 completeness/errors; it retains `STOP` and exit 2 while the source has unresolved
 issues, even though the full item is available for inspection. It proves no global completion.
-`check-input` validates whether a worker session can receive an input before dispatching
-commands or prompts. If the worker has reached a terminal status (`DONE`, `BLOCKED`,
+`check-input` is a snapshot guard, not a runtime send interceptor. It validates
+the supplied collection's shape, completeness, count and worker state. It does not
+authenticate native IDs, refresh authority, acquire a lock, or send any input; it
+does not intercept subsequent Orca CLI commands. If the snapshot worker has a terminal status (`DONE`, `BLOCKED`,
 `FAILED`, `SEALED`) or has `sealed: true` in controls, execution fails closed (exit 2,
 `status: "STOP"`, diagnostic `"worker is sealed; post-completion input is rejected"`).
 Active workers (`RUNNING`) succeed with exit 0 and `status: "OK"`.
+That result applies only to those bytes, not to a later send or runtime state.
+Only a tested runtime mutation boundary can establish runtime-enforced fencing;
+report one-shot compliance as observed unless that boundary is verified.
 After repair, obtain a fresh complete response and re-project before continuing.
+
+Use [WORKER-CONTRACT.md](WORKER-CONTRACT.md) to build the worker prompt, bind
+native launch IDs and validate the `task_evidence` in the exact worker_done payload.
+Its live controlled-send path owns a fresh authority retrieval and refuses settled
+sessions before enqueue. The read/send pair is non-atomic and covers only this path;
+direct native clients remain outside its enforcement scope.
+
+File input must designate a regular file. A directory, including either `""` or
+`"."` resolved by `Path`, returns STOP; these values are equivalent directory
+references, not two distinguishable filesystem states. Use `-` with a retrievable
+source reference for stdin instead.
 
 Use this boundary at task/spec/ticket expansion, every worker return, runtime
 enumeration, inbox delivery and terminal diagnostics. Preserve all IDs for every
@@ -136,8 +182,9 @@ approvals), `verified_state` (observation time, source, revision and limits), an
 the active Run/Task/Dispatch/agent/terminal/full worktree/message/Delivery IDs and
 initial base branch reference where relevant; `decision` names the next decision.
 Sealed worker states and `sealed: true` control flags are preserved across session
-relays without modification, preventing resumed sessions from re-probing or re-prompting
-settled workers. Keep detailed history in the referenced records. If Audit has no approved relay
+relays without modification. Resumed coordinators must honor that protocol and
+use a fresh dispatch for further work; the checkpoint itself is not a runtime lock.
+Keep detailed history in the referenced records. If Audit has no approved relay
 storage, return this checkpoint in the conversation using existing records only.
 
 On resume, read the relay and referenced approval, re-verify active authority,

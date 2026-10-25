@@ -1,0 +1,187 @@
+{
+  "id": "274763ad-72d6-4a1f-9973-0dbf33668048",
+  "ok": true,
+  "result": {
+    "dispatch": {
+      "id": "ctx_a26f4c5b62db",
+      "runId": "run_7c58413f7566",
+      "taskId": "task_14fd995426e3",
+      "task_id": "task_14fd995426e3",
+      "contractVersion": 1,
+      "assigneeHandle": "term_04aa567c-d853-4b55-81b1-b2817df5a1c8",
+      "assigneePaneKey": "0e4eae5a-e162-496b-809b-c3c933936f42:b24c6e40-565c-4c31-b963-c610cffdef5e",
+      "processIncarnation": "785af760-ee12-4d4f-8e9e-494515aaca17::/home/lucas/orca/workspaces/numitsu/luucycle-orchestration-smoke@@a91d63dd:507c53d3-cf19-4a1c-bb22-7c9cde038f6a",
+      "capabilityRevokedAt": "2026-10-24T10:25:44.943Z",
+      "retryOfDispatchId": null,
+      "creatorDispatchId": null,
+      "hostScope": {
+        "kind": "local",
+        "hostId": "local"
+      },
+      "status": "completed",
+      "failureCount": 0,
+      "lastFailure": null,
+      "terminationReason": null,
+      "depth": 1,
+      "dispatchedAt": "2026-10-24 10:19:33",
+      "completedAt": "2026-10-24T10:25:44.943Z",
+      "createdAt": "2026-10-24 10:19:33",
+      "lastHeartbeatAt": "2026-10-24T10:23:01Z"
+    },
+    "worker": {
+      "dispatchId": "ctx_a26f4c5b62db",
+      "runtimeEpoch": "30ca0cef-25d1-4bde-8f02-80bf63be9968",
+      "state": "succeeded",
+      "stage": "settled",
+      "worktreeId": "785af760-ee12-4d4f-8e9e-494515aaca17::/home/lucas/orca/workspaces/numitsu/luucycle-orchestration-smoke",
+      "agentTerminalHandle": "term_04aa567c-d853-4b55-81b1-b2817df5a1c8",
+      "setupState": "not_applicable",
+      "effects": [
+        {
+          "kind": "worktree",
+          "action": "reused",
+          "id": "785af760-ee12-4d4f-8e9e-494515aaca17::/home/lucas/orca/workspaces/numitsu/luucycle-orchestration-smoke"
+        },
+        {
+          "kind": "setup",
+          "action": "not_applicable",
+          "state": "not_applicable"
+        },
+        {
+          "kind": "terminal",
+          "role": "agent",
+          "action": "created",
+          "id": "term_04aa567c-d853-4b55-81b1-b2817df5a1c8",
+          "surface": "visible"
+        },
+        {
+          "kind": "dispatch_input",
+          "role": "agent",
+          "id": "term_04aa567c-d853-4b55-81b1-b2817df5a1c8",
+          "state": "accepted"
+        }
+      ],
+      "residualResources": [
+        {
+          "kind": "terminal",
+          "role": "agent",
+          "action": "created",
+          "id": "term_04aa567c-d853-4b55-81b1-b2817df5a1c8",
+          "surface": "visible"
+        }
+      ],
+      "startOptions": {
+        "worktree": "id:785af760-ee12-4d4f-8e9e-494515aaca17::/home/lucas/orca/workspaces/numitsu/luucycle-orchestration-smoke",
+        "mode": {
+          "mode": "terminal",
+          "preferred": "terminal",
+          "reason": "user_default",
+          "detail": "Started a terminal agent worker, the default for new agent tabs in your settings."
+        },
+        "resolvedWorktreeId": "785af760-ee12-4d4f-8e9e-494515aaca17::/home/lucas/orca/workspaces/numitsu/luucycle-orchestration-smoke",
+        "name": null,
+        "repo": null,
+        "baseBranch": null,
+        "terminal": null,
+        "agent": "antigravity",
+        "launch": {
+          "requested": {
+            "agent": "antigravity",
+            "model": "gemini-3.8-flash-high",
+            "effort": null
+          },
+          "effective": {
+            "agent": "antigravity",
+            "model": "gemini-3.8-flash-high",
+            "effort": null
+          }
+        },
+        "timeoutMs": 60000,
+        "setup": "not_applicable",
+        "setupSource": "existing_worktree"
+      },
+      "lastError": null,
+      "createdAt": "2026-10-24 10:19:33",
+      "updatedAt": "2026-10-24T10:25:44.943Z"
+    },
+    "projection": {
+      "id": "ctx_a26f4c5b62db",
+      "dispatchId": "ctx_a26f4c5b62db",
+      "taskId": "task_14fd995426e3",
+      "runId": "run_7c58413f7566",
+      "role": "worker",
+      "parent": null,
+      "provider": null,
+      "host": {
+        "kind": "local",
+        "id": "local"
+      },
+      "workspace": {
+        "id": "785af760-ee12-4d4f-8e9e-494515aaca17::/home/lucas/orca/workspaces/numitsu/luucycle-orchestration-smoke",
+        "kind": "folder_or_worktree"
+      },
+      "stage": {
+        "worker": "succeeded",
+        "dispatch": "completed",
+        "detail": "settled",
+        "activity": "unknown"
+      },
+      "outcome": "succeeded",
+      "liveness": {
+        "verdict": "exited",
+        "source": "resource_release"
+      },
+      "evidence": {
+        "durable": true,
+        "liveStatus": "unavailable",
+        "lastObservedAt": null
+      },
+      "resource": {
+        "state": "released",
+        "id": "wtr_d7bb50e52b88",
+        "ownerDispatchId": "ctx_a26f4c5b62db",
+        "releaseState": "released",
+        "terminalState": "released"
+      },
+      "nextAction": {
+        "kind": "none",
+        "argv": []
+      },
+      "attention": {
+        "categories": [
+          "root_completion"
+        ],
+        "requiresAction": false
+      }
+    },
+    "terminal": null,
+    "observation": {
+      "status": "missing",
+      "exactWorker": false
+    },
+    "terminalResource": {
+      "id": "wtr_d7bb50e52b88",
+      "ownershipState": "released",
+      "releaseState": "released",
+      "retainedReason": null,
+      "terminalHandle": "term_04aa567c-d853-4b55-81b1-b2817df5a1c8",
+      "worktreeId": "785af760-ee12-4d4f-8e9e-494515aaca17::/home/lucas/orca/workspaces/numitsu/luucycle-orchestration-smoke",
+      "endpointId": "30ca0cef-25d1-4bde-8f02-80bf63be9968",
+      "endpointIncarnation": "785af760-ee12-4d4f-8e9e-494515aaca17::/home/lucas/orca/workspaces/numitsu/luucycle-orchestration-smoke@@a91d63dd:507c53d3-cf19-4a1c-bb22-7c9cde038f6a",
+      "originDispatchId": "ctx_a26f4c5b62db",
+      "ownerDispatchId": "ctx_a26f4c5b62db",
+      "releaseRequestedAt": "2026-10-24 10:25:58",
+      "releaseCompletedAt": "2026-10-24 10:25:59",
+      "releaseError": null,
+      "recoveryAttemptCount": 0,
+      "lastRecoveryAt": null,
+      "archive": {
+        "source": "terminal",
+        "status": "captured"
+      }
+    }
+  },
+  "_meta": {
+    "runtimeId": "1cf07d1e-a598-4fef-947c-cd1ca367d452"
+  }
+}

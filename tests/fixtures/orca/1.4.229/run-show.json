@@ -1,0 +1,18 @@
+{
+  "id": "d20924c3-e97b-4f09-a676-75ab7a43e9a8",
+  "ok": true,
+  "result": {
+    "run": {
+      "id": "run_7c58413f7566",
+      "objective": "[REDACTED narrative sha256=606493b7622be48ee732bc1d88ca26811157429512c1ccb46921ac5aa90772bc]",
+      "coordinator_handle": "term_38d9eefb-aa3c-4994-bdce-b951a7e0c0e4",
+      "consumer_generation": 1,
+      "legacy": 0,
+      "created_at": "2026-10-24T10:14:56Z",
+      "updated_at": "2026-10-24T10:14:56Z"
+    }
+  },
+  "_meta": {
+    "runtimeId": "1cf07d1e-a598-4fef-947c-cd1ca367d452"
+  }
+}

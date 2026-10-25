@@ -1,0 +1,38 @@
+{
+  "id": "c19f4cfb-ddd4-455b-9c1f-518147fa29ab",
+  "ok": true,
+  "result": {
+    "dispatch": {
+      "id": "ctx_11c4bbd80f0d",
+      "run_id": "run_1ca5b4d322df",
+      "task_id": "task_9bc00f832b70",
+      "contract_version": 1,
+      "launch_token_hash": "21dadf1e5980916aa61163adf852919fb1d317d8dcd258a3dd78383889649426",
+      "assignee_handle": "term_aa292bdd-6fc8-4e05-924e-a2e70a5afb03",
+      "assignee_pane_key": "8d0c21df-61b5-4794-a6ab-c83e37804283:acda3df8-c622-4fdf-b480-0030770e6efc",
+      "capability_hash": null,
+      "process_incarnation": "c3f45c36-d949-46ec-b605-195bc3d42a1a::/tmp/luucycle-live-20261025-rn5mlbt4/repo@@5b40d9a4:2ec57502-b550-435f-926e-504cb6103f4b",
+      "capability_revoked_at": "2026-10-25T16:50:15.207Z",
+      "status": "completed",
+      "failure_count": 0,
+      "last_failure": null,
+      "dispatched_at": "2026-10-25 16:44:35",
+      "completed_at": "2026-10-25T16:50:15.207Z",
+      "created_at": "2026-10-25 16:44:35",
+      "last_heartbeat_at": null,
+      "termination_reason": null,
+      "depth": 1,
+      "retry_of_dispatch_id": null,
+      "creator_dispatch_id": null,
+      "host_scope": "{\"kind\":\"local\",\"hostId\":\"local\"}",
+      "consumer_generation": 1,
+      "creator_handle": "term_e3855bfc-5946-4634-bcb7-b963101e6c4f",
+      "creator_pane_key": "a7480859-0a1c-42fb-8485-7c4e421cce65:d07c4406-ffd0-461f-a5a1-6e67bf2a5bba",
+      "assignee_orca_session_id": null,
+      "creator_orca_session_id": null
+    }
+  },
+  "_meta": {
+    "runtimeId": "0c6d8a0a-7f31-4d5e-aa8b-4e2f77a34c95"
+  }
+}

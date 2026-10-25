@@ -1,0 +1,310 @@
+{
+  "version": "1.4.229",
+  "executable": "/home/lucas/.local/bin/orca-ide",
+  "runtime_version": "1.4.229",
+  "scope": "local explicit Run, no remote, inventory diagnostic only",
+  "original_directory": "/home/lucas/.hermes/cache/scratch/luucycle-hardening-19zi_wb5",
+  "sanitization": "IDs unchanged; only named narrative strings redacted with original field SHA-256. Native originals retained privately. Offline specimens do not authenticate live state.",
+  "files": {
+    "status.json": {
+      "original_sha256": "684d75a6cd3604aab0ef86da043d7709efb4774284942db817ed5b87f1420094",
+      "fixture_sha256": "684d75a6cd3604aab0ef86da043d7709efb4774284942db817ed5b87f1420094",
+      "redactions": [],
+      "exit_code": 0,
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "explicit-workers.json": {
+      "original_sha256": "1e2e73c60511d5f7dee7e02a4c68ed2bfced247c4406bc0e9b2695959dff779b",
+      "fixture_sha256": "1e2e73c60511d5f7dee7e02a4c68ed2bfced247c4406bc0e9b2695959dff779b",
+      "redactions": [],
+      "exit_code": 0,
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "run-show.json": {
+      "original_sha256": "b6cdd920fe066daf6479d8589720dd71c8049459108fec88527c1bbc898990ce",
+      "fixture_sha256": "a190c2d5404c712fd7dbdfc65ffa01748d2652c68d0c3fe85dede656fe8adcf7",
+      "redactions": [
+        {
+          "path": [
+            "result",
+            "run",
+            "objective"
+          ],
+          "original_utf8_sha256": "606493b7622be48ee732bc1d88ca26811157429512c1ccb46921ac5aa90772bc"
+        }
+      ],
+      "exit_code": 0,
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "task-list.json": {
+      "original_sha256": "6834c1aaf35a07ef0a0561870b43679b537fedd7f4cf520f5e6ef47a642dad48",
+      "fixture_sha256": "0912669821fe211bf9094556d4932c98f51db3600ba342fe61034b52b5286088",
+      "redactions": [
+        {
+          "path": [
+            "result",
+            "tasks",
+            0,
+            "spec"
+          ],
+          "original_utf8_sha256": "3e092f41612cace33642ed89e99e3f971d2f610dbae2a85c83b2dfaa2f1930c6"
+        },
+        {
+          "path": [
+            "result",
+            "tasks",
+            0,
+            "result"
+          ],
+          "original_utf8_sha256": "758eecb132b69fcfa01f0aa97eb894b9721511cdb59df28f58167eddf256d228"
+        },
+        {
+          "path": [
+            "result",
+            "tasks",
+            0,
+            "task_title"
+          ],
+          "original_utf8_sha256": "93aac56f4a3ecc93b75ffd9fe38a8d1f869b78ffd5a6bcb7d493fca1ba6513e2"
+        },
+        {
+          "path": [
+            "result",
+            "tasks",
+            0,
+            "display_name"
+          ],
+          "original_utf8_sha256": "93aac56f4a3ecc93b75ffd9fe38a8d1f869b78ffd5a6bcb7d493fca1ba6513e2"
+        },
+        {
+          "path": [
+            "result",
+            "tasks",
+            1,
+            "spec"
+          ],
+          "original_utf8_sha256": "c5236d2aef8bf3221495d0dedf132230877df2d395a5a00863adec59a47d89de"
+        },
+        {
+          "path": [
+            "result",
+            "tasks",
+            1,
+            "result"
+          ],
+          "original_utf8_sha256": "6cc81aeb947fc283779c8d02baefd771ec2e5e072c1375570bf4abe36218a223"
+        },
+        {
+          "path": [
+            "result",
+            "tasks",
+            1,
+            "task_title"
+          ],
+          "original_utf8_sha256": "1e0014322d54ee8343e4849237ebda14c80ac495cc23aa4965e93d1da2d77aa3"
+        },
+        {
+          "path": [
+            "result",
+            "tasks",
+            1,
+            "display_name"
+          ],
+          "original_utf8_sha256": "1e0014322d54ee8343e4849237ebda14c80ac495cc23aa4965e93d1da2d77aa3"
+        },
+        {
+          "path": [
+            "result",
+            "tasks",
+            2,
+            "spec"
+          ],
+          "original_utf8_sha256": "242ef7d34b950a6a5ad68163a79d07425a2245ee89d75e2591cbcdaf6b79f353"
+        },
+        {
+          "path": [
+            "result",
+            "tasks",
+            2,
+            "result"
+          ],
+          "original_utf8_sha256": "312cac72910c74062d899fac90e6d5304cff0892f91b7b56dd103b6d93c5f3f1"
+        },
+        {
+          "path": [
+            "result",
+            "tasks",
+            2,
+            "task_title"
+          ],
+          "original_utf8_sha256": "8981f06c146d7a3a9a34114f13247757c970b01665b108fcc884158986a87f0d"
+        },
+        {
+          "path": [
+            "result",
+            "tasks",
+            2,
+            "display_name"
+          ],
+          "original_utf8_sha256": "8981f06c146d7a3a9a34114f13247757c970b01665b108fcc884158986a87f0d"
+        },
+        {
+          "path": [
+            "result",
+            "tasks",
+            3,
+            "spec"
+          ],
+          "original_utf8_sha256": "6b671016cdd5b35129b94b82617db409976353fa69d70e45f3add4937e20144a"
+        },
+        {
+          "path": [
+            "result",
+            "tasks",
+            3,
+            "result"
+          ],
+          "original_utf8_sha256": "1dd2d0f616942b9f743534413215ff8d84a39bdc7064e3f4ba4aec69d43f2197"
+        },
+        {
+          "path": [
+            "result",
+            "tasks",
+            3,
+            "task_title"
+          ],
+          "original_utf8_sha256": "44c965de54b61837b67b98773b052d313d2b3e71325fcded68b808ea81dc0aa3"
+        },
+        {
+          "path": [
+            "result",
+            "tasks",
+            3,
+            "display_name"
+          ],
+          "original_utf8_sha256": "44c965de54b61837b67b98773b052d313d2b3e71325fcded68b808ea81dc0aa3"
+        }
+      ],
+      "exit_code": 0,
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "worker-show-0.json": {
+      "original_sha256": "357f5355bd07d7146f3df433d96e6442987cdfcd632e03b90b74fcb7e79dd82b",
+      "fixture_sha256": "357f5355bd07d7146f3df433d96e6442987cdfcd632e03b90b74fcb7e79dd82b",
+      "redactions": [],
+      "exit_code": 0,
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "worker-show-1.json": {
+      "original_sha256": "9461f607fb8b4d9049efc8c5da5e3034a85460cbd2419a9b6530a173326922bd",
+      "fixture_sha256": "9461f607fb8b4d9049efc8c5da5e3034a85460cbd2419a9b6530a173326922bd",
+      "redactions": [],
+      "exit_code": 0,
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "worker-show-2.json": {
+      "original_sha256": "0bdf0710f92a8b5f9ae226e720adf8e23b5120e7d0ebba1d8273f02899a75eb4",
+      "fixture_sha256": "0bdf0710f92a8b5f9ae226e720adf8e23b5120e7d0ebba1d8273f02899a75eb4",
+      "redactions": [],
+      "exit_code": 0,
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "worker-show-3.json": {
+      "original_sha256": "58a4068f44ad921d40c04169a5bbee3bfd2749276de554f1eb30c2c1032db223",
+      "fixture_sha256": "58a4068f44ad921d40c04169a5bbee3bfd2749276de554f1eb30c2c1032db223",
+      "redactions": [],
+      "exit_code": 0,
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "dispatch-show-3.json": {
+      "original_sha256": "899b5d72ee52d1dac1013e4b333a0b73e3b2620baac13c9f65a6164307ae3742",
+      "fixture_sha256": "899b5d72ee52d1dac1013e4b333a0b73e3b2620baac13c9f65a6164307ae3742",
+      "redactions": [],
+      "exit_code": 0,
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "original_path": "/home/lucas/.hermes/cache/scratch/luucycle-hardening-19zi_wb5/dispatch-show-3.stdout"
+    },
+    "dispatch-show-2.json": {
+      "original_sha256": "567cfbcc992246f5d3b5f84c2991e9452f7674a13f7706894e472a833e06a70c",
+      "fixture_sha256": "567cfbcc992246f5d3b5f84c2991e9452f7674a13f7706894e472a833e06a70c",
+      "redactions": [],
+      "exit_code": 0,
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "original_path": "/home/lucas/.hermes/cache/scratch/luucycle-hardening-19zi_wb5/dispatch-show-2.stdout"
+    },
+    "dispatch-show-0.json": {
+      "original_sha256": "523814af22e9489f30eb07a5cefa0d0cffee9b457e16d15cb12245c596c8419c",
+      "fixture_sha256": "523814af22e9489f30eb07a5cefa0d0cffee9b457e16d15cb12245c596c8419c",
+      "redactions": [],
+      "exit_code": 0,
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "original_path": "/home/lucas/.hermes/cache/scratch/luucycle-hardening-19zi_wb5/dispatch-show-0.stdout"
+    },
+    "dispatch-show-1.json": {
+      "original_sha256": "e41753b3d6ff6069d6687fbc4d60ccf1e335454df0de1f173f1886235ce9e9fa",
+      "fixture_sha256": "e41753b3d6ff6069d6687fbc4d60ccf1e335454df0de1f173f1886235ce9e9fa",
+      "redactions": [],
+      "exit_code": 0,
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "original_path": "/home/lucas/.hermes/cache/scratch/luucycle-hardening-19zi_wb5/dispatch-show-1.stdout"
+    },
+    "pages/workers-page-3.json": {
+      "original_sha256": "0963b2ed06a31610e2a22434057baacd5da5e693e2df1f5aef60f7145dd01159",
+      "fixture_sha256": "0963b2ed06a31610e2a22434057baacd5da5e693e2df1f5aef60f7145dd01159",
+      "redactions": [],
+      "exit_code": 0,
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "original_path": "/home/lucas/.hermes/cache/scratch/luucycle-hardening-19zi_wb5/workers-page-3-limit1.stdout"
+    },
+    "pages/workers-page-2.json": {
+      "original_sha256": "68cfc664bf4724693a58f029f78f061842eaca24f0db212c185fb55d972c2f0c",
+      "fixture_sha256": "68cfc664bf4724693a58f029f78f061842eaca24f0db212c185fb55d972c2f0c",
+      "redactions": [],
+      "exit_code": 0,
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "original_path": "/home/lucas/.hermes/cache/scratch/luucycle-hardening-19zi_wb5/workers-page-2-limit1.stdout"
+    },
+    "pages/explicit-workers.json": {
+      "original_sha256": "aed1ad57be73a5a5f8ad4b61b284031035b54aef626c2656cb32ec57620b9b36",
+      "fixture_sha256": "aed1ad57be73a5a5f8ad4b61b284031035b54aef626c2656cb32ec57620b9b36",
+      "redactions": [],
+      "exit_code": 0,
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "original_path": "/home/lucas/.hermes/cache/scratch/luucycle-hardening-19zi_wb5/explicit-workers-limit1.stdout"
+    },
+    "pages/workers-page-1.json": {
+      "original_sha256": "0e3b7b412cd61ecd6bab315e4624be1e88c0dbc3f0916be9e356a752e45091be",
+      "fixture_sha256": "0e3b7b412cd61ecd6bab315e4624be1e88c0dbc3f0916be9e356a752e45091be",
+      "redactions": [],
+      "exit_code": 0,
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "original_path": "/home/lucas/.hermes/cache/scratch/luucycle-hardening-19zi_wb5/workers-page-1-limit1.stdout"
+    },
+    "inbox-synthetic/nominal-messages.json": {
+      "original_sha256": "d120d1bd81ff30c6a732144a19219d5780f646ef8f0ff6261601640a7cab890e",
+      "fixture_sha256": "d120d1bd81ff30c6a732144a19219d5780f646ef8f0ff6261601640a7cab890e",
+      "redactions": [],
+      "classification": "synthetic_test_case",
+      "exit_code": null,
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  "inspected_sources": [
+    {
+      "path": "/opt/Orca/resources/app.asar.unpacked/out/cli/handlers/orchestration/task-handlers.js",
+      "sha256": "dc26fd05f37e612bf0e56ac7840a35338a3944e467e0f18bc921453a17ca65e6"
+    },
+    {
+      "path": "/opt/Orca/resources/app.asar.unpacked/out/main/chunks/ssh-host-server-telemetry-B2oUn4ha.js",
+      "sha256": "8a58a662632dba88638f3e3ce83b006e1c2eb1c391f3ad33f91524368b32bacb"
+    },
+    {
+      "path": "/home/lucas/.hermes/skills/software-development/test-driven-development/SKILL.md",
+      "sha256": "649e6ab89bd8aaad2f9b162c60321f227cff8a8cda56393f07a81d1c6825a692"
+    },
+    {
+      "path": "/home/lucas/.hermes/skills/orca-cli/SKILL.md",
+      "sha256": "aa76f86505010096e8ea9edda1705a78aae7af45e54485f3fe0460664c1d9e4a"
+    }
+  ]
+}

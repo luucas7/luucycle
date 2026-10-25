@@ -1,0 +1,328 @@
+{
+  "id": "32431c73-1e9f-4b80-b05c-b46e69269dfd",
+  "ok": true,
+  "result": {
+    "workers": [
+      {
+        "dispatchId": "ctx_ba8cfb39ac4a",
+        "taskId": "task_50dad7d99f3f",
+        "runId": "run_7c58413f7566",
+        "workerState": "succeeded",
+        "dispatchStatus": "completed",
+        "agentTerminalHandle": "term_82afe023-83ba-47e0-bee0-6932d7dcd673",
+        "terminalState": "released",
+        "resource": {
+          "id": "wtr_e954fbd69c6f",
+          "ownershipState": "released",
+          "releaseState": "released",
+          "retainedReason": null,
+          "terminalHandle": "term_82afe023-83ba-47e0-bee0-6932d7dcd673",
+          "worktreeId": "785af760-ee12-4d4f-8e9e-494515aaca17::/home/lucas/orca/workspaces/numitsu/luucycle-orchestration-smoke",
+          "endpointId": "30ca0cef-25d1-4bde-8f02-80bf63be9968",
+          "endpointIncarnation": "785af760-ee12-4d4f-8e9e-494515aaca17::/home/lucas/orca/workspaces/numitsu/luucycle-orchestration-smoke@@2cd2e7ec:132d5085-6880-4d0d-8a49-12ebc69e6821",
+          "originDispatchId": "ctx_ba8cfb39ac4a",
+          "ownerDispatchId": "ctx_ba8cfb39ac4a",
+          "releaseRequestedAt": "2026-10-24 10:36:04",
+          "releaseCompletedAt": "2026-10-24 10:36:06",
+          "releaseError": null,
+          "recoveryAttemptCount": 0,
+          "lastRecoveryAt": null,
+          "archive": {
+            "source": "transcript",
+            "status": "captured"
+          }
+        },
+        "projection": {
+          "id": "ctx_ba8cfb39ac4a",
+          "dispatchId": "ctx_ba8cfb39ac4a",
+          "taskId": "task_50dad7d99f3f",
+          "runId": "run_7c58413f7566",
+          "role": "worker",
+          "parent": null,
+          "provider": null,
+          "host": {
+            "kind": "local",
+            "id": "local"
+          },
+          "workspace": {
+            "id": "785af760-ee12-4d4f-8e9e-494515aaca17::/home/lucas/orca/workspaces/numitsu/luucycle-orchestration-smoke",
+            "kind": "folder_or_worktree"
+          },
+          "stage": {
+            "worker": "succeeded",
+            "dispatch": "completed",
+            "detail": "settled",
+            "activity": "unknown"
+          },
+          "outcome": "succeeded",
+          "liveness": {
+            "verdict": "exited",
+            "source": "resource_release"
+          },
+          "evidence": {
+            "durable": true,
+            "liveStatus": "unavailable",
+            "lastObservedAt": null
+          },
+          "resource": {
+            "state": "released"
+          },
+          "nextAction": {
+            "kind": "none",
+            "argv": []
+          },
+          "attention": {
+            "categories": [
+              "root_completion"
+            ],
+            "requiresAction": false
+          }
+        }
+      },
+      {
+        "dispatchId": "ctx_21b1ad59a498",
+        "taskId": "task_4f5f8729e4d7",
+        "runId": "run_7c58413f7566",
+        "workerState": "succeeded",
+        "dispatchStatus": "completed",
+        "agentTerminalHandle": "term_ec2647dd-08bd-4b25-92f5-ad53c4117262",
+        "terminalState": "released",
+        "resource": {
+          "id": "wtr_27335c5af62d",
+          "ownershipState": "released",
+          "releaseState": "released",
+          "retainedReason": null,
+          "terminalHandle": "term_ec2647dd-08bd-4b25-92f5-ad53c4117262",
+          "worktreeId": "785af760-ee12-4d4f-8e9e-494515aaca17::/home/lucas/orca/workspaces/numitsu/luucycle-orchestration-smoke",
+          "endpointId": "30ca0cef-25d1-4bde-8f02-80bf63be9968",
+          "endpointIncarnation": "785af760-ee12-4d4f-8e9e-494515aaca17::/home/lucas/orca/workspaces/numitsu/luucycle-orchestration-smoke@@32d0ad9e:06c83d86-1e3b-4931-a61d-2d83c0568ca2",
+          "originDispatchId": "ctx_21b1ad59a498",
+          "ownerDispatchId": "ctx_21b1ad59a498",
+          "releaseRequestedAt": "2026-10-24 10:34:15",
+          "releaseCompletedAt": "2026-10-24 10:34:16",
+          "releaseError": null,
+          "recoveryAttemptCount": 0,
+          "lastRecoveryAt": null,
+          "archive": {
+            "source": "terminal",
+            "status": "captured"
+          }
+        },
+        "projection": {
+          "id": "ctx_21b1ad59a498",
+          "dispatchId": "ctx_21b1ad59a498",
+          "taskId": "task_4f5f8729e4d7",
+          "runId": "run_7c58413f7566",
+          "role": "worker",
+          "parent": null,
+          "provider": null,
+          "host": {
+            "kind": "local",
+            "id": "local"
+          },
+          "workspace": {
+            "id": "785af760-ee12-4d4f-8e9e-494515aaca17::/home/lucas/orca/workspaces/numitsu/luucycle-orchestration-smoke",
+            "kind": "folder_or_worktree"
+          },
+          "stage": {
+            "worker": "succeeded",
+            "dispatch": "completed",
+            "detail": "settled",
+            "activity": "unknown"
+          },
+          "outcome": "succeeded",
+          "liveness": {
+            "verdict": "exited",
+            "source": "resource_release"
+          },
+          "evidence": {
+            "durable": true,
+            "liveStatus": "unavailable",
+            "lastObservedAt": null
+          },
+          "resource": {
+            "state": "released"
+          },
+          "nextAction": {
+            "kind": "none",
+            "argv": []
+          },
+          "attention": {
+            "categories": [
+              "root_completion"
+            ],
+            "requiresAction": false
+          }
+        }
+      },
+      {
+        "dispatchId": "ctx_a26f4c5b62db",
+        "taskId": "task_14fd995426e3",
+        "runId": "run_7c58413f7566",
+        "workerState": "succeeded",
+        "dispatchStatus": "completed",
+        "agentTerminalHandle": "term_04aa567c-d853-4b55-81b1-b2817df5a1c8",
+        "terminalState": "released",
+        "resource": {
+          "id": "wtr_d7bb50e52b88",
+          "ownershipState": "released",
+          "releaseState": "released",
+          "retainedReason": null,
+          "terminalHandle": "term_04aa567c-d853-4b55-81b1-b2817df5a1c8",
+          "worktreeId": "785af760-ee12-4d4f-8e9e-494515aaca17::/home/lucas/orca/workspaces/numitsu/luucycle-orchestration-smoke",
+          "endpointId": "30ca0cef-25d1-4bde-8f02-80bf63be9968",
+          "endpointIncarnation": "785af760-ee12-4d4f-8e9e-494515aaca17::/home/lucas/orca/workspaces/numitsu/luucycle-orchestration-smoke@@a91d63dd:507c53d3-cf19-4a1c-bb22-7c9cde038f6a",
+          "originDispatchId": "ctx_a26f4c5b62db",
+          "ownerDispatchId": "ctx_a26f4c5b62db",
+          "releaseRequestedAt": "2026-10-24 10:25:58",
+          "releaseCompletedAt": "2026-10-24 10:25:59",
+          "releaseError": null,
+          "recoveryAttemptCount": 0,
+          "lastRecoveryAt": null,
+          "archive": {
+            "source": "terminal",
+            "status": "captured"
+          }
+        },
+        "projection": {
+          "id": "ctx_a26f4c5b62db",
+          "dispatchId": "ctx_a26f4c5b62db",
+          "taskId": "task_14fd995426e3",
+          "runId": "run_7c58413f7566",
+          "role": "worker",
+          "parent": null,
+          "provider": null,
+          "host": {
+            "kind": "local",
+            "id": "local"
+          },
+          "workspace": {
+            "id": "785af760-ee12-4d4f-8e9e-494515aaca17::/home/lucas/orca/workspaces/numitsu/luucycle-orchestration-smoke",
+            "kind": "folder_or_worktree"
+          },
+          "stage": {
+            "worker": "succeeded",
+            "dispatch": "completed",
+            "detail": "settled",
+            "activity": "unknown"
+          },
+          "outcome": "succeeded",
+          "liveness": {
+            "verdict": "exited",
+            "source": "resource_release"
+          },
+          "evidence": {
+            "durable": true,
+            "liveStatus": "unavailable",
+            "lastObservedAt": null
+          },
+          "resource": {
+            "state": "released"
+          },
+          "nextAction": {
+            "kind": "none",
+            "argv": []
+          },
+          "attention": {
+            "categories": [
+              "root_completion"
+            ],
+            "requiresAction": false
+          }
+        }
+      },
+      {
+        "dispatchId": "ctx_0e0e9b0e6b63",
+        "taskId": "task_2360d69fd0c3",
+        "runId": "run_7c58413f7566",
+        "workerState": "succeeded",
+        "dispatchStatus": "completed",
+        "agentTerminalHandle": "term_a22be017-17f4-484a-a5bb-85946b4a3455",
+        "terminalState": "released",
+        "resource": {
+          "id": "wtr_a58df9735767",
+          "ownershipState": "released",
+          "releaseState": "released",
+          "retainedReason": null,
+          "terminalHandle": "term_a22be017-17f4-484a-a5bb-85946b4a3455",
+          "worktreeId": "785af760-ee12-4d4f-8e9e-494515aaca17::/home/lucas/orca/workspaces/numitsu/luucycle-orchestration-smoke",
+          "endpointId": "30ca0cef-25d1-4bde-8f02-80bf63be9968",
+          "endpointIncarnation": "785af760-ee12-4d4f-8e9e-494515aaca17::/home/lucas/orca/workspaces/numitsu/luucycle-orchestration-smoke@@a534333c:9a19204e-725b-46fb-a33b-14f7860498fb",
+          "originDispatchId": "ctx_0e0e9b0e6b63",
+          "ownerDispatchId": "ctx_0e0e9b0e6b63",
+          "releaseRequestedAt": "2026-10-24 10:17:49",
+          "releaseCompletedAt": "2026-10-24 10:17:51",
+          "releaseError": null,
+          "recoveryAttemptCount": 0,
+          "lastRecoveryAt": null,
+          "archive": {
+            "source": "transcript",
+            "status": "captured"
+          }
+        },
+        "projection": {
+          "id": "ctx_0e0e9b0e6b63",
+          "dispatchId": "ctx_0e0e9b0e6b63",
+          "taskId": "task_2360d69fd0c3",
+          "runId": "run_7c58413f7566",
+          "role": "worker",
+          "parent": null,
+          "provider": null,
+          "host": {
+            "kind": "local",
+            "id": "local"
+          },
+          "workspace": {
+            "id": "785af760-ee12-4d4f-8e9e-494515aaca17::/home/lucas/orca/workspaces/numitsu/luucycle-orchestration-smoke",
+            "kind": "folder_or_worktree"
+          },
+          "stage": {
+            "worker": "succeeded",
+            "dispatch": "completed",
+            "detail": "settled",
+            "activity": "unknown"
+          },
+          "outcome": "succeeded",
+          "liveness": {
+            "verdict": "exited",
+            "source": "resource_release"
+          },
+          "evidence": {
+            "durable": true,
+            "liveStatus": "unavailable",
+            "lastObservedAt": null
+          },
+          "resource": {
+            "state": "released"
+          },
+          "nextAction": {
+            "kind": "none",
+            "argv": []
+          },
+          "attention": {
+            "categories": [
+              "root_completion"
+            ],
+            "requiresAction": false
+          }
+        }
+      }
+    ],
+    "counts": {
+      "released": 4
+    },
+    "page": {
+      "limit": 100,
+      "total": 4,
+      "hasMore": false,
+      "nextCursor": null
+    },
+    "scope": {
+      "run": "run_7c58413f7566",
+      "source": "flag"
+    }
+  },
+  "_meta": {
+    "runtimeId": "1cf07d1e-a598-4fef-947c-cd1ca367d452"
+  }
+}

@@ -1,0 +1,82 @@
+{
+  "id": "c3effcc5-96a4-4571-b35c-38aaedd0de5c",
+  "ok": true,
+  "result": {
+    "runId": "run_7c58413f7566",
+    "legacyReadOnly": false,
+    "tasks": [
+      {
+        "id": "task_2360d69fd0c3",
+        "run_id": "run_7c58413f7566",
+        "parent_id": null,
+        "created_by_terminal_handle": "term_38d9eefb-aa3c-4994-bdce-b951a7e0c0e4",
+        "task_title": "[REDACTED narrative sha256=93aac56f4a3ecc93b75ffd9fe38a8d1f869b78ffd5a6bcb7d493fca1ba6513e2]",
+        "display_name": "[REDACTED narrative sha256=93aac56f4a3ecc93b75ffd9fe38a8d1f869b78ffd5a6bcb7d493fca1ba6513e2]",
+        "spec": "[REDACTED narrative sha256=3e092f41612cace33642ed89e99e3f971d2f610dbae2a85c83b2dfaa2f1930c6]",
+        "status": "completed",
+        "deps": "[]",
+        "result": "[REDACTED narrative sha256=758eecb132b69fcfa01f0aa97eb894b9721511cdb59df28f58167eddf256d228]",
+        "created_at": "2026-10-24 10:15:03",
+        "completed_at": "2026-10-24T10:17:32.965Z",
+        "created_by_pane_key": "a7480859-0a1c-42fb-8485-7c4e421cce65:d07c4406-ffd0-461f-a5a1-6e67bf2a5bba",
+        "created_by_process_incarnation": "2ce24c5a-676b-475f-908c-8673fc05b3b3::/home/lucas/Documents/luucycle@@32922ec5:17d6c287-e6bd-4981-9b09-5486f84e2766",
+        "created_by_run_generation": 1
+      },
+      {
+        "id": "task_14fd995426e3",
+        "run_id": "run_7c58413f7566",
+        "parent_id": null,
+        "created_by_terminal_handle": "term_38d9eefb-aa3c-4994-bdce-b951a7e0c0e4",
+        "task_title": "[REDACTED narrative sha256=1e0014322d54ee8343e4849237ebda14c80ac495cc23aa4965e93d1da2d77aa3]",
+        "display_name": "[REDACTED narrative sha256=1e0014322d54ee8343e4849237ebda14c80ac495cc23aa4965e93d1da2d77aa3]",
+        "spec": "[REDACTED narrative sha256=c5236d2aef8bf3221495d0dedf132230877df2d395a5a00863adec59a47d89de]",
+        "status": "completed",
+        "deps": "[\"task_2360d69fd0c3\"]",
+        "result": "[REDACTED narrative sha256=6cc81aeb947fc283779c8d02baefd771ec2e5e072c1375570bf4abe36218a223]",
+        "created_at": "2026-10-24 10:15:06",
+        "completed_at": "2026-10-24T10:25:44.943Z",
+        "created_by_pane_key": "a7480859-0a1c-42fb-8485-7c4e421cce65:d07c4406-ffd0-461f-a5a1-6e67bf2a5bba",
+        "created_by_process_incarnation": "2ce24c5a-676b-475f-908c-8673fc05b3b3::/home/lucas/Documents/luucycle@@32922ec5:17d6c287-e6bd-4981-9b09-5486f84e2766",
+        "created_by_run_generation": 1
+      },
+      {
+        "id": "task_4f5f8729e4d7",
+        "run_id": "run_7c58413f7566",
+        "parent_id": null,
+        "created_by_terminal_handle": "term_38d9eefb-aa3c-4994-bdce-b951a7e0c0e4",
+        "task_title": "[REDACTED narrative sha256=8981f06c146d7a3a9a34114f13247757c970b01665b108fcc884158986a87f0d]",
+        "display_name": "[REDACTED narrative sha256=8981f06c146d7a3a9a34114f13247757c970b01665b108fcc884158986a87f0d]",
+        "spec": "[REDACTED narrative sha256=242ef7d34b950a6a5ad68163a79d07425a2245ee89d75e2591cbcdaf6b79f353]",
+        "status": "completed",
+        "deps": "[]",
+        "result": "[REDACTED narrative sha256=312cac72910c74062d899fac90e6d5304cff0892f91b7b56dd103b6d93c5f3f1]",
+        "created_at": "2026-10-24 10:30:26",
+        "completed_at": "2026-10-24T10:34:12.591Z",
+        "created_by_pane_key": "a7480859-0a1c-42fb-8485-7c4e421cce65:d07c4406-ffd0-461f-a5a1-6e67bf2a5bba",
+        "created_by_process_incarnation": "2ce24c5a-676b-475f-908c-8673fc05b3b3::/home/lucas/Documents/luucycle@@32922ec5:17d6c287-e6bd-4981-9b09-5486f84e2766",
+        "created_by_run_generation": 1
+      },
+      {
+        "id": "task_50dad7d99f3f",
+        "run_id": "run_7c58413f7566",
+        "parent_id": null,
+        "created_by_terminal_handle": "term_38d9eefb-aa3c-4994-bdce-b951a7e0c0e4",
+        "task_title": "[REDACTED narrative sha256=44c965de54b61837b67b98773b052d313d2b3e71325fcded68b808ea81dc0aa3]",
+        "display_name": "[REDACTED narrative sha256=44c965de54b61837b67b98773b052d313d2b3e71325fcded68b808ea81dc0aa3]",
+        "spec": "[REDACTED narrative sha256=6b671016cdd5b35129b94b82617db409976353fa69d70e45f3add4937e20144a]",
+        "status": "completed",
+        "deps": "[\"task_4f5f8729e4d7\"]",
+        "result": "[REDACTED narrative sha256=1dd2d0f616942b9f743534413215ff8d84a39bdc7064e3f4ba4aec69d43f2197]",
+        "created_at": "2026-10-24 10:31:03",
+        "completed_at": "2026-10-24T10:35:57.764Z",
+        "created_by_pane_key": "a7480859-0a1c-42fb-8485-7c4e421cce65:d07c4406-ffd0-461f-a5a1-6e67bf2a5bba",
+        "created_by_process_incarnation": "2ce24c5a-676b-475f-908c-8673fc05b3b3::/home/lucas/Documents/luucycle@@32922ec5:17d6c287-e6bd-4981-9b09-5486f84e2766",
+        "created_by_run_generation": 1
+      }
+    ],
+    "count": 4
+  },
+  "_meta": {
+    "runtimeId": "1cf07d1e-a598-4fef-947c-cd1ca367d452"
+  }
+}

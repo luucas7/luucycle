@@ -15,6 +15,10 @@ reads before displaying their output to the coordinator.
 
 2. **Prepare and confirm the next selected phase.** Start with Audit when it is selected; after a completed Audit that establishes execution work, return to this step for Execution. For the phase being planned:
 
+   Approval is the boundary between planning and execution. Until the user approves the exact phase table in the current conversation, do read-only preparation and present that table. Do not edit project files, dispatch workers, or run implementation work. The requested feature describes the work to plan; it is not approval to start it.
+
+   When a request asks for both code and a unit-test suite, plan two sequential tasks: a `builder` task routed to `tdd` owns the requested source and test files; a `verifier` task routed to `code-review` depends on the builder, runs the focused tests, and reviews the complete diff read-only. Keep both rows in the approval table and select distinct primary agents and CLIs when the roster permits.
+
    - Break its work into tasks and route each one through [ROUTING.md](ROUTING.md). Record every routed skill and whether any Execution task touches UI.
    - Run Doctor's Task scope in [implicit mode](DOCTOR.md#output), repeating `--required-skill` for every routed skill. Continue on `READY`; continue on `DEGRADED` only when every gap is unrelated to the phase; stop on `BLOCKED` or `UNKNOWN` with the smallest repair command.
    - Resolve `<repo-root>` as an absolute path with `git rev-parse --show-toplevel`. Read `<repo-root>/.agents/luucycle/ROLES.md`; for each task, choose the narrowest matching `When` criterion and record the role and any ambiguity rationale internally. Then run:
@@ -47,6 +51,50 @@ reads before displaying their output to the coordinator.
 
    Before dispatch, read `<repo-root>/.agents/luucycle/WARNINGS.md` in the initial base checkout. Resolve each project path against the target worktree root from Orca's full worktree ID. Inject the task-specific role, roster contract, and warnings directly into the worker request.
 
+   **Validate the selected launch, not an ID prefix.** Repeat Doctor Task scope
+   with `--selected-agent '<roster-agent-id>'` for the actual task primary and
+   fallback, plus its routed `--required-skill` values. Require each selected
+   entry's own CLI and explicit Orca alias/model checks to pass before dispatch.
+   A broken unselected entry does not block another healthy agent. Keep the stable
+   roster ID distinct from the explicit `orca_agent` launch alias; preserve the
+   requested model or stop, rather than substituting a default. Free help preflight
+   is not an actual launch proof: verify the native requested/effective launch
+   settings afterward within the installed guide's supported contract.
+
+   **Use only supported native evidence.** Apply [ORCA-ADAPTER.md](ORCA-ADAPTER.md)
+   before projecting Orca records. Unknown operations, unverifiable sources and
+   incomplete retrieval block dependent work. Use `orca_inbox.py` for an explicitly
+   authorized Run's complete Delivery and current Dispatch authority.
+   A complete inventory diagnostic is not acceptance of a worker report.
+
+   **Freeze the baseline before the first builder.** Use `scripts/git_baseline.py`
+   with [GIT-BASELINE.md](GIT-BASELINE.md)'s capture/check contract
+   to capture HEAD, index entries, tracked and untracked inventory, and target
+   presence and hashes under the approved artifact root outside the checkout.
+   Keep preexisting staged, unstaged and untracked changes; a dirty tree is valid.
+   Compare the final checkout to that snapshot, accounting for each authorized
+   changed path and any unrelated delta. An allowed path is not proof that its
+   preexisting edits survived: review those hunks against the original state.
+   Stop if the baseline is incomplete; preserve the checkout rather than cleaning it.
+   Audit without artifact permission uses existing records or in-memory evidence;
+   report a missing durable baseline as a limit rather than creating storage.
+
+   **Specify proof and test rights per task.** Apply COMPACT's permitted evidence
+   source to read-only verifiers as well as Audit workers. Bind the routed skill
+   path and digest before dispatch and validate the loaded-skill evidence on return.
+   Build prompts with [WORKER-CONTRACT.md](WORKER-CONTRACT.md)'s shared builder;
+   bind Task/Dispatch/terminal IDs from the actual launch receipt. Validate native
+   worker_done payloads through the same contract after source retrieval. A missing
+   attestation leaves acceptance incomplete while the native settlement still requires
+   immediate terminal release. Send active-task status guidance through the controlled
+   native send path; keep its non-atomic enforcement limit in the report. For a blocking
+   question, verify its exact message from the Delivery and follow the installed guide's
+   `reply` command; a status message does not answer a blocking ask.
+   For Python diagnostics and tests, set `PYTHONDONTWRITEBYTECODE=1` and invoke
+   `python3 -B`; test tools may still write caches, fixtures, screenshots or state.
+   Inspect setup/teardown and constrain temporary storage to the authorized root;
+   choose inspected non-persistent probes when the task forbids all writes.
+
 3. **Dispatch Audit and report its outcome.** Skip this step unless the approved phase is Audit. Load the `orchestration` skill and its version-matched guide once for coordination and recovery. Every Audit worker dispatch is a one-shot dispatch. Every request includes its mission, routed skill and how to load it, read-only boundary, required evidence, completion criterion, role output format, the approved roster contract, and the return contract from COMPACT. Require the receipt to name the loaded skill. A worker unable to proceed immediately returns `BLOCKED` with its unavailable capability, observed failure and explicit unchanged partial state in the compact receipt. Worker interaction completion criterion: receiving the compact receipt (`DONE` or `BLOCKED`) triggers terminal sealing; immediately release or terminate the worker terminal and advance the plan. Any subsequent audit task is dispatched to a fresh terminal.
 
    Synthesize the worker reports without substituting the coordinator's independent perimeter conclusion. Surface any disagreement or out-of-scope finding with its evidence. If Audit was the only selected phase, or it establishes that no execution is needed, conclude directly with the evidence. Otherwise return to step 2 to prepare a distinct Execution plan.
@@ -67,5 +115,9 @@ reads before displaying their output to the coordinator.
 ## Completion criterion
 
 Complete only when every selected phase is finished or explicitly paused; every finished UI task passed the Gatekeeper; the final receipt lists each primary and fallback worker ID, status, routed skill, phase, and fallback occurrence; and the Retrospective is delivered. For Audit-only runs that establish no execution is needed, conclude with the evidence instead of requesting another approval.
+
+Keep task completion separate from acceptance: include baseline comparison,
+validated evidence sources and loaded skills, exact test/linter scopes, and any
+incomplete acceptance or unverified runtime fence in the final receipt.
 
 Conclude with a **Retrospective** identifying orchestration friction, inefficiencies, missing tools, and concrete improvements to `/luucycle`.

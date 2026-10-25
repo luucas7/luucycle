@@ -1,0 +1,38 @@
+{
+  "id": "3684dae9-2ff1-4d0b-858e-3bc0ce020ab5",
+  "ok": true,
+  "result": {
+    "dispatch": {
+      "id": "ctx_21b1ad59a498",
+      "run_id": "run_7c58413f7566",
+      "task_id": "task_4f5f8729e4d7",
+      "contract_version": 1,
+      "launch_token_hash": "257c2fea8dcc471a92ba1a37752d451c041ab45759e1ede6d273778614d2c83f",
+      "assignee_handle": "term_ec2647dd-08bd-4b25-92f5-ad53c4117262",
+      "assignee_pane_key": "2c2a0cc7-1d35-4601-b776-098eca45ea38:a0bf8152-0ef4-4f56-8443-ecd931fc1339",
+      "capability_hash": null,
+      "process_incarnation": "785af760-ee12-4d4f-8e9e-494515aaca17::/home/lucas/orca/workspaces/numitsu/luucycle-orchestration-smoke@@32d0ad9e:06c83d86-1e3b-4931-a61d-2d83c0568ca2",
+      "capability_revoked_at": "2026-10-24T10:34:12.590Z",
+      "status": "completed",
+      "failure_count": 0,
+      "last_failure": null,
+      "dispatched_at": "2026-10-24 10:31:06",
+      "completed_at": "2026-10-24T10:34:12.590Z",
+      "created_at": "2026-10-24 10:31:06",
+      "last_heartbeat_at": null,
+      "termination_reason": null,
+      "depth": 1,
+      "retry_of_dispatch_id": null,
+      "creator_dispatch_id": null,
+      "host_scope": "{\"kind\":\"local\",\"hostId\":\"local\"}",
+      "consumer_generation": 1,
+      "creator_handle": "term_38d9eefb-aa3c-4994-bdce-b951a7e0c0e4",
+      "creator_pane_key": "a7480859-0a1c-42fb-8485-7c4e421cce65:d07c4406-ffd0-461f-a5a1-6e67bf2a5bba",
+      "assignee_orca_session_id": null,
+      "creator_orca_session_id": null
+    }
+  },
+  "_meta": {
+    "runtimeId": "1cf07d1e-a598-4fef-947c-cd1ca367d452"
+  }
+}

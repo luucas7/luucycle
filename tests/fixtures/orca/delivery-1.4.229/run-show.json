@@ -1,0 +1,18 @@
+{
+  "id": "7ec1ec8c-750a-4a38-b20e-4f0a367dd906",
+  "ok": true,
+  "result": {
+    "run": {
+      "id": "run_1ca5b4d322df",
+      "objective": "Validate luucycle compact delivery, task contract, one-shot release and dirty Git preservation in disposable repository",
+      "coordinator_handle": "term_e3855bfc-5946-4634-bcb7-b963101e6c4f",
+      "consumer_generation": 1,
+      "legacy": 0,
+      "created_at": "2026-10-25T13:59:45Z",
+      "updated_at": "2026-10-25T13:59:45Z"
+    }
+  },
+  "_meta": {
+    "runtimeId": "0c6d8a0a-7f31-4d5e-aa8b-4e2f77a34c95"
+  }
+}

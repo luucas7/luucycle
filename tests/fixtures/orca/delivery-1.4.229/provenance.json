@@ -1,0 +1,74 @@
+{
+  "schema": "luucycle.fixture-provenance.v1",
+  "orca_version": "1.4.229",
+  "observed_date": "2026-10-25",
+  "run_id": "run_1ca5b4d322df",
+  "purpose": "Disposable repository integration, Gemini Flash High worker_done before terminal release; no model is called by fixture tests. Task narrative and paths belong to this disposable fixture.",
+  "files": {
+    "check.json": {
+      "sha256": "da25860023e04b802e2b8cb5de4c63b7817756cae1ad55dc025489f671d7f3a0",
+      "bytes": 2287,
+      "classification": "byte_exact_native_receipt"
+    },
+    "dispatch-show-0.json": {
+      "sha256": "82fcc11ce01323995295a4dc725403c317c3c3c795a9aca913bc55cd80c5e0a5",
+      "bytes": 1560,
+      "classification": "byte_exact_native_receipt"
+    },
+    "explicit-workers.json": {
+      "sha256": "8e0883104c0120e36f7c76c7b4e29e5cdbb8eb531848723fcc0aeeca143ddc0d",
+      "bytes": 3247,
+      "classification": "byte_exact_native_receipt"
+    },
+    "final-dispatch-show-0.json": {
+      "sha256": "b1a349504811347e59c636a9c2cd769c640449b705fba0305b472e75a70555d4",
+      "bytes": 1560,
+      "classification": "byte_exact_native_receipt"
+    },
+    "final-explicit-workers.json": {
+      "sha256": "ef778bc5115405131b07a51b19ff4d2f168cabea66e243d99a8189a6c7ceecdd",
+      "bytes": 3247,
+      "classification": "byte_exact_native_receipt"
+    },
+    "final-run-show.json": {
+      "sha256": "5cf37f1c2caa910c12ebe47e52eaa8b142e67a7d83759e4472fcd3b0c2422bb6",
+      "bytes": 562,
+      "classification": "byte_exact_native_receipt"
+    },
+    "final-status.json": {
+      "sha256": "2c80de352aba5d4c47bc96c1b451bbb6d6891f65e8651eebdf3c74faf8338c58",
+      "bytes": 7880,
+      "classification": "byte_exact_native_receipt"
+    },
+    "final-task-list.json": {
+      "sha256": "d1f342c807445a469118513231a898287f1d3ae587099c172786464b429efca9",
+      "bytes": 6585,
+      "classification": "byte_exact_native_receipt"
+    },
+    "final-worker-show-0.json": {
+      "sha256": "2b4bae23449a3af85275d3e47b17fd6cde6ac98698b2a325870b4c2c74b522f3",
+      "bytes": 7366,
+      "classification": "byte_exact_native_receipt"
+    },
+    "run-show.json": {
+      "sha256": "64665ebf5745661675fe403095a1d225d6a5db597be78e6489acc6932eaebd72",
+      "bytes": 562,
+      "classification": "byte_exact_native_receipt"
+    },
+    "status.json": {
+      "sha256": "2c80de352aba5d4c47bc96c1b451bbb6d6891f65e8651eebdf3c74faf8338c58",
+      "bytes": 7880,
+      "classification": "byte_exact_native_receipt"
+    },
+    "task-list.json": {
+      "sha256": "01048dd86bd4b79cae3666cdafca2f6ba330cbccd208cc307cd4a354328b3fbe",
+      "bytes": 6585,
+      "classification": "byte_exact_native_receipt"
+    },
+    "worker-show-0.json": {
+      "sha256": "9e4af3a59b93f3358ae04c24107e9ff78cd4c3f523faf71b0a272c0dd13518b0",
+      "bytes": 7366,
+      "classification": "byte_exact_native_receipt"
+    }
+  }
+}
