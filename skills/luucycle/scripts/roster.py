@@ -28,6 +28,8 @@ FIELDS = (
     "Verified",
 )
 LEGACY_FIELDS = ("Permission Profile",)
+OPTIONAL_FIELDS = ("Orca Agent",)
+CANONICAL_FIELDS = (FIELDS[0], *OPTIONAL_FIELDS, *FIELDS[1:])
 REQUIRED_ROLES = ("verifier", "builder", "architect", "researcher", "scaffolder")
 ROLES_HEADER = "| Role | When | Context to inject | Output format | Eligible agents (`agent@fit`, highest first) |"
 LEGACY_ROLES_HEADERS = {"| Role | When | Context to inject | Output format | Eligible agents (first = best) |"}
@@ -51,6 +53,7 @@ WORKER_CLI_CANDIDATES = (
 
 FIELD_TO_JSON = {
     "CLI": "cli",
+    "Orca Agent": "orca_agent",
     "Command": "command",
     "Invocation": "invocation",
     "Model": "model",
@@ -65,6 +68,7 @@ AGENT_PROPOSAL_KEYS = {
     "agent_id",
     "Agent ID",
     *FIELDS,
+    *OPTIONAL_FIELDS,
     *FIELD_TO_JSON.values(),
     *LEGACY_FIELDS,
     "permission_profile",
@@ -92,6 +96,7 @@ class AgentEntry:
         assigned_roles = [role for role, agent_ids in roles.items() if self.agent_id in agent_ids]
         return {
             "agent_id": self.agent_id,
+            "orca_agent": self.fields.get("Orca Agent"),
             "cli": self.fields.get("CLI", ""),
             "model": self.fields.get("Model", ""),
             "cost": self.fields.get("Cost", ""),
@@ -118,6 +123,7 @@ class AgentEntry:
         command_preview = " ".join(part for part in parts if part).strip()
         contract = {
             "agent_id": self.agent_id,
+            "orca_agent": self.fields.get("Orca Agent"),
             "cli": self.fields.get("CLI", ""),
             "command": self.fields.get("Command", ""),
             "invocation": self.fields.get("Invocation", ""),
@@ -295,7 +301,7 @@ def parse_roster_document(text: str) -> RosterDocument:
             name = field.group("name")
             if name in LEGACY_FIELDS:
                 continue
-            if name not in FIELDS:
+            if name not in CANONICAL_FIELDS:
                 errors.append(f"{current_agent}: unknown field {name}")
             elif name in current_fields:
                 errors.append(f"{current_agent}: duplicate field {name}")
@@ -317,7 +323,8 @@ def parse_roster_document(text: str) -> RosterDocument:
         for name in FIELDS:
             if not entry.fields.get(name):
                 errors.append(f"{label}: missing {name}")
-        if entry.field_order != FIELDS:
+        expected_order = tuple(name for name in CANONICAL_FIELDS if name in entry.fields)
+        if entry.field_order != expected_order:
             errors.append(f"{label}: fields must appear once in canonical order")
         if entry.fields.get("Cost") not in COST_ORDER:
             errors.append(f"{label}: Cost must be low, medium, or high")
@@ -463,7 +470,7 @@ def render_roster(entries: list[AgentEntry]) -> str:
     blocks = []
     for entry in entries:
         lines = [f"### {entry.agent_id}", ""]
-        lines.extend(f"- {name}: {tick(entry.fields[name])}" for name in FIELDS)
+        lines.extend(f"- {name}: {tick(entry.fields[name])}" for name in CANONICAL_FIELDS if name in entry.fields)
         blocks.append("\n".join(lines))
     return "# luucycle Roster\n\nCurrent worker facts. Each Agent ID appears once.\n\n## Agents\n\n" + "\n\n".join(blocks) + "\n"
 
@@ -521,7 +528,7 @@ def normalize_agent_proposal(item: object, index: int, errors: list[str]) -> Age
         agent_id = agent_id_values[0]
 
     fields: dict[str, str] = {}
-    for field_name in FIELDS:
+    for field_name in CANONICAL_FIELDS:
         json_key = FIELD_TO_JSON[field_name]
         values = []
         if field_name in item:
@@ -529,7 +536,8 @@ def normalize_agent_proposal(item: object, index: int, errors: list[str]) -> Age
         if json_key in item:
             values.append(ensure_clean_scalar(item[json_key], f"{label}.{json_key}", errors))
         if not values:
-            errors.append(f"{label}: missing {json_key}")
+            if field_name in FIELDS:
+                errors.append(f"{label}: missing {json_key}")
             continue
         if len(set(values)) > 1:
             errors.append(f"{label}: conflicting values for {json_key}")
@@ -539,9 +547,9 @@ def normalize_agent_proposal(item: object, index: int, errors: list[str]) -> Age
         if field_name == "Enabled":
             value = value.lower()
         fields[field_name] = value
-    if len(fields) != len(FIELDS):
+    if any(name not in fields for name in FIELDS):
         return None
-    return AgentEntry(agent_id=agent_id, fields=fields, field_order=FIELDS)
+    return AgentEntry(agent_id=agent_id, fields=fields, field_order=tuple(name for name in CANONICAL_FIELDS if name in fields))
 
 
 def normalize_roles_proposal(value: object, errors: list[str]) -> dict[str, list[str]]:
@@ -621,7 +629,7 @@ def normalize_proposal(proposal: object) -> tuple[dict[str, object], list[AgentE
 
 def agent_to_proposal(entry: AgentEntry) -> dict[str, str]:
     result = {"agent_id": entry.agent_id}
-    result.update({FIELD_TO_JSON[name]: entry.fields[name] for name in FIELDS})
+    result.update({FIELD_TO_JSON[name]: entry.fields[name] for name in CANONICAL_FIELDS if name in entry.fields})
     return result
 
 

@@ -641,7 +641,12 @@ def parse_roster_entries(repo_root: Path) -> tuple[list[dict[str, str]], list[st
     for line_number, line in enumerate(roster_path.read_text(errors="replace").splitlines(), 1):
         heading = ROSTER_HEADING.match(line)
         if heading:
-            current = {"agent_id": heading.group("agent")}
+            agent_id = heading.group("agent")
+            if agent_id in {"enabled_available", "selected"}:
+                errors.append(f"Agent ID {agent_id!r} is reserved for diagnostic aggregate checks")
+                current = None
+                continue
+            current = {"agent_id": agent_id}
             entries.append(current)
             continue
         field = ROSTER_FIELD.match(line)
@@ -809,8 +814,8 @@ def check_cli_entry(entry: dict[str, str], env: dict[str, str]) -> dict[str, Any
         output = f"{result['stdout']}\n{result['stderr']}"
         combined_help += "\n" + output
         help_evidence.append(f"help={display} exit={result['returncode']} bytes={len(output)}")
-        if result["returncode"] != 0 and not output.strip():
-            warnings.append(f"help returned nonzero without output: {display}")
+        if result["returncode"] != 0:
+            errors.append(f"help returned nonzero: {display} exit={result['returncode']}")
     evidence.extend(help_evidence)
     if not combined_help.strip():
         errors.append("no help output captured")
@@ -826,7 +831,7 @@ def check_cli_entry(entry: dict[str, str], env: dict[str, str]) -> dict[str, Any
         if option is None:
             errors.append(f"{field} could not be parsed: {entry.get(field, '')}")
             continue
-        if option in combined_help:
+        if option in OPTION.findall(combined_help):
             evidence.append(f"{field}={option}:present")
         else:
             errors.append(f"{field} not present in help: {option}")
@@ -878,6 +883,106 @@ def check_enabled_clis(repo_root: Path, roster_payload: dict[str, Any] | None, e
     return [aggregate, *cli_checks]
 
 
+def launch_help(orca_argv: list[str] | None, env: dict[str, str]) -> tuple[str, list[str], list[str]]:
+    """Load only the selected build's guide and free supervised-launch help."""
+    if not orca_argv:
+        return "", [], ["selected Orca executable is unavailable"]
+    evidence: list[str] = []
+    for suffix in (("skills", "get", "orca-cli", "--json"), ("orchestration", "worker-start", "--help")):
+        command = [*orca_argv, *suffix]
+        result = run_bounded(command, env)
+        evidence.append(f"command={command_display(command)}")
+        if result["error"] or result["timed_out"] or result["returncode"] != 0:
+            return "", evidence, [str(value) for value in (result["error"], result["stdout"], result["stderr"]) if value] or ["Orca free launch discovery failed"]
+        if suffix[0] == "skills":
+            try:
+                payload = json.loads(result["stdout"])
+            except json.JSONDecodeError:
+                return "", evidence, ["version-matched Orca CLI guide did not return JSON", result["stdout"], result["stderr"]]
+            if not isinstance(payload, dict) or not isinstance(payload.get("markdown"), str) or "# Orca CLI" not in payload["markdown"]:
+                return "", evidence, ["version-matched Orca CLI guide is unproven"]
+        else:
+            text = result["stdout"]
+            if "orca orchestration worker-start" not in text:
+                return "", evidence, ["supervised worker-start help is unproven", text, result["stderr"]]
+            return text, evidence, []
+    return "", evidence, ["supervised launch help is unavailable"]
+
+
+def check_launch_entry(entry: dict[str, str], help_text: str, evidence: list[str], discovery_errors: list[str]) -> dict[str, Any]:
+    agent_id = entry["agent_id"]
+    alias = entry.get("Orca Agent", "")
+    evidence = [*evidence, f"agent_id={agent_id}", f"orca_agent={alias or '<missing>'}"]
+    errors: list[str] = []
+    status = "PASS"
+    if not alias:
+        status = "FAIL"
+        errors.append("missing Orca Agent; never infer an alias from Agent ID, CLI, or Command")
+    elif discovery_errors:
+        status = "UNKNOWN"
+        errors.extend(discovery_errors)
+    else:
+        aliases_match = re.search(r"--agent takes an Orca agent id enabled on the worker server, such as ([^.]+)\.", help_text)
+        aliases = set(re.findall(r"[a-z][a-z0-9_-]*", aliases_match.group(1))) - {"or", "and"} if aliases_match else set()
+        model_only = {name.lower() for name in re.findall(r"([A-Za-z][A-Za-z0-9_-]*) accepts --model only", help_text)}
+        aliases.update(model_only)
+        if alias not in aliases:
+            status = "FAIL"
+            errors.append(f"Orca Agent {alias!r} is not a proven launch alias in selected Orca help")
+        else:
+            model = entry.get("Model", "")
+            model_match = re.search(r"--model supports (.*?) opaque provider model ids", help_text)
+            supported = set(re.findall(r"[a-z][a-z0-9_-]*", model_match.group(1).lower())) - {"and"} if model_match else set()
+            supported.update(model_only)
+            config_match = re.search(r"Other agents, including ([^,]+), launch with the model from their own config", help_text)
+            if model == "auto-default":
+                evidence.append("launch_model=<config-default>")
+            elif model and alias in supported:
+                evidence.append(f"launch_model={model}")
+            elif config_match and alias in re.findall(r"[a-z][a-z0-9_-]*", config_match.group(1)):
+                status = "FAIL"
+                errors.append(f"Orca Agent {alias!r} uses its own config; requested model {model!r} cannot be forwarded by this launcher")
+            elif alias in {"opencode", "opencode2"} and "OpenCode model selection requires" in help_text:
+                status = "UNKNOWN"
+                errors.append("OpenCode model forwarding requires an existing worktree, a verified execution-host CLI, and an available model; free help does not prove these conditions")
+            else:
+                status = "UNKNOWN"
+                errors.append(f"model forwarding for Orca Agent {alias!r} is unproven; never silently use a different model")
+    evidence.append("verification=free-help-only; host enablement, credentials, credits, model availability and actual launch remain unverified")
+    return make_check(f"launch.{agent_id}", status, required=False,
+                      summary="Free Orca launch contract preflight (not a launch proof)", evidence=evidence, error=errors)
+
+
+def check_enabled_launches(
+    repo_root: Path,
+    roster_payload: dict[str, Any] | None,
+    cli_checks: list[dict[str, Any]],
+    orca_argv: list[str] | None,
+    env: dict[str, str],
+) -> list[dict[str, Any]]:
+    """Check launch identity independently from legacy roster readability."""
+    entries, parse_errors = parse_roster_entries(repo_root)
+    enabled_ids = {
+        item.get("agent_id") for item in (roster_payload or {}).get("agents", [])
+        if item.get("enabled") == "true" and item.get("roles")
+    }
+    entries = [entry for entry in entries if entry.get("agent_id") in enabled_ids]
+    help_text, evidence, discovery_errors = launch_help(orca_argv, env) if any(entry.get("Orca Agent") for entry in entries) else ("", [], [])
+    checks = [check_launch_entry(entry, help_text, evidence, discovery_errors) for entry in entries]
+    cli_status = {check["check"]: check["status"] for check in cli_checks}
+    passing = [
+        entry["agent_id"] for entry, check in zip(entries, checks)
+        if check["status"] == "PASS" and cli_status.get(f"cli.{entry['agent_id']}") == "PASS"
+    ]
+    aggregate = make_check(
+        "launch.enabled_available", "PASS" if passing else "WARN", required=False,
+        summary="Informational free launch preflight coverage for enabled workers",
+        evidence=[f"passing_launch_checks={len(passing)}"],
+        warning=parse_errors + ([] if passing else ["no enabled role-mapped agent has a proven free Orca launch contract; explicitly selected agents still require their own passing preflight"]),
+    )
+    return [aggregate, *checks]
+
+
 def check_cli_diversity(roster_payload: dict[str, Any] | None) -> dict[str, Any] | None:
     agents = (roster_payload or {}).get("agents", [])
     enabled = [item for item in agents if str(item.get("enabled")) == "true" and item.get("roles")]
@@ -922,6 +1027,7 @@ def run_diagnostic(
     scope: str,
     required_skill: list[str],
     env: dict[str, str] | None = None,
+    selected_agent: list[str] | None = None,
 ) -> dict[str, Any]:
     env = dict(os.environ if env is None else env)
     repo_root = repo_root.resolve()
@@ -935,10 +1041,36 @@ def run_diagnostic(
     checks.extend(check_project_setup(repo_root, scope, selected_skills, env))
     roster_payload, roster_check = check_roster(repo_root, skill_root, env)
     checks.append(roster_check)
-    checks.extend(check_enabled_clis(repo_root, roster_payload, env))
+    cli_checks = check_enabled_clis(repo_root, roster_payload, env)
+    checks.extend(cli_checks)
+    checks.extend(check_enabled_launches(repo_root, roster_payload, cli_checks, _orca_argv, env))
     diversity_check = check_cli_diversity(roster_payload)
     if diversity_check is not None:
         checks.append(diversity_check)
+
+    selected = sorted(set(selected_agent or []))
+    if selected:
+        enabled_ids = {
+            item.get("agent_id") for item in (roster_payload or {}).get("agents", [])
+            if item.get("enabled") == "true" and item.get("roles")
+        }
+        by_name = {check["check"]: check for check in checks}
+        selection_errors = []
+        for agent_id in selected:
+            if agent_id not in enabled_ids:
+                selection_errors.append(f"{agent_id}: not an enabled role-mapped agent")
+                continue
+            for prefix in ("cli.", "launch."):
+                check = by_name.get(prefix + agent_id)
+                if check is None:
+                    selection_errors.append(f"{agent_id}: not an enabled role-mapped agent with a {prefix[:-1]} check")
+                elif check["status"] != "PASS":
+                    selection_errors.append(f"{prefix}{agent_id}: status={check['status']}; selected task launch is blocked")
+        checks.append(make_check(
+            "launch.selected", "FAIL" if selection_errors else "PASS", required=True,
+            summary="Every selected Agent ID must pass its own CLI and free Orca launch preflight",
+            evidence=[f"selected_agent={agent_id}" for agent_id in selected], error=selection_errors,
+        ))
 
     status = overall_status(checks)
     errors = sorted({message for check in checks for message in check["error"]})
@@ -949,6 +1081,7 @@ def run_diagnostic(
         "repo_root": str(repo_root),
         "skill_root": str(skill_root),
         "required_skill": sorted(required_skill),
+        "selected_agent": selected,
         "check": sorted(checks, key=lambda item: item["check"]),
         "error": errors,
         "warning": warnings,
@@ -965,7 +1098,7 @@ def write_skill(path: Path, name: str) -> None:
     (path / "SKILL.md").write_text(f"---\nname: {name}\ndescription: Test skill.\n---\n\n# {name}\n")
 
 
-def write_roster(repo_root: Path, command: str, *, model_flag: str = "--model {model}", second_cli: str | None = None) -> None:
+def write_roster(repo_root: Path, command: str, *, model_flag: str = "--model {model}", second_cli: str | None = None, orca_agent: str | None = None) -> None:
     roster_dir = repo_root / ".agents" / "luucycle"
     roster_dir.mkdir(parents=True, exist_ok=True)
     entries = [("fake:gpt-test", "Fake")]
@@ -986,6 +1119,8 @@ def write_roster(repo_root: Path, command: str, *, model_flag: str = "--model {m
 - Verified: `2026-08-25; self-test`"""
         for agent_id, cli in entries
     )
+    if orca_agent is not None:
+        roster = roster.replace("- Command:", f"- Orca Agent: `{orca_agent}`\n- Command:")
     roster += "\n"
     eligible_cell = "<br>".join(f"`{agent_id}@{1 - index / 10:.1f}`" for index, (agent_id, _) in enumerate(entries))
     roles = "\n".join(
@@ -1023,6 +1158,12 @@ def self_test() -> None:
                     print(json.dumps({"ok": True, "result": {"runtime": {"state": "ready", "reachable": True}}}))
                 elif sys.argv[1:] == ["skills", "get", "orchestration"]:
                     print("# Orca orchestration guide")
+                elif sys.argv[1:] == ["skills", "get", "orca-cli", "--json"]:
+                    print(json.dumps({"markdown": "# Orca CLI"}))
+                elif sys.argv[1:] == ["orchestration", "worker-start", "--help"]:
+                    print("orca orchestration worker-start")
+                    print("--agent takes an Orca agent id enabled on the worker server, such as codex.")
+                    print("--model supports Codex opaque provider model ids")
                 else:
                     print("unexpected", sys.argv[1:], file=sys.stderr)
                     raise SystemExit(2)
@@ -1056,7 +1197,7 @@ def self_test() -> None:
             ),
         )
 
-        write_roster(repo, "fake-worker")
+        write_roster(repo, "fake-worker", orca_agent="codex")
         env = dict(os.environ)
         env["PATH"] = f"{bin_dir}{os.pathsep}{env.get('PATH', '')}"
         env["ORCA_CLI_COMMAND"] = str(fake_orca)
@@ -1084,12 +1225,12 @@ def self_test() -> None:
         assert option_from_template("none - documented") == (None, "none")
         assert option_from_template("none") == (None, "none_without_reason")
 
-        write_roster(repo, "fake-worker", second_cli="Fake Two")
+        write_roster(repo, "fake-worker", second_cli="Fake Two", orca_agent="codex")
         two_cli = run_diagnostic(repo, "core", [], env)
         assert two_cli["status"] == "READY", json.dumps(two_cli, indent=2)
         assert any(record["check"] == "roster.cli_diversity" and record["status"] == "PASS" for record in two_cli["check"])
 
-        write_roster(repo, "fake-worker", model_flag="--absent {model}")
+        write_roster(repo, "fake-worker", model_flag="--absent {model}", orca_agent="codex")
         bad_flag = run_diagnostic(repo, "core", [], env)
         assert bad_flag["status"] == "BLOCKED", json.dumps(bad_flag, indent=2)
         assert any("--absent" in message for record in bad_flag["check"] for message in record["error"])
@@ -1101,6 +1242,7 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
     parser.add_argument("repo_root", nargs="?", help="Repository root to inspect.")
     parser.add_argument("--scope", choices=SCOPES, help="Diagnostic scope.")
     parser.add_argument("--required-skill", action="append", default=[], metavar="NAME")
+    parser.add_argument("--selected-agent", action="append", default=[], metavar="AGENT_ID", help="Require this exact roster Agent ID's free launch preflight (repeatable).")
     parser.add_argument("--json", action="store_true", help="Emit stable JSON diagnostics.")
     parser.add_argument("--self-test", action="store_true", help="Run tempfile-based self-tests.")
     args = parser.parse_args(argv)
@@ -1120,7 +1262,7 @@ def main(argv: list[str] | None = None) -> int:
     if args.self_test:
         self_test()
         return 0
-    result = run_diagnostic(Path(args.repo_root), args.scope, args.required_skill)
+    result = run_diagnostic(Path(args.repo_root), args.scope, args.required_skill, selected_agent=args.selected_agent)
     print(json.dumps(result, sort_keys=True, separators=(",", ":")))
     if result["status"] == "BLOCKED":
         return 1
