@@ -150,7 +150,19 @@ Create `.agents/luucycle/WARNINGS.md` with:
 ```md
 # luucycle WARNINGS
 
-Observed CLI/model failure modes. Each entry records symptom, cause, and the behavior that avoids it, or points to the owning IMPLEMENT.md step.
+Observed CLI/agent lessons, scoped to their evidence and context.
 
 _None yet._
 ```
+
+Give each targeted entry a descriptive heading and separate these fields:
+
+- **Observation**: the observed symptom or behavior, distinct from interpretation.
+- **Context**: CLI/agent, version, and relevant environment; mark unavailable facts
+  as `unknown`.
+- **Evidence**: a reference to existing evidence supporting the observation;
+  omit secrets and raw logs.
+- **Cause**: an established cause with its evidential basis, or an explicitly
+  labeled hypothesis or `unknown`.
+- **Workaround and limits**: the observed workaround or `none`, its applicability
+  and unverified limits. A successful outcome does not establish causality.

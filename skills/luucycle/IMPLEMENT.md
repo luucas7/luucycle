@@ -120,4 +120,41 @@ Keep task completion separate from acceptance: include baseline comparison,
 validated evidence sources and loaded skills, exact test/linter scopes, and any
 incomplete acceptance or unverified runtime fence in the final receipt.
 
+## Retrospective
+
 Conclude with a **Retrospective** identifying orchestration friction, inefficiencies, missing tools, and concrete improvements to `/luucycle`.
+
+Propose a targeted addition only when a CLI/agent lesson is well-supported and
+reusable. Show the target `<repo-root>/.agents/luucycle/WARNINGS.md` and the exact
+proposed text or diff, using [the WARNINGS entry format](ROSTER-FORMAT.md#warningsmd),
+and explicitly ask for approval. With no useful lesson, omit the proposal and
+approval question. Refusal or absent approval leaves files unchanged. Treat any
+promotion as a separate decision limited to the approved diff.
+
+In Audit, present the proposal only; never persist it as part of Audit or its
+closure. Any persistence requires a separately authorized transition outside Audit
+under RULES' approval boundary. Native authorization does not authorize that
+transition.
+
+Content approval is not technical write permission. Before promising a native
+authorization prompt, verify that the current runtime actually offers one.
+If sandbox protection blocks the target, request separate native user
+authorization for the exact write command, once only. The user grants it; never
+self-approve or select a persistent/session rule. If the native interface is
+unavailable or authorization is denied, leave the target unchanged and report
+`proposal approved but not saved`.
+
+After a successful write, reread the target and compare it with the exact approved
+diff. If the proposed text changes, obtain approval again before writing.
+
+Keep warnings advisory under RULES and existing roster/role authority. Neither
+success nor approval justifies changing user configuration (including persistent
+permissions), models, or the roster, disabling the sandbox globally, moving the
+source of truth, or bypassing safeguards. Human approval is consent to the diff,
+not a safety guarantee or prompt-injection filter. This proposal flow adds no
+automatic memory engine or security enforcement. Keep the full retrospective in
+the final receipt rather than copying it into general help.
+
+Retrospective delivery completes the run once the completion criterion above is
+met. The optional promotion decision never blocks the final receipt, including
+after refusal or without a reply.
