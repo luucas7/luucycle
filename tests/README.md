@@ -64,7 +64,7 @@ propriétaires, sans être recopiées dans les tests.
 | Planification amont | `COOK.md`, étapes 4 et 5 | Résultats de spec et tickets ; le contrat s'applique à leur expansion dans IMPLEMENT |
 | Doctor | `DOCTOR.md`, « Output » ; `scripts/doctor.py:main`, `check_orca`, `check_roster` | Le JSON complet est imprimé avant la restitution implicite ; trois chemins d'erreur coupaient aussi le diagnostic |
 | Roster | `scripts/roster.py:select_agents`, `compact_list`, `emit` | `--json` imprime contrats, candidats ignorés, agents et diagnostics ; les aperçus plan/apply sont des cibles d'approbation à conserver complètes |
-| Branches de configuration | `INIT.md`, `ROSTER-LIST.md`, `ROSTER-ADD.md`, `ROSTER-FORMAT.md` | Inventaires et aperçus explicites ; leurs contrats ne sont pas remplacés par le format d'implémentation |
+| Branches de configuration | `INIT.md`, `ROSTER-LIST.md`, `ROSTER-ADD.md`, `ROSTER-EDIT.md`, `ROSTER-FORMAT.md` | Inventaires et aperçus explicites ; leurs contrats ne sont pas remplacés par le format d'implémentation |
 | Tests préexistants | `doctor.py:self_test`, `roster.py:self_test`, `check_roster.py`, `check_links.py`, `check_links2.py` | Auto-tests et vérification de liens ; aucun scénario de volume avant ce changement |
 
 ## Portée de la preuve
@@ -107,6 +107,17 @@ changements préexistants protégés.
 Le contrôle d'hygiène ci-dessus cible uniquement `skills/luucycle`. Chaque bilan
 doit citer le périmètre, le nombre de fichiers et les diagnostics effectivement
 retournés ; ne pas confondre ce résultat avec un linter global de bibliothèque.
+
+`test_help_roster_edit_contract.py` vérifie les contrats textuels du README,
+de l'aide canonique [HELP.md](../skills/luucycle/HELP.md), de son alias et de
+[ROSTER-EDIT.md](../skills/luucycle/ROSTER-EDIT.md). `test_roster_edit.py` exerce
+le vrai CLI `roster.py` sur des rosters synthétiques temporaires : plan sans
+écriture, mise à jour du même ID, conservation des pairs/rôles/états désactivés,
+readback exact et refus des bases ou aperçus modifiés. Le script commun reste un
+upsert générique : le périmètre « existants seulement », l'approbation humaine et
+le consentement frais aux probes sont des instructions de branche, pas des
+contrôles exécutables. Ces tests ne valident ni une réévaluation agent réelle,
+ni les catalogues, prix ou quotas actuels des fournisseurs.
 
 `test_worker_contract.py` contrôle le constructeur de prompt, les preuves présentes
 dans le payload natif, les identités attribuées au lancement et le chemin d'envoi

@@ -1,6 +1,6 @@
 # luucycle init
 
-Branch of luucycle for **bootstrapping the skill library** in a fresh environment. Run it only for `/luucycle init`; otherwise `ASK-LUCAS.md` may recommend it.
+Branch of luucycle for **bootstrapping the skill library** in a fresh environment. Run it only for `/luucycle init`; otherwise [HELP.md](HELP.md) may recommend it.
 
 ## Steps
 

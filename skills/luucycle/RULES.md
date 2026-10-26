@@ -2,7 +2,7 @@
 
 Hard guardrails for every luucycle branch. User instructions and higher-priority policies remain authoritative.
 
-1. **Implementation is explicit.** `/luucycle implement <ref|request>` authorizes coordination and planning, not unapproved execution. The only in-conversation transition is the bounded-change path in `COOK.md`, after `grill-with-docs` and the user's explicit confirmation to implement now. Bare `/luucycle` shows help; `/luucycle ask-lucas`, its `/luucycle help` alias, and unsupported invocations route to `ASK-LUCAS.md`. Ask Lucas answers only about luucycle itself; application and product questions route to `/luucycle cook`. Never infer implementation authorization from the request's wording.
+1. **Implementation is explicit.** `/luucycle implement <ref|request>` authorizes coordination and planning, not unapproved execution. The only in-conversation transition is the bounded-change path in `COOK.md`, after `grill-with-docs` and the user's explicit confirmation to implement now. Bare `/luucycle` shows commands; `/luucycle help`, its `/luucycle ask-lucas` alias, and unsupported invocations route to [HELP.md](HELP.md). Help answers only about luucycle itself; application and product questions route to `/luucycle cook`. Never infer implementation authorization from the request's wording.
 
 2. **Approve each selected phase.** An implementation run may contain an Audit phase, an Execution phase, or both in that order. Use Audit when the user requests a perimeter check or when existing or partial work makes the requested scope uncertain; otherwise propose Execution directly. Before dispatching a selected phase, present its exact worker plan and wait for explicit approval. An approved Audit authorizes only read-only investigation; it may inspect code and diffs, run non-persistent tests, and collect evidence, but it does not edit files, create artifacts, or change external state. After Audit, conclude with evidence when no execution is needed; otherwise present a new Execution plan and wait for its approval. An approved Execution plan authorizes its complete listed work.
 
@@ -22,11 +22,11 @@ Hard guardrails for every luucycle branch. User instructions and higher-priority
 
 10. **Empty roster is blocking.** With zero `Enabled: true` agents, stop the implementation run, signal the empty roster, and propose `/luucycle roster add`. Never dispatch, never improvise entries.
 
-11. **Roles file owns role → agent mapping.** `.agents/luucycle/ROSTER.md` (repo root) is the only authority on agent facts; `.agents/luucycle/ROLES.md` (repo root) is the only authority on which roles each agent serves. The `roster add` branch updates both in the same pass - a change to one without the other is a violation.
+11. **Roles file owns role → agent mapping.** `.agents/luucycle/ROSTER.md` (repo root) is the only authority on agent facts; `.agents/luucycle/ROLES.md` (repo root) is the only authority on which roles each agent serves. For an existing roster, `roster add` and `roster edit` plan both together and apply only the explicitly approved previews through `roster.py`'s hash guard. Initial creation of missing `.agents/luucycle/` instead uses the three exact approved previews under [ROSTER-ADD.md](ROSTER-ADD.md). An unchanged file needs no rewrite; the resulting pair must remain valid.
 
 12. **Close only what was authorized.** Commit only when the user explicitly asks for a commit. Close only issues the user explicitly names or has already authorized for closure. Include the results in any authorized closing comment.
 
-13. **Read-only branches do not mutate.** `/luucycle doctor`, `/luucycle roster list`, and the health check inside Ask Lucas may inspect files and run free diagnostic commands only. They never install, update, start services, edit configuration or roster state, dispatch workers, or call a model. They report evidence and the smallest explicit repair command.
+13. **Read-only branches do not mutate.** `/luucycle doctor`, `/luucycle roster list`, and the health check inside Help may inspect files and run free diagnostic commands only. They never install, update, start services, edit configuration or roster state, dispatch workers, or call a model. They report evidence and the smallest explicit repair command.
 
 14. **Billed probes need fresh consent.** Roster discovery uses free help, catalog, config, or first-party documentation first. A model probe that may bill the user runs only after separate approval immediately before that call.
 

@@ -12,7 +12,7 @@ The free launch preflight checks alias/model forwarding without launching or bil
 - **Task:** Core plus the routed skills passed with `--required-skill NAME`; project setup checks follow from those skills. Selected stable roster IDs passed with `--selected-agent ID` must each pass their own CLI and Orca alias/model preflight.
 - **Complete:** Core plus every skill named in `ROUTING.md`, branch-only setup skills, project setup, and every enabled role-mapped CLI. Missing optional coverage is a warning, not a blocker for unrelated tasks.
 
-Ask Lucas uses Core or Task. `/luucycle implement <ref|request>` uses Task. Explicit `/luucycle doctor` uses Complete.
+[Help](HELP.md) uses Core or Task. `/luucycle implement <ref|request>` uses Task. Explicit `/luucycle doctor` uses Complete.
 
 ## Script Calls
 
@@ -44,7 +44,7 @@ The JSON contract is stable:
 
 ## Output
 
-- **Implicit Core/Task (Ask Lucas or `/luucycle implement`):** keep evidence internal. Ask Lucas uses it in the recommendation; implementation continues silently on `READY` and otherwise reports only readiness-affecting gaps.
+- **Implicit Core/Task (Help or `/luucycle implement`):** keep evidence internal. Help uses it in the recommendation; implementation continues silently on `READY` and otherwise reports only readiness-affecting gaps.
 - **Explicit `/luucycle doctor`:** after the checks, read [DOCTOR-REPORT.md](DOCTOR-REPORT.md) and produce the full report.
 
 For the requested scope, use `READY` when every required check passes, `DEGRADED` for optional or unrelated gaps, `BLOCKED` for a failed required check, and `UNKNOWN` when a required check cannot be resolved.

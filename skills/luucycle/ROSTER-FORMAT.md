@@ -2,6 +2,8 @@
 
 Read this file when creating or validating `.agents/luucycle/`. Agent IDs are stable references shared by the roster and roles files.
 
+Use `/luucycle roster add` for new entries and `/luucycle roster edit [agent|cli]` ([ROSTER-EDIT.md](ROSTER-EDIT.md)) to reassess existing ones. Both reuse the proposal/plan/apply contract below; approval belongs to the branch, not to the writer script.
+
 ## ROSTER.md
 
 Create `.agents/luucycle/ROSTER.md` with this header:

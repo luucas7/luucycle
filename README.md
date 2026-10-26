@@ -1,30 +1,12 @@
 # luucycle
 
-Orchestrator agent skill: decomposes a request into tasks, routes each task to the right skill, and dispatches workers on the best model from the roster. Builds on the [skills CLI](https://github.com/vercel-labs/skills) ecosystem (OpenCode, Claude Code, Codex, Cursor, ...).
+Several AI providers offer free plans. Why let them go unused?
 
-## What it does
+luucycle is an orchestrator agent skill: it splits your request into tasks, routes each to an installed skill, and assigns workers from your approved roster across models and CLI products. Use the free plans you have alongside paid options, within each provider's terms and quotas. Availability and cost vary; luucycle does not provide unlimited free usage or bypass limits.
 
-luucycle sits **on top of** the skills already installed in your repo - it never reimplements their work. Bare `/luucycle` shows the available commands and recommends `/luucycle init`. Implementation starts with the explicit `/luucycle implement <ref|request>` command, except for the explicitly confirmed bounded-change transition from `/luucycle cook`, then follows the same process every time:
+## How it works
 
-1. **Decompose** the request into tasks.
-2. **Route** each task to the skill that owns that kind of work (spec → `to-spec`, code → `implement`, UI → `impeccable`, ... see `ROUTING.md`).
-3. **Assign** each task a model from the roster (`.agents/luucycle/ROSTER.md` / `.agents/luucycle/ROLES.md` at the repo root) - the worker agents you approved.
-4. **Confirm** each task's routed skill, primary agent, and fallback agent with you before any work starts.
-5. **Dispatch** one worker per task through Orca's orchestration layer.
-6. **Gate** UI work through impeccable, the Gatekeeper.
-7. **Report** every worker's final status and run a retrospective on the orchestration itself.
-
-Same process on every implementation run (RULES rule 7): predictable orchestration, no improvisation.
-
-## Requirements
-
-- **Orca runtime** (hard requirement) - luucycle coordinates workers through Orca's orchestration layer. Install the [Orca IDE](https://www.onorca.dev), enable orchestration, then follow the installed `orchestration` skill to resolve the executable and verify `status --json`. On Linux outside an Orca-managed terminal, never run bare `orca` (GNOME screen reader conflict).
-- **The skills it orchestrates**: the [matt-pocock engineering set](https://github.com/mattpocock/skills) (grilling, spec, tickets, implement, ...), [impeccable](https://github.com/pbakaus/impeccable) (UI gate), and Orca's `orchestration` + `orca-cli` skills. The `init` branch installs all of this for you.
-- **A configured issue tracker for feature alignment or tracker-backed work** - `/setup-matt-pocock-skills` records where issues live in `docs/agents/issue-tracker.md`.
-
-Run `/luucycle doctor` for the complete non-mutating readiness report. Use `/luucycle ask-lucas` (or `/luucycle help`) for questions about luucycle's commands, skills, setup, or workflow. Application and product questions start with `/luucycle cook`.
-
-Mechanical diagnostics and roster operations live in `skills/luucycle/scripts/doctor.py` and `skills/luucycle/scripts/roster.py`; the Markdown branches decide scope, routing, and approvals.
+**Decompose → route → assign → approve → dispatch → verify.** You review each task's skill, primary worker, and fallback before work starts. [Orca](https://www.onorca.dev) coordinates the workers; [impeccable](https://github.com/pbakaus/impeccable) gates UI work. Every implementation run ends with worker results and a retrospective.
 
 ## Install
 
@@ -32,77 +14,22 @@ Mechanical diagnostics and roster operations live in `skills/luucycle/scripts/do
 npx skills add luucas7/luucycle
 ```
 
-Make sure to initialize the skill environment: `/luucycle init`.
+Then run `/luucycle init`. It guides installation of the required skills, project setup, and roster bootstrap with your approval. **A running Orca runtime is required** for worker orchestration. Feature alignment and tracker-backed work also need a configured issue tracker.
 
-## Commands (branches)
+## Commands
 
-luucycle has a safe default and explicit branches. The command itself selects the branch; request wording never silently authorizes implementation.
+| Command | What it does |
+| --- | --- |
+| `/luucycle` | Show commands and recommend initialization |
+| `/luucycle help` | Answer questions about luucycle itself (`ask-lucas` remains an alias) |
+| `/luucycle init` | Set up skills and the worker roster |
+| `/luucycle doctor` | Check readiness without changing state or calling models |
+| `/luucycle cook` | Align an app or product topic, then choose no change, bounded implementation, or spec and tickets |
+| `/luucycle implement <ref\|request>` | Plan implementation, wait for approval, then dispatch workers |
+| `/luucycle roster list` | Show recorded workers and role assignments without probing |
+| `/luucycle roster add [cli]` | Discover worker CLIs and propose additions for approval |
+| `/luucycle roster edit [agent\|cli]` | Reassess existing workers, costs, quotas, and role fits; approve before saving |
 
-Examples use `/luucycle`, which is recognized as a luucycle command even when passed as prompt text. In Codex, `$luucycle` is the native explicit skill trigger (`$luucycle implement #42`).
+Start product questions with `/luucycle cook`; use `/luucycle help` for the workflow. Implementation requires an explicit command (or the confirmed bounded-change path from `cook`) and approval of its phase plan. In Codex, `$luucycle` is the native skill trigger.
 
-| Command | What it does | Example |
-| --- | --- | --- |
-| `/luucycle` | Show the available commands and recommend initialization | `/luucycle` |
-| `/luucycle ask-lucas` (alias: `/luucycle help`) | Answer questions about luucycle itself and recommend a copyable luucycle command | `/luucycle ask-lucas How does implementation approval work?` |
-| `/luucycle doctor` | Check Orca, skills, tracker/design setup, roster, roles, and every enabled CLI without changing state | `/luucycle doctor` |
-| `/luucycle implement <ref\|request>` | Decompose → route → assign a model → plan approval → dispatch → UI gate → retrospective | `/luucycle implement #42` |
-| `/luucycle cook` | Start `/grill-with-docs` for an app or product topic, then normally create a spec and tickets or, for a bounded change, confirm direct implementation | `/luucycle cook` |
-| `/luucycle init` | Install the skill library (mattpocock, impeccable, orca skills), run `/impeccable init`, bootstrap the roster | `/luucycle init` |
-| `/luucycle roster list` | List each agent with its CLI, model, cost, enabled state, roles, and verification date without probing it | `/luucycle roster list` |
-| `/luucycle roster add [cli]` | Discover every installed worker CLI, or inspect one named CLI; propose its best models, confirm, then update the roster and roles | `/luucycle roster add` |
-
-Invocations such as `/luucycle should ranking be calculated client-side or server-side?` do not analyze or implement the application. Ask Lucas redirects them to `/luucycle cook`, where `grill-with-docs` aligns the decision first.
-
-## The flow at a glance
-
-The `cook` branch is the entry point for application and product questions. It starts the alignment session itself; the aligned result determines the next branch:
-
-```
-/luucycle cook
-   └─ /grill-with-docs          launched immediately in the same conversation
-      ├─ no change              stop with the recorded decision
-      ├─ bounded change         explicit confirmation → implement in this conversation
-      └─ durable planning       normal path: /to-spec → /to-tickets in the same conversation
-                                └─ /luucycle implement <parent ref> in a new conversation
-```
-
-The reference passed to `/luucycle implement` depends on the configured tracker: a GitHub issue number (`#42`), a local spec path (`.scratch/<feature-slug>/spec.md`), or the tracker's native identifier.
-
-## Development
-
-Repo-first workflow: this repository is the source of truth.
-
-1. Clone `luucas7/luucycle`, edit the skill under `skills/luucycle/`.
-2. Commit and push.
-3. Consumers refresh their installed copy: `npx skills update luucycle`.
-
-Installed copies must come from `npx skills add luucas7/luucycle` (symlink installs update automatically; copy installs need the `update` command).
-
-## Structure
-
-- `SKILL.md` - command router + implementation authorization boundary
-- `ASK-LUCAS.md` - advisor for luucycle's own workflow; application and product questions redirect to `cook`
-- `DOCTOR.md` - non-mutating installation and roster health check
-- `DOCTOR-REPORT.md` - full report format loaded only by explicit Doctor
-- `IMPLEMENT.md` - explicit implementation orchestration flow
-- `COMPACT.md` - implementation return contract, projection, targeted reads and session relay
-- `COOK.md` - app/product alignment branch (`grill-with-docs` → normally spec/tickets, or confirmed direct implementation)
-- `INIT.md` - bootstrap branch
-- `ROSTER-LIST.md` - current roster view
-- `ROSTER-ADD.md` - roster growth branch
-- `ROUTING.md` - which skill owns which kind of work
-- `ROSTER-FORMAT.md` - canonical roster entries, roles table, and warnings skeleton
-- `scripts/doctor.py` - read-only readiness diagnostics for Doctor, Ask Lucas, init, and implement
-- `scripts/roster.py` - roster validation, listing, selection, planned writes, and hash-guarded apply
-- `scripts/check_roster.py` - compatibility entrypoint for roster validation
-- `scripts/compact.py` - read-only projection of versioned returns and digest-guarded lookup by exact ID
-- `scripts/check_skill_hygiene.py` - static Markdown skill hygiene linter enforcing writing-for-agents principles
-- `agents/openai.yaml` - Codex UI metadata and explicit-only invocation policy
-- `.agents/luucycle/ROSTER.md` / `.agents/luucycle/ROLES.md` / `.agents/luucycle/WARNINGS.md` - **user data** at the repo root, never inside the skill (`npx skills update` wipes `.agents/skills/luucycle/`); seeded by `roster add`
-- `RULES.md` - shared authorization and execution guardrails
-
-## Local return-contract checks
-
-No consumer repository or tracker is needed. The deterministic synthetic scenario
-and byte comparison live under `tests/`; see [tests/README.md](tests/README.md) for
-commands, coverage, and the limits of this demonstration.
+See [HELP.md](skills/luucycle/HELP.md) for guidance and [RULES.md](skills/luucycle/RULES.md) for authorization boundaries.

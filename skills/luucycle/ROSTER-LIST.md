@@ -13,6 +13,6 @@ Read-only view of the current roster. Show every Agent ID and its role assignmen
 
    Join multiple roles with commas as `<role>@<fit>` using each agent's `role_fit` map, and show `none` when an agent has no assigned role. Preserve recorded values; `roster list` reports roster state rather than testing it.
 
-3. **Report roster health.** State the validator's `PASS`, `WARN`, or `FAIL` status after the table. Include every reported error and warning, then recommend `/luucycle doctor` when the user needs live CLI and full setup diagnostics.
+3. **Report roster health.** State the validator's `PASS`, `WARN`, or `FAIL` status after the table. Include every reported error and warning, then recommend `/luucycle doctor` when the user needs live CLI and full setup diagnostics. For refreshed facts or role fits of recorded entries, recommend `/luucycle roster edit [agent|cli]` ([ROSTER-EDIT.md](ROSTER-EDIT.md)); listing itself stays read-only.
 
 **Completion criterion:** every Agent ID appears exactly once from the validator output, its enabled state and roles are visible, all validation findings are reported, and no state or external service was touched.

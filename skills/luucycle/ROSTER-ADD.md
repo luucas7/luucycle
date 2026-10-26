@@ -1,6 +1,8 @@
 # luucycle roster add
 
-Branch of luucycle for **growing the roster**. Run it only for `/luucycle roster add`; otherwise `ASK-LUCAS.md` may recommend it. The roster is the single source of truth for available workers; add entries only through this flow.
+Branch of luucycle for **growing the roster**. Run it only for `/luucycle roster add`; otherwise [HELP.md](HELP.md) may recommend it. The roster is the single source of truth for available workers; add entries only through this flow.
+
+For reassessing recorded agents, recommend `/luucycle roster edit [agent|cli]` and use [ROSTER-EDIT.md](ROSTER-EDIT.md) instead of starting discovery for new entries.
 
 ## Steps
 
