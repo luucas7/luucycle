@@ -50,6 +50,57 @@ def launch_fixture(alias=None, help_text=WORKER_HELP):
 
 
 class OrcaLaunchTests(unittest.TestCase):
+    def test_one_or_three_codex_workers_are_ready_without_roster_expansion(self):
+        for count in (1, 3):
+            with self.subTest(workers=count), launch_fixture("codex") as (repo, env, log):
+                path = repo / ".agents/luucycle/ROSTER.md"
+                template = roster.parse_roster_document(path.read_text()).entries[0]
+                entries = [
+                    roster.AgentEntry(f"codex:worker-{index}", dict(template.fields, CLI="Codex"))
+                    for index in range(count)
+                ]
+                path.write_text(roster.render_roster(entries))
+                roles = path.with_name("ROLES.md")
+                eligible = "<br>".join(f"`{entry.agent_id}@1.0`" for entry in entries)
+                roles.write_text(roles.read_text().replace("`fake:gpt-test@1.0`", eligible))
+                for scope in ("core", "task"):
+                    with self.subTest(scope=scope):
+                        result = doctor.run_diagnostic(
+                            repo, scope, [], env,
+                            selected_agent=[entry.agent_id for entry in entries] if scope == "task" else [],
+                        )
+                        self.assertEqual(result["status"], "READY", result)
+                        self.assertEqual(result["warning"], [])
+                        self.assertEqual(result["error"], [])
+                        checks = {check["check"]: check for check in result["check"]}
+                        inventory = checks["roster.cli_diversity"]
+                        self.assertEqual(inventory["status"], "PASS")
+                        self.assertEqual(inventory["evidence"], ["clis=Codex", "distinct_clis=1"])
+                        self.assertNotIn("roster add", json.dumps(result))
+                self.assertNotIn('"--agent"', log.read_text())
+                self.assertNotIn('"--model"', log.read_text())
+
+    def test_single_cli_inventory_does_not_hide_an_unavailable_selected_cli(self):
+        with launch_fixture("codex") as (repo, env, _log):
+            path = repo / ".agents/luucycle/ROSTER.md"
+            entry = roster.parse_roster_document(path.read_text()).entries[0]
+            Path(entry.fields["Command"]).unlink()
+            result = doctor.run_diagnostic(repo, "task", [], env, selected_agent=[entry.agent_id])
+            checks = {check["check"]: check for check in result["check"]}
+            self.assertEqual(checks["roster.cli_diversity"]["status"], "PASS")
+            self.assertEqual(checks[f"cli.{entry.agent_id}"]["status"], "FAIL")
+            self.assertEqual(checks["launch.selected"]["status"], "FAIL")
+            self.assertEqual(result["status"], "BLOCKED")
+
+    def test_absent_roster_still_blocks_without_an_inventory_check(self):
+        with launch_fixture("codex") as (repo, env, _log):
+            (repo / ".agents/luucycle/ROSTER.md").unlink()
+            result = doctor.run_diagnostic(repo, "core", [], env)
+            checks = {check["check"]: check for check in result["check"]}
+            self.assertNotIn("roster.cli_diversity", checks)
+            self.assertEqual(checks["roster.validation"]["status"], "FAIL")
+            self.assertEqual(result["status"], "BLOCKED")
+
     def test_legacy_contract_never_infers_alias_from_id_cli_or_command(self):
         document = roster.parse_roster_document(roster.sample_roster("codex:gpt-test", "gpt-test"))
         self.assertEqual(document.errors, [])

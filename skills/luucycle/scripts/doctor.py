@@ -990,24 +990,12 @@ def check_cli_diversity(roster_payload: dict[str, Any] | None) -> dict[str, Any]
         return None
     clis = sorted({str(item.get("cli", "") or "unknown") for item in enabled})
     evidence = [f"distinct_clis={len(clis)}", f"clis={','.join(clis)}"]
-    if len(clis) >= 2:
-        return make_check(
-            "roster.cli_diversity",
-            "PASS",
-            required=False,
-            summary="Enabled role-mapped workers span multiple CLI products",
-            evidence=evidence,
-        )
     return make_check(
         "roster.cli_diversity",
-        "WARN",
+        "PASS",
         required=False,
-        summary="All enabled role-mapped workers run the same CLI product",
+        summary="Informational CLI product inventory for enabled role-mapped workers",
         evidence=evidence,
-        warning=[
-            f"single-CLI roster ({clis[0]}): a credit or availability outage on that product "
-            "strands every task; run /luucycle roster add to enable a second CLI"
-        ],
     )
 
 
@@ -1205,12 +1193,12 @@ def self_test() -> None:
         env.pop("CODEX_HOME", None)
 
         result = run_diagnostic(repo, "core", [], env)
-        assert result["status"] == "DEGRADED", json.dumps(result, indent=2)
+        assert result["status"] == "READY", json.dumps(result, indent=2)
         assert all(all(key in record for key in CHECK_KEYS) for record in result["check"])
         assert any(record["check"] == "orca.guide" and record["status"] == "PASS" for record in result["check"])
         assert any(record["check"] == "cli.fake:gpt-test" and record["status"] == "PASS" for record in result["check"])
-        assert any(record["check"] == "roster.cli_diversity" and record["status"] == "WARN" for record in result["check"])
-        assert any("single-CLI roster" in message for message in result["warning"]), result["warning"]
+        assert any(record["check"] == "roster.cli_diversity" and record["status"] == "PASS" for record in result["check"])
+        assert result["warning"] == [], result["warning"]
 
         missing = run_diagnostic(repo, "task", ["missing-skill"], env)
         assert missing["status"] == "BLOCKED", json.dumps(missing, indent=2)

@@ -892,6 +892,12 @@ def select_agents(
         if COST_ORDER.get(cost, 99) > max_rank:
             skipped.append({"agent_id": agent_id, "reason": f"cost>{max_cost}"})
             continue
+        if agent_id in avoid_set:
+            skipped.append({"agent_id": agent_id, "reason": "avoided"})
+            continue
+        if entry.fields.get("CLI", "") in avoid_cli_set:
+            skipped.append({"agent_id": agent_id, "reason": "cli_avoided"})
+            continue
         eligible.append((entry, role_row.scores.get(agent_id, Decimal("1.0"))))
     eligible.sort(key=lambda candidate: candidate[1], reverse=True)
     if not eligible:
@@ -899,59 +905,19 @@ def select_agents(
             "status": "FAIL",
             "role": role,
             "max_cost": max_cost,
-            "errors": [f"role {role}: no enabled eligible agent at or below {max_cost} cost"],
+            "errors": [
+                f"role {role}: no enabled eligible agent at or below {max_cost} cost"
+                + (" after explicit exclusions" if avoid_set or avoid_cli_set else "")
+            ],
             "warnings": warnings,
             "skipped": skipped,
         }
 
-    distinct_clis = sorted({entry.fields.get("CLI", "") for entry, _ in eligible})
-    if len(distinct_clis) < 2:
-        warnings.append(
-            f"role {role}: every eligible agent runs the same CLI ({distinct_clis[0]}) - "
-            "a credit or availability outage on that product strands the whole role; "
-            "consider /luucycle roster add"
-        )
-
-    primary: AgentEntry | None = None
-    primary_fit: Decimal | None = None
-    primary_skipped: list[dict[str, str]] = []
-    for entry, role_fit in eligible:
-        if entry.agent_id in avoid_set:
-            primary_skipped.append({"agent_id": entry.agent_id, "reason": "avoided"})
-            continue
-        if entry.fields.get("CLI", "") in avoid_cli_set:
-            primary_skipped.append({"agent_id": entry.agent_id, "reason": "cli_avoided"})
-            continue
-        primary = entry
-        primary_fit = role_fit
-        break
-    if primary is None:
-        primary, primary_fit = eligible[0]
-        warnings.append(
-            f"role {role}: every eligible agent is already assigned in this plan or runs an "
-            f"excluded CLI; reusing {primary.agent_id} - consider /luucycle roster add"
-        )
-
-    fallback: AgentEntry | None = None
-    fallback_fit: Decimal | None = None
-    fallback_skipped: list[dict[str, str]] = []
-    primary_cli = primary.fields.get("CLI", "")
-    for entry, role_fit in eligible:
-        if entry.agent_id == primary.agent_id:
-            continue
-        if entry.agent_id in avoid_set:
-            fallback_skipped.append({"agent_id": entry.agent_id, "reason": "already_assigned"})
-            continue
-        if entry.fields.get("CLI", "") == primary_cli:
-            fallback_skipped.append({"agent_id": entry.agent_id, "reason": "same_cli_as_primary"})
-            continue
-        fallback = entry
-        fallback_fit = role_fit
-        break
+    primary, primary_fit = eligible[0]
+    fallback, fallback_fit = eligible[1] if len(eligible) > 1 else (None, None)
     if fallback is None:
         warnings.append(
-            f"role {role}: no fallback on a different CLI than {primary.agent_id}; "
-            "consider /luucycle roster add"
+            f"role {role}: no distinct eligible fallback within the selection constraints"
         )
 
     return {
@@ -964,7 +930,7 @@ def select_agents(
             "primary": primary.contract(primary_fit),
             "fallback": fallback.contract(fallback_fit) if fallback else None,
         },
-        "skipped": skipped + primary_skipped + fallback_skipped,
+        "skipped": skipped,
         "errors": [],
         "warnings": warnings,
     }
@@ -1098,16 +1064,17 @@ def self_test() -> None:
         assert avoided["status"] == "PASS", avoided
         assert avoided["primary"] == "claude:gpt-fallback", avoided
         assert avoided["fallback"] is None, avoided
-        assert any("no fallback on a different CLI" in message for message in avoided["warnings"]), avoided
+        assert any("no distinct eligible fallback" in message for message in avoided["warnings"]), avoided
 
         avoided_cli = select_agents(root, "builder", "medium", avoid_cli=["Codex"])
         assert avoided_cli["status"] == "PASS", avoided_cli
         assert avoided_cli["primary"] == "claude:gpt-fallback", avoided_cli
+        assert avoided_cli["fallback"] is None, avoided_cli
 
         exhausted = select_agents(root, "builder", "medium", avoid=["codex:gpt-primary", "claude:gpt-fallback"])
-        assert exhausted["status"] == "PASS", exhausted
-        assert exhausted["primary"] == "codex:gpt-primary", exhausted
-        assert any("reusing codex:gpt-primary" in message for message in exhausted["warnings"]), exhausted
+        assert exhausted["status"] == "FAIL", exhausted
+        assert "primary" not in exhausted, exhausted
+        assert any("exclusions" in message for message in exhausted["errors"]), exhausted
 
         proposal_path = root / "proposal.json"
         plan_path = root / "plan.json"
@@ -1190,9 +1157,8 @@ def self_test() -> None:
         single_cli = select_agents(root, "builder", "medium")
         assert single_cli["status"] == "PASS", single_cli
         assert single_cli["primary"] == "codex:agent-a", single_cli
-        assert single_cli["fallback"] is None, single_cli
-        assert any("same CLI" in message for message in single_cli["warnings"]), single_cli
-        assert any("no fallback on a different CLI" in message for message in single_cli["warnings"]), single_cli
+        assert single_cli["fallback"] == "codex:agent-b", single_cli
+        assert single_cli["warnings"] == [], single_cli
 
     with tempfile.TemporaryDirectory() as directory:
         root = Path(directory)

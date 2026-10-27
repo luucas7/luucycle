@@ -17,7 +17,11 @@ reads before displaying their output to the coordinator.
 
    Approval is the boundary between planning and execution. Until the user approves the exact phase table in the current conversation, do read-only preparation and present that table. Do not edit project files, dispatch workers, or run implementation work. The requested feature describes the work to plan; it is not approval to start it.
 
-   When a request asks for both code and a unit-test suite, plan two sequential tasks: a `builder` task routed to `tdd` owns the requested source and test files; a `verifier` task routed to `code-review` depends on the builder, runs the focused tests, and reviews the complete diff read-only. Keep both rows in the approval table and select distinct primary agents and CLIs when the roster permits.
+   **Choose the Execution review level before phase approval.** Choose **Focused** only for a bounded task whose scope is clear, local and reversible, with sufficient objective evidence to verify the result and none of the Extended triggers below.
+
+   Choose **Extended** for ambiguity, multi-component changes or public contracts, security or permissions, persistent data or migrations, concurrency, or insufficient verification. User, project or routed-skill requirements for deeper review select Extended. Mandatory independent review alone does not force Extended. UI work is Extended and still requires the impeccable UI Gate. When in doubt, choose Extended. A small diff or green tests alone do not justify Focused: a small local, reversible correction with focused tests may be Focused; a small permissions change is Extended even with green tests.
+
+   For both levels, plan two sequential tasks under RULES rule 17: one `builder` owns the requested files, including source and tests; a `verifier` task routed to `code-review` depends on the builder. For code plus unit tests, route that builder to `tdd`; otherwise follow ROUTING. The verifier reviews the complete diff read-only and examines the relevant test evidence; it runs the pertinent tests within its approved test rights and reports any untested scope. A Focused review may use a brief report. Extended adds risk-adapted analysis of counterexamples and regressions; it does not automatically add subagents. Keep both rows in the approval table. The verifier uses a fresh terminal and conversation, with its own review brief; select its agent by RULES rule 15, including the builder's Agent ID or CLI when it is the best fit.
 
    - Break its work into tasks and route each one through [ROUTING.md](ROUTING.md). Record every routed skill and whether any Execution task touches UI.
    - Run Doctor's Task scope in [implicit mode](DOCTOR.md#output), repeating `--required-skill` for every routed skill. Continue on `READY`; continue on `DEGRADED` only when every gap is unrelated to the phase; stop on `BLOCKED` or `UNKNOWN` with the smallest repair command.
@@ -27,7 +31,7 @@ reads before displaying their output to the coordinator.
      python3 "<skill-root>/scripts/roster.py" select --json [--max-cost low|medium|high] [--avoid <agent-id>]... [--avoid-cli <cli>]... <role> "<repo-root>"
      ```
 
-     Add `--max-cost low|medium|high` only when the user gave a cost ceiling. The selector ranks aptitude by the role's decimal fit; use cost as a ceiling rather than overriding that ranking. For every task after the first, pass `--avoid` for each Agent ID already assigned in this phase plan (primary or fallback) and `--avoid-cli` for each CLI already used as a primary, so every task gets a distinct agent when the roster allows. Each returned fallback runs on a different CLI product than the primary. If selection returns `FAIL`, stop with its errors and recommend `/luucycle roster add`. Keep every returned warning (single-CLI role, no different-CLI fallback, forced reuse) for the confirmation.
+     Add `--max-cost low|medium|high` only when the user gave a cost ceiling. Use `--avoid` and `--avoid-cli` only for explicit user exclusions, applied to both assignments; leave previous task assignments out of those flags. Follow RULES rule 15 and the ranking/exclusion contract in [ROSTER-FORMAT.md](ROSTER-FORMAT.md#script-contracts). If selection returns `FAIL`, stop with its errors and identify whether the blocker is missing eligibility, disabled agents, cost, or explicit exclusions; propose a repair matching that cause. Keep returned warnings for the confirmation.
 
    For **Audit**, present exactly one table:
 
@@ -45,7 +49,9 @@ reads before displaying their output to the coordinator.
    | --- | --- | --- | --- |
    | ... | ... | ... | none |
 
-   Show the stable roster Agent ID in both assignment columns and `none` when no fallback is returned. Keep the role, ambiguity rationale, and script contracts for worker prompts and the final receipt. When selection warned about roster limits (single-CLI role, no different-CLI fallback, or a reused agent), add one short note under the table naming each limit and proposing `/luucycle roster add`, so approval covers the roster's real constraints.
+   Show the stable roster Agent ID in both assignment columns and `none` when no fallback is returned. Keep the role, ambiguity rationale, and script contracts for worker prompts and the final receipt. Surface selection warnings in a short note under the table so approval covers the actual constraints, including a missing eligible fallback. Apply RULES rules 3 and 15 to shared-CLI assignments and roster-expansion decisions.
+
+   Under the same Execution table, state Focused or Extended in that short note, with the risk rationale, planned objective evidence and the independent verifier assignment. Both levels include independent review. Use the existing phase approval, without another table or gate.
 
    Wait for explicit approval of this exact phase plan before dispatch.
 
@@ -101,11 +107,14 @@ reads before displaying their output to the coordinator.
 
 4. **Dispatch Execution with a skill contract.** Skip this step unless the approved phase is Execution. Load the `orchestration` skill and its version-matched guide once for coordination and recovery. Every Execution worker dispatch is a one-shot dispatch. Every request includes the task, routed skill and how to load it, required context, completion criterion, role output format, the approved roster contract, and the return contract from COMPACT. Require the receipt to name the loaded skill. A worker unable to proceed immediately returns `BLOCKED` with its unavailable capability, observed failure and exact partial changes in the compact receipt. Worker interaction completion criterion: receiving the compact receipt (`DONE`, `BLOCKED`, or `FAILED`) triggers terminal sealing; immediately release or terminate the worker terminal and advance the execution plan. Any rework or follow-up is a distinct task dispatched to a fresh terminal.
 
+   If scope or risk increases during building, pause the affected work. Require the builder to report the new risk and exact partial changes; preserve them and return to step 2 for a revised plan and explicit user approval before any further dispatch. Never add a hidden reviewer or self-upgrade the approved plan; use the revised approval boundary instead. A worker's DONE status does not bypass acceptance checks; keep incomplete acceptance explicit.
+
 5. **Gatekeeper (UI Gate).** RULES rule 5: impeccable approval is the completion condition for an interface-touching task.
    - **One gate per final state.** Review only the fully merged diff. After `CHANGES REQUIRED`, dispatch one fix worker to a fresh terminal rather than recycling completed workers, and re-gate the updated diff. Allow at most two fix/re-gate cycles; then pause and ask the user how to proceed. Confirm every verdict references code that still exists.
    - **One fresh terminal per gate pass.** Create a fresh agent terminal in the initial base worktree containing the fully merged diff for every gate and re-gate pass. Each pass starts with the current code and a fresh conversation.
 
 6. **Handle a blocked or unavailable worker.** A primary `BLOCKED` report is sufficient when it names the unavailable capability and observed failure. Receiving the compact receipt completes the primary interaction: immediately release or terminate its terminal, sealing the session. For a worker that never reports, diagnose its terminal and lifecycle with the loaded orchestration guide. Re-dispatch once to the approved fallback in a fresh terminal under RULES rule 3, including the primary's diagnostic and exact partial state; otherwise pause the task with the evidence.
+   For an unavailable verifier, use only this approved fallback path; if review remains blocked, pause with acceptance incomplete under RULES rule 17.
    - **Diagnose before waiting.** Use the guide's worker-state and terminal-state commands to verify heartbeat and execution state before a long wait. Treat a dispatch as dead only when the guide's evidence satisfies its dead-worker condition.
    - **Preserve live reports and release immediately.** Wait for a live worker's completion report. Receiving the compact receipt completes the interaction: immediately release or terminate the terminal through the guide's lifecycle, seal the session, and advance the DAG. Reset or re-dispatch only a worker confirmed dead, always creating a fresh terminal for the fallback worker.
 
@@ -120,9 +129,18 @@ Keep task completion separate from acceptance: include baseline comparison,
 validated evidence sources and loaded skills, exact test/linter scopes, and any
 incomplete acceptance or unverified runtime fence in the final receipt.
 
+For Execution, report the approved review level, evidence actually obtained and actual independent
+review: reviewer identity, exact diff covered, test evidence examined, verdict and limits.
+An absent or unresolved blocked reviewer leaves acceptance incomplete under RULES rule 17.
+Report the blocker and any missing evidence without inventing a review or acceptance.
+
 ## Retrospective
 
 Conclude with a **Retrospective** identifying orchestration friction, inefficiencies, missing tools, and concrete improvements to `/luucycle`.
+
+For a small Focused task, one sentence on observed friction or no reusable lesson is
+sufficient. Report only actual checks and review; invent neither a review nor a
+WARNINGS entry.
 
 Propose a targeted addition only when a CLI/agent lesson is well-supported and
 reusable. Show the target `<repo-root>/.agents/luucycle/WARNINGS.md` and the exact

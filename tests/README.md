@@ -69,6 +69,19 @@ propriétaires, sans être recopiées dans les tests.
 
 ## Portée de la preuve
 
+`test_luucycle_invocation_contract.py` contrôle statiquement les instructions de
+routage, d'approbation et de revue dans `RULES.md` et `IMPLEMENT.md` :
+Focused et Extended, tous deux avec builder puis verifier indépendant, même pour
+petit code ou documentation ; diff complet, tests pertinents, contextes neufs et
+même Agent ID/CLI autorisé au meilleur fit. Il couvre les risques proches et
+exigences utilisateur/projet/skill de revue approfondie imposant Extended, UI Gate, réapprobation après
+hausse de risque, acceptation incomplète sans revue, bilan réel et absence de
+récursion pour Audit/Doctor/read-only. Ces assertions de texte ne classent pas des
+demandes et ne simulent ni ne prouvent la conduite d'un agent ; aucun gain de performance
+n'est établi. Pour cette politique :
+`agent behavior: NOT_EVALUATED` ; les observations natives datées ci-dessous
+portent sur leurs propres scénarios, pas sur cette politique.
+
 Le contrat est défini dans [COMPACT.md](../skills/luucycle/COMPACT.md). Les tests
 prouvent sa projection, sa conservation des champs déclarés critiques et ses
 arrêts sur les fixtures. Ils ne peuvent pas découvrir une information critique
